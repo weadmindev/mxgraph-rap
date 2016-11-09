@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.rap.ui.entrypoint">
+      <entrypoint
+            class="example.ExampleOne"
+            id="com.weadmin.mxgraph-rap.example.entrypoint1"
+            path="/hello">
+      </entrypoint>
+   </extension>
+
+</plugin>
