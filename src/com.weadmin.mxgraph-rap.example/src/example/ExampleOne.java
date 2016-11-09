@@ -1,5 +1,7 @@
 package example;
 
+import java.util.UUID;
+
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
@@ -23,6 +25,11 @@ import com.weadmin.mxgraph_rap.MxGraphJS.MxGraphEvent;
 public class ExampleOne extends AbstractEntryPoint{
 	
 	private Label hoverText;
+	private int count = 100;
+	
+	private String getId(){
+		return UUID.randomUUID().toString();
+	}
 
 	@Override
 	protected void createContents(Composite parent) {
@@ -37,18 +44,21 @@ public class ExampleOne extends AbstractEntryPoint{
 		hoverText.setForeground(new Color(Display.getCurrent(), 255, 0, 0));
 		mxGraph gd = new mxGraph();
 		g.setGraph(gd);
-		//gd.setConnectableEdges(false);
-		//gd.setAllowDanglingEdges(true);
-//		gd.setDisconnectOnMove(true);
+			
+		gd.setConnectableEdges(false);
+		gd.setAllowDanglingEdges(false);
+		gd.setDisconnectOnMove(false);	
 		
-		Object v1 = gd.insertVertex(gd.getDefaultParent(), null, "Hello", 20, 20, 160, 48,"box");
-		Object v2 = gd.insertVertex(gd.getDefaultParent(), null, "World!", 200, 150, 120, 48);
-		Object e1 = gd.insertEdge(gd.getDefaultParent(), null, "", v1, v2);
+		
+		Object v1 = gd.insertVertex(gd.getDefaultParent(), getId(), "Hello", 20, 20, 160, 48,"box");
+		String iid =getId();
+		Object v2 = gd.insertVertex(gd.getDefaultParent(), iid, "World!", 200, 150, 120, 48);
+		Object e1 = gd.insertEdge(gd.getDefaultParent(), getId(), "", v1, v2);
 		g.setModel(gd.getModel());
 		
 
 		g.addGraphListener(new mxIEventListener(){
-			Object v;
+			
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				System.out.println("listener:"+evt.getName());
@@ -58,18 +68,20 @@ public class ExampleOne extends AbstractEntryPoint{
 					double y = (double) evt.getProperty("y");
 					int button = (int) evt.getProperty("button");
 					if (button == 0){
-						 v= gd.insertVertex(gd.getDefaultParent(), null, "node!", x, y, 80, 60, "node");
-						 gd.insertEdge(gd.getDefaultParent(), null, "", v2, v);
+						String id = getId();
+						System.out.println("id:"+ id);
+						Object v = gd.insertVertex(gd.getDefaultParent(),id, "node!", x, y, 80, 60, "node");
+						gd.insertEdge(gd.getDefaultParent(),getId(), "", v2, v);
 
 					}else{
-						gd.insertEdge(gd.getDefaultParent(), null, "", v2, v);
+						//gd.insertEdge(gd.getDefaultParent(), getId(), "", v2, v);
 					}
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_HOVER)){
 					double x = (double) evt.getProperty("x");
 					double y = (double) evt.getProperty("y");
 					String id = (String) evt.getProperty("id");
-					hoverText.setText(id);
-			
+					hoverText.setText("aaaaaa");
+					hoverText.pack();
 					hoverText.setLocation((int)x, (int)y);
 					
 					hoverText.setVisible(true);

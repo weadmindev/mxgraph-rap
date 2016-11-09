@@ -11,8 +11,8 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 		},
 
 		destructor : "destroy",
-		methods : [ 'insertVertex', 'appendXmlModel','removeCells'],
-		properties : [ "size", "xmlModel","connectableEdges", "allowDanglingEdges","disconnectOnMove"],
+		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells'],
+		properties : [ "size", "xmlModel","prop"],
 		events:['modelUpdate']
 
 	});
@@ -43,7 +43,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 		this._hoverCell = null;
 		
 		this._graph.setAllowDanglingEdges(false);
-		this._graph.setDisconnectOnMove(false);
+		//this._graph.setDisconnectOnMove(false);
 		this._graph.setConnectable(true);
 		
 		var keyHandler = new mxKeyHandler(this._graph);
@@ -54,7 +54,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 			{
 				graph.removeCells();
 			}
-		 });
+		 });	
 		
 
 		rap.on("render", this.onRender);
@@ -92,14 +92,6 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 				
 				// Enables rubberband selection
 				//new mxRubberband(graph);
-
-				// mxVertexHandler.prototype.createCustomHandles = function(){
-				//			
-				// }
-				// graph.setMinimumGraphSize(new
-				// mxRectangle(0,0,this._size.x,this._size.y));
-
-
 
 				var style = new Object();
 				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
@@ -288,19 +280,21 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 				//graph.getModel().endUpdate();
 			}
 		},
-		
-		setConnectableEdges:function(data){
-			
-			this._graph.setConnectable(data);
-		},
-		setAllowDanglingEdges: function(data){
-			this._graph.setAllowDanglingEdges(data);
-		},
-		setDisconnectOnMove: function(data){
-			this._graph.setDisconnectOnMove(data);
-		},
 
-		
+		setProp:function(data){
+			var name = data.name;
+			var val = data.value;
+			var fn = "set"+name.substr(0,1).toUpperCase()+name.substr(1,name.length-1);
+			var f = this._graph[fn];
+			console.log(fn);
+			if (f){
+				console.log(f);
+				var graph = this._graph;
+				f.call(graph,val);
+			}
+			
+			
+		},
 		
 		insertVertex : function(vertex) {
 			if (this.ready) {
@@ -317,6 +311,18 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 				});
 			}
 		},
+		
+		insertEdge: function(edge) {
+			if (this.ready) {
+				async(this, function(){
+					var src = this._graph.getModel().getCell(edge.source);
+					var tgt = this._graph.getModel().getCell(edge.target);
+					
+					this._graph.insertEdge(this._parent, edge.id, edge.value, src, tgt);
+				});
+			}
+		},
+		
 		removeCells : function(){
 			if (this.ready) {
 				if (this._graph.isEnabled()){
@@ -326,8 +332,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 			}
 		},
 		
-		onConnect:function(
-				sender, evt) {
+		onConnect:function(sender, evt) {
 			
 			var graph = this._graph;
 			var edge = evt.getProperty('cell');
@@ -342,8 +347,9 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 			var node = enc.encode(edge);
 			var xml = mxUtils.getXml(node);
 			
-			var ro = rap.getRemoteObject(this)
+			//var ro = rap.getRemoteObject(this)
 			ro.call('modelUpdate',{'cells':xml});
+			//this.autoSave();
 			ro.call('onConnect', {source:source.id,target:target.id});
 
 		},
@@ -357,7 +363,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 				this._hoverCell = cell;
 				var ro = rap.getRemoteObject(this);
 				ro.call('onMouseHover',{id:cell.id,edge:cell.edge,x : me.graphX,y : me.graphY,button : me.evt.button});
-			}
+			}	
 			if (cell == null && this._hoverCell != null){
 				var ro = rap.getRemoteObject(this);
 				var cell = this._hoverCell;

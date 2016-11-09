@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.eclipse.rap.json.JsonObject;
@@ -27,6 +28,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import com.mxgraph.io.mxCodec;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
@@ -140,14 +143,21 @@ public class MxGraphJS extends SVWidgetBase{
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				Object v = evt.getNewValue();
+				JsonObject obj = new JsonObject();
+				obj.add("name", evt.getPropertyName());
+				
 				if (v instanceof Boolean)
-					setRemoteProp(evt.getPropertyName(), (Boolean)v);
+					obj.add("value", (Boolean)v);
 				else if  (v instanceof Double)
-					setRemoteProp(evt.getPropertyName(), (Double)v);
+					obj.add("value", (Double)v);
 				else if  (v instanceof Integer)
-					setRemoteProp(evt.getPropertyName(), (Integer)v);
+					obj.add("value",  (Integer)v);
 				else if  (v instanceof String)
-					setRemoteProp(evt.getPropertyName(), (String)v);
+					obj.add("value",  (String)v);
+				else if  (v instanceof Long)
+					obj.add("value",  (Long)v);
+				
+				setRemoteProp("prop", obj);
 			}
 		});
 		
@@ -162,7 +172,7 @@ public class MxGraphJS extends SVWidgetBase{
 	        mxCodec codec = new mxCodec();
 	        Document doc = mxXmlUtils.parseXml(content);
 	        codec.decode(doc.getDocumentElement(), graph.getModel());
-	        //System.out.println("after set:"+getGraphXml());
+	        System.out.println("after set:"+getGraphXml());
 	      }
 	}
 
@@ -201,7 +211,7 @@ public class MxGraphJS extends SVWidgetBase{
 		if (method.equals("modelUpdate")){
 			String cells = parameters.get("cells").asString();
 			appendModel(cells);
-			//System.out.println("after update:"+getGraphXml());
+			System.out.println("after update:"+getGraphXml());
 		}
 		
 	}
@@ -254,7 +264,7 @@ public class MxGraphJS extends SVWidgetBase{
 	}
 	
 	
-	public void appendToModel(Object objs){
+	private void appendToModel(Object objs){
 		List<Object> cells = new Vector<>();
 		if (objs instanceof Object[]){
 			for(Object ob: (Object[])objs){
@@ -288,14 +298,38 @@ public class MxGraphJS extends SVWidgetBase{
 		super.callRemoteMethod("insertVertex", obj);
 	}
 	
-	public void putCellStyle(){
+	public void insertEdge(String id,String value,String source,String target){
+		JsonObject obj = new JsonObject();
+		obj.set("id", id);
+		obj.set("value", value);
+		obj.set("source", source);
+		obj.set("target", target);
+		super.callRemoteMethod("insertEdge", obj);
+	}
+	
+	public void putCellStyle(Map<String,Object> styleMap){
+		JsonObject obj = new JsonObject();
 		
+		for(String k:styleMap.keySet()){
+			Object v = styleMap.get(k);
+			if (v instanceof Boolean)
+				obj.add(k, (Boolean)v);
+			else if  (v instanceof Double)
+				obj.add(k, (Double)v);
+			else if  (v instanceof Integer)
+				obj.add(k, (Integer)v);
+			else if  (v instanceof String)
+				obj.add(k, (String)v);
+			else if  (v instanceof Long)
+				obj.add(k, (Long)v);
+			
+		}
 	}
 	
 	public String getGraphXml(){
 		mxCodec codec = new mxCodec();
 		Node node = codec.encode(graph.getModel());
-		String xmlText = mxXmlUtils.getXml(node);
+		String xmlText = mxUtils.getPrettyXml(node);
 		return xmlText;
 	}
 	
@@ -310,8 +344,17 @@ public class MxGraphJS extends SVWidgetBase{
 	
 	private void appendModel(String cell){
 		Document doc = mxXmlUtils.parseXml(cell);
-		mxCodec codec = new mxCodec(doc);
+		mxCodec codec = new mxCodec(doc){
+
+			@Override
+			public Object lookup(String id) {
+				mxGraphModel model = (mxGraphModel) graph.getModel();
+				return model.getCell(id);
+			}};
+
 		Object n = codec.decode(doc.getDocumentElement());
+		((mxCell)n).setParent(null);
+		System.out.println("appendModel:"+n);
 		graph.getModel().beginUpdate();
 		Object[] cells = new Object[]{n};
 		try {
