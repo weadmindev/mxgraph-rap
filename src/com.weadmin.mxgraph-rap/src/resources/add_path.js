@@ -1,0 +1,5 @@
+/**
+ * 
+ */
+
+mxBasePath = 'rwt-resources/mxgraph';
