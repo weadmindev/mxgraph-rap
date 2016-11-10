@@ -23,7 +23,7 @@
 
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
-		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave"]);
+		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.parent.append(this.element);
@@ -102,7 +102,7 @@
 				var mgr = new mxAutoSaveManager(graph);
 				mgr.save = this.autoSave;
 				
-				
+				graph.addListener(mxEvent.CELLS_REMOVED,this.onRemove);
 
 				rap.on("send", this.onSend);
 
@@ -260,6 +260,19 @@
 				}
 				
 			}
+		},
+		onRemove:function(sender,evt){
+			console.log(evt)
+			var ro = rap.getRemoteObject(this);
+			var cells = evt.getProperty('cells');
+			var ids = [];
+			for(var cell in cells){
+				ids.push(cell.id);
+			}
+			
+			ro.call('onCellRemove', {
+				ids :ids
+			});
 		},
 		
 		onConnect:function(sender, evt) {

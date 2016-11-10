@@ -61,7 +61,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 //		String iid =getId();
 //		Object v2 = gd.insertVertex(gd.getDefaultParent(), iid, "World!", 200, 150, 120, 48);
 //		Object e1 = gd.insertEdge(gd.getDefaultParent(), getId(), "", v1, v2);
-//		g.setModel(gd.getModel());
+		//g.setModel(gd.getModel());
 //		
 //
 		g.addGraphListener(new mxIEventListener(){

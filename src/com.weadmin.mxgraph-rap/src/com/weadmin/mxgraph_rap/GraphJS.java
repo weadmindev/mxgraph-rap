@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.swt.SWT;
@@ -48,6 +49,7 @@ public class GraphJS extends SVWidgetBase{
 		public static String EDGE_Connect = "onConnect";
 		public static String MOUSE_HOVER = "onMouseHover";
 		public static String MOUSE_LEAVE = "onMouseLeave";
+		public static String CELL_REMOVE = "onCellRemove";
 	};
 
 	private List<mxIEventListener>  graphListeners;
@@ -171,8 +173,9 @@ public class GraphJS extends SVWidgetBase{
 	      if( model != null ) {
 	        String content = model.asString();
 	        //System.out.println("handleSetProp:" +content);
-	        mxCodec codec = new mxCodec();
+	        
 	        Document doc = mxXmlUtils.parseXml(content);
+	        mxCodec codec = new mxCodec(doc);
 	        codec.decode(doc.getDocumentElement(), graph.getModel());
 	        //System.out.println("after set:"+getGraphXml());
 	      }
@@ -204,6 +207,14 @@ public class GraphJS extends SVWidgetBase{
 			String target = parameters.get("target").asString();
 
 			mxEventObject event = new mxEventObject(method,"source",source,"target",target);
+			for (mxIEventListener l:graphListeners){
+				l.invoke(this, event);
+			}
+		}
+		if (method.equals(MxGraphEvent.CELL_REMOVE)){
+			JsonArray ids = parameters.get("ids").asArray();
+
+			mxEventObject event = new mxEventObject(method,"id",ids);
 			for (mxIEventListener l:graphListeners){
 				l.invoke(this, event);
 			}
