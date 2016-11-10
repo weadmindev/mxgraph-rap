@@ -1,17 +1,17 @@
-var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
+
 
 (function() {
 	'use strict';
 
 
-	rap.registerTypeHandler("eclipsesource.mxgraph", {
+	rap.registerTypeHandler("eclipsesource.graph", {
 
 		factory : function(properties) {
-			return new eclipsesource.mxgraph(properties);
+			return new eclipsesource.graph(properties);
 		},
 
 		destructor : "destroy",
-		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells','putCellStyle'],
+		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells'],
 		properties : [ "size", "xmlModel","prop"],
 		events:['modelUpdate']
 
@@ -21,8 +21,8 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 		window.eclipsesource = {};
 	}
 
-	eclipsesource.mxgraph = function(properties) {
-		console.log("mxgraph....." + properties)
+	eclipsesource.graph = function(properties) {
+		console.log("graph....." + properties)
 		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
@@ -37,30 +37,21 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 		// Disables the built-in context menu
 		mxEvent.disableContextMenu(this.element);
 		
-		this._graph = new mxGraph(this.element);
+		this._graph = new Graph(this.element);
 		this._parent = null;
 		this._xmlModel = null;
 		this._hoverCell = null;
-		
+
 		this._graph.setAllowDanglingEdges(false);
 		this._graph.setDisconnectOnMove(false);
 		this._graph.setConnectable(true);
 		
-		var keyHandler = new mxKeyHandler(this._graph);
-		keyHandler.bindKey(46, function(evt)
-		{
-			console.log('bindKey')
-			if (graph.isEnabled())
-			{
-				graph.removeCells();
-			}
-		 });	
-		
+		mxStencilRegistry.loadStencilSet(MXGRAPH_BASEPATH+"stencils/cisco/routers.xml");
 
 		rap.on("render", this.onRender);
 	};
 
-	eclipsesource.mxgraph.prototype = {
+	eclipsesource.graph.prototype = {
 
 		ready : false,
 
@@ -77,7 +68,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 				// this.setFont( this._font );
 				delete this._font;
 			}
-			console.log("mxgraph...onReady..")
+			console.log("graph...onReady..")
 
 		},
 
@@ -85,62 +76,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 			if (this.element.parentNode) {
 				rap.off("render", this.onRender);
 
-				// Creates the graph inside the given container
-
 				var graph = this._graph;
-				//var highlight = new mxCellTracker(graph, '#00FF00');//, this.mouseHover);
-				
-				// Enables rubberband selection
-				//new mxRubberband(graph);
-
-//				var style = new Object();
-//				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
-//				style[mxConstants.STYLE_PERIMETER] = mxPerimeter.EllipsePerimeter;//mxPerimeter.RectanglePerimeter;
-//				style[mxConstants.STYLE_IMAGE] = MXGRAPH_BASEPATH + 'images/earth.png';
-//				style[mxConstants.STYLE_FONTCOLOR] = '#000000';
-//				graph.getStylesheet().putCellStyle('image', style);
-//
-//				style = mxUtils.clone(style);
-//				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_IMAGE;
-//				style[mxConstants.STYLE_STROKECOLOR] = '#000000';
-//				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_CENTER;
-//				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
-//				style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_CENTER;
-//				style[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_TOP;
-//				style[mxConstants.STYLE_IMAGE] = MXGRAPH_BASEPATH
-//						+ 'images/earth.png';
-//				style[mxConstants.STYLE_IMAGE_WIDTH] = 48;
-//				style[mxConstants.STYLE_IMAGE_HEIGHT] = 48;
-//				style[mxConstants.STYLE_SPACING_TOP] = 56;
-//				style[mxConstants.STYLE_SPACING] = 8;
-//				graph.getStylesheet().putCellStyle('node', style);
-//
-//				style = mxUtils.clone(style);
-//				style[mxConstants.STYLE_SHAPE] = mxConstants.SHAPE_LABEL;
-//				style[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_BOTTOM;
-//				style[mxConstants.STYLE_IMAGE] = MXGRAPH_BASEPATH
-//						+ 'images/server.png';
-//				delete style[mxConstants.STYLE_SPACING_TOP];
-//				graph.getStylesheet().putCellStyle('top', style);
-//
-//				style = mxUtils.clone(style);
-//				delete style[mxConstants.STYLE_SPACING_TOP];
-//				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_LEFT;
-//				style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_LEFT;
-//				style[mxConstants.STYLE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-//				style[mxConstants.STYLE_IMAGE_VERTICAL_ALIGN] = mxConstants.ALIGN_MIDDLE;
-//				style[mxConstants.STYLE_IMAGE] = MXGRAPH_BASEPATH + 'images/mail_find.svg';
-//				style[mxConstants.STYLE_SPACING_LEFT] = 60;
-//				style[mxConstants.STYLE_SPACING] = 8;
-//				graph.getStylesheet().putCellStyle('box', style);
-
-//				style = mxUtils.clone(style);
-//				style[mxConstants.STYLE_ALIGN] = mxConstants.ALIGN_RIGHT;
-//				style[mxConstants.STYLE_IMAGE_ALIGN] = mxConstants.ALIGN_RIGHT;
-//				delete style[mxConstants.STYLE_SPACING_LEFT];
-//				style[mxConstants.STYLE_SPACING_RIGHT] = 55;
-//				graph.getStylesheet().putCellStyle('left', style);
-
 				graph.addMouseListener(this);
 				// Gets the default parent for inserting new cells. This
 				// is normally the first child of the root (ie. layer 0).
@@ -148,12 +84,6 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 				// // Adds cells to the model in a single step
 				graph.getModel().beginUpdate();
 				try {
-					// var v1 = graph.insertVertex(parent, null, 'Hello,', 20,
-					// 20, 160, 48,'right');
-					// var v2 = graph.insertVertex(parent, null, 'World!', 200,
-					// 150, 120, 48);
-					// var e1 = graph.insertEdge(parent, null, '', v1, v2);
-
 					if (this._xmlModel && this._xmlModel != null) {
 						var xmlDocument = mxUtils.parseXml(this._xmlModel);
 						var node = xmlDocument.documentElement;
@@ -190,7 +120,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 			var node = enc.encode(this._graph.getModel());
 			var xml = mxUtils.getXml(node);
 			//rap.getRemoteObject( this ).set( "model", xml);
-			//console.log("mxgraph...onSend..")
+			//console.log("graph...onSend..")
 		},
 
 		mouseDown : function(sender, me) {
@@ -292,33 +222,8 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 				var graph = this._graph;
 				f.call(graph,val);
 			}
-		},
-		
-		putCellStyle : function(data){
-			var name = data.name;
-			var stylejson = data.style;
-			var style = new Object();
-			for(var k in stylejson){
-				if (k == mxConstants.STYLE_PERIMETER){
-					if (stylejson[k]=='mxPerimeter.EllipsePerimeter'){
-						style[k] = mxPerimeter.EllipsePerimeter;
-					}else if (stylejson[k]=='mxPerimeter.RectanglePerimeter'){
-						style[k] = mxPerimeter.RectanglePerimeter;
-					}else if (stylejson[k]=='mxPerimeter.RhombusPerimeter'){
-						style[k] = mxPerimeter.RhombusPerimeter;
-					}else if (stylejson[k]=='mxPerimeter.TrianglePerimeter'){
-						style[k] = mxPerimeter.TrianglePerimeter;
-					}else if (stylejson[k]=='mxPerimeter.HexagonPerimeter'){
-						style[k] = mxPerimeter.HexagonPerimeter;
-					}
-				}else if (k == mxConstants.STYLE_IMAGE){
-					style[k] = MXGRAPH_BASEPATH + stylejson[k];
-				}else{
-					style[k] = stylejson[k];
-				}
-			}
 			
-			this._graph.getStylesheet().putCellStyle(name, style);
+			
 		},
 		
 		insertVertex : function(vertex) {
@@ -422,7 +327,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 		},
 
 		layout : function() {
-			console.log("mxgraph...layout..")
+			console.log("graph...layout..")
 			if (this.ready) {
 				var area = this.parent.getClientArea();
 				this.element.style.left = area[0] + "px";
