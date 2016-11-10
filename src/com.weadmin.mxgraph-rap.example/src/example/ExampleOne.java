@@ -1,5 +1,7 @@
 package example;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
@@ -16,9 +18,12 @@ import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 
+import com.mxgraph.layout.mxEdgeLabelLayout;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxPerimeter;
 import com.weadmin.mxgraph_rap.MxGraphJS;
 import com.weadmin.mxgraph_rap.MxGraphJS.MxGraphEvent;
 
@@ -48,7 +53,7 @@ public class ExampleOne extends AbstractEntryPoint{
 		gd.setConnectableEdges(false);
 		gd.setAllowDanglingEdges(false);
 		gd.setDisconnectOnMove(false);	
-		
+			
 		
 		Object v1 = gd.insertVertex(gd.getDefaultParent(), getId(), "Hello", 20, 20, 160, 48,"box");
 		String iid =getId();
@@ -56,7 +61,46 @@ public class ExampleOne extends AbstractEntryPoint{
 		Object e1 = gd.insertEdge(gd.getDefaultParent(), getId(), "", v1, v2);
 		g.setModel(gd.getModel());
 		
+		
+		Map<String, Object> styleMap = new HashMap<>();
 
+		styleMap.put(mxConstants.STYLE_SHAPE,mxConstants.SHAPE_IMAGE);
+		styleMap.put(mxConstants.STYLE_PERIMETER, "mxPerimeter.EllipsePerimeter");//mxPerimeter.RectanglePerimeter;
+		styleMap.put(mxConstants.STYLE_IMAGE, "images/earth.png");
+		styleMap.put(mxConstants.STYLE_FONTCOLOR, "#000000");
+		g.putCellStyle("image", styleMap);
+
+
+		styleMap.put(mxConstants.STYLE_SHAPE,mxConstants.SHAPE_IMAGE);
+		styleMap.put(mxConstants.STYLE_STROKECOLOR, "#000000");
+		styleMap.put(mxConstants.STYLE_ALIGN,mxConstants.ALIGN_CENTER);
+		styleMap.put(mxConstants.STYLE_VERTICAL_ALIGN,mxConstants.ALIGN_TOP);
+		styleMap.put(mxConstants.STYLE_IMAGE_ALIGN, mxConstants.ALIGN_CENTER);
+		styleMap.put(mxConstants.STYLE_IMAGE_VERTICAL_ALIGN, mxConstants.ALIGN_TOP);
+		styleMap.put(mxConstants.STYLE_IMAGE,"images/earth.png");
+		styleMap.put(mxConstants.STYLE_IMAGE_WIDTH, 48);
+		styleMap.put(mxConstants.STYLE_IMAGE_HEIGHT, 48);
+		styleMap.put(mxConstants.STYLE_SPACING_TOP, 56);
+		styleMap.put(mxConstants.STYLE_SPACING, 8);
+		g.putCellStyle("node", styleMap);
+		
+		styleMap.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_LABEL);
+		styleMap.put(mxConstants.STYLE_IMAGE_VERTICAL_ALIGN, mxConstants.ALIGN_BOTTOM);
+		styleMap.put(mxConstants.STYLE_IMAGE, "images/server.png");
+		styleMap.remove(mxConstants.STYLE_SPACING_TOP);
+		g.putCellStyle("top", styleMap);
+		
+		styleMap.remove(mxConstants.STYLE_SPACING_TOP);
+		styleMap.put(mxConstants.STYLE_ALIGN, mxConstants.ALIGN_LEFT);
+		styleMap.put(mxConstants.STYLE_IMAGE_ALIGN, mxConstants.ALIGN_LEFT);
+		styleMap.put(mxConstants.STYLE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+		styleMap.put(mxConstants.STYLE_IMAGE_VERTICAL_ALIGN, mxConstants.ALIGN_MIDDLE);
+		styleMap.put(mxConstants.STYLE_IMAGE, "images/mail_find.svg");
+		styleMap.put(mxConstants.STYLE_SPACING_LEFT, 60);
+		styleMap.put(mxConstants.STYLE_SPACING, 8);
+		g.putCellStyle("box", styleMap);
+		
+		
 		g.addGraphListener(new mxIEventListener(){
 			
 			@Override

@@ -4,7 +4,7 @@
    <extension
          point="org.eclipse.rap.ui.entrypoint">
       <entrypoint
-            class="example.ExampleOne"
+            class="example.ExampleTwo"
             id="com.weadmin.mxgraph-rap.example.entrypoint1"
             path="/hello">
       </entrypoint>

@@ -169,6 +169,7 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 				this._parent = parent;
 
 				graph.connectionHandler.addListener(mxEvent.CONNECT, this.onConnect);
+				g.addListener(mxEvent.CELLS_MOVED,this.onRemove);
 				var mgr = new mxAutoSaveManager(graph);
 				mgr.save = this.autoSave;
 				
@@ -378,7 +379,9 @@ var MXGRAPH_BASEPATH = "rwt-resources/mxgraph/";
 			ro.call('onConnect', {source:source.id,target:target.id});
 
 		},
-
+		onRemove:function(sender,evt){
+			console.log("onRemove:"+evt)
+		},
 
 		
 		mouseHover: function(me){

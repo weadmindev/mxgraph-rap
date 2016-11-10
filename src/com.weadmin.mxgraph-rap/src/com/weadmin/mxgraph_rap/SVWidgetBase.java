@@ -116,7 +116,6 @@ public abstract class SVWidgetBase extends Composite {
 	public SVWidgetBase(Composite parent, int style) {
 		super(parent, style);
 		resources = new ArrayList<>();
-		resources.add(new CustomRes("handler.js", true, false));
 		resources.addAll(getCustomRes());
 		
 		registerResources();
@@ -154,16 +153,18 @@ public abstract class SVWidgetBase extends Composite {
 
 	private void registerResources() {
 		ResourceManager resourceManager = RWT.getResourceManager();
-		boolean isRegistered = resourceManager.isRegistered(getRegisterPath() + resources.get(0).getPath());
-		if (!isRegistered) {
+		
+		//if (!isRegistered) {
 			try {
 				for (CustomRes res : resources) {
-					register(resourceManager, res.getPath());
+					boolean isRegistered = resourceManager.isRegistered(getRegisterPath() + res.getPath());
+					if (!isRegistered)
+						register(resourceManager, res.getPath());
 				}
 			} catch (IOException ioe) {
 				throw new IllegalArgumentException("Failed to load resources", ioe);
 			}
-		}
+		//}
 	}
 
 	private void loadJavaScript() {

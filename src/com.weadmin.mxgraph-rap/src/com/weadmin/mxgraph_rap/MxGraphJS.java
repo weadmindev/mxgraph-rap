@@ -12,11 +12,13 @@ import java.util.Vector;
 
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -37,6 +39,7 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
+import com.weadmin.mxgraph_rap.SVWidgetBase.CustomRes;
 
 
 public class MxGraphJS extends SVWidgetBase{
@@ -48,6 +51,7 @@ public class MxGraphJS extends SVWidgetBase{
 		public static String EDGE_Connect = "onConnect";
 		public static String MOUSE_HOVER = "onMouseHover";
 		public static String MOUSE_LEAVE = "onMouseLeave";
+		public static String CELL_REMOVE = "onCellRemove";
 	};
 
 	private List<mxIEventListener>  graphListeners;
@@ -138,6 +142,7 @@ public class MxGraphJS extends SVWidgetBase{
 				}
 			}
 		});
+		
 		g.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			@Override
@@ -172,7 +177,7 @@ public class MxGraphJS extends SVWidgetBase{
 	        mxCodec codec = new mxCodec();
 	        Document doc = mxXmlUtils.parseXml(content);
 	        codec.decode(doc.getDocumentElement(), graph.getModel());
-	        System.out.println("after set:"+getGraphXml());
+	        //System.out.println("after set:"+getGraphXml());
 	      }
 	}
 
@@ -211,7 +216,7 @@ public class MxGraphJS extends SVWidgetBase{
 		if (method.equals("modelUpdate")){
 			String cells = parameters.get("cells").asString();
 			appendModel(cells);
-			System.out.println("after update:"+getGraphXml());
+			//System.out.println("after update:"+getGraphXml());
 		}
 		
 	}
@@ -251,6 +256,7 @@ public class MxGraphJS extends SVWidgetBase{
 		res.add(new CustomRes("css/explorer.css", true, true));
 		res.add(new CustomRes("add_path.js", true, false));
 		res.add(new CustomRes("mxClient.js", true, false));
+		res.add(new CustomRes("handler.js", true, false));
 		return res;
 	}
 	
@@ -307,7 +313,7 @@ public class MxGraphJS extends SVWidgetBase{
 		super.callRemoteMethod("insertEdge", obj);
 	}
 	
-	public void putCellStyle(Map<String,Object> styleMap){
+	public void putCellStyle(String name,Map<String,Object> styleMap){
 		JsonObject obj = new JsonObject();
 		
 		for(String k:styleMap.keySet()){
@@ -322,8 +328,13 @@ public class MxGraphJS extends SVWidgetBase{
 				obj.add(k, (String)v);
 			else if  (v instanceof Long)
 				obj.add(k, (Long)v);
-			
 		}
+		
+		JsonObject param = new JsonObject();
+		param.add("name", name);
+		param.add("style", obj);
+		
+		super.callRemoteMethod("putCellStyle", param);
 	}
 	
 	public String getGraphXml(){
@@ -335,9 +346,10 @@ public class MxGraphJS extends SVWidgetBase{
 	
 
 	public void loadGrapXml(String xml){
-        mxCodec codec = new mxCodec();
         Document doc = mxXmlUtils.parseXml(xml);
+        mxCodec codec = new mxCodec(doc);
         codec.decode(doc.getDocumentElement(), graph.getModel());
+        this.setModel(graph.getModel());
 	}
 	
 	
