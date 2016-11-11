@@ -224,7 +224,7 @@ public class GraphJS extends SVWidgetBase{
 		}
 		
 		if (method.equals(MxGraphEvent.CELL_CONNECT)){
-			String edge = parameters.get("edge").asString();
+			JsonValue edge = parameters.get("edge");
 			String terminal = parameters.get("terminal").asString();
 			boolean source = parameters.get("source").asBoolean();
 
@@ -385,6 +385,24 @@ public class GraphJS extends SVWidgetBase{
 		param.add("style", style);
 		
 		super.callRemoteMethod("setCellStyle", param);
+	}
+	
+	public void setCellChildStyle(String cellid,int childIndex,String style){
+		JsonObject param = new JsonObject();
+		param.add("id", cellid);
+		param.add("index", childIndex);
+		param.add("style", style);
+		
+		super.callRemoteMethod("setCellChildStyle", param);
+	}
+	
+	public void translateCell(String id,double dx,double dy){
+		JsonObject param = new JsonObject();
+		param.add("id", id);
+		param.add("dx", dx);
+		param.add("dy", dy);
+		
+		super.callRemoteMethod("translateCell", param);
 	}
 	
 	public String getGraphXml(){

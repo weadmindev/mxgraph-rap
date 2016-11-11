@@ -12,7 +12,7 @@
 
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
-		            'putCellStyle','setCellStyle'],
+		            'putCellStyle','setCellStyle','translateCell'],
 		properties : [ "size", "xmlModel","prop"],
 		events:['modelUpdate']
 
@@ -268,6 +268,35 @@
 			
 		},
 		
+		setCellChildStyle:function(data){
+			var cell = this._graph.getModel().getCell(data.id);
+			if (cell){
+				var label = cell.getChildAt(data.index);
+				if (label){
+					var cells = [];
+					cells.push(label);
+					this._graph.setCellStyle(data.style,cells);
+				}
+			}
+		},
+		translateCell : function(data){
+			var cell = this._graph.getModel().getCell(data.id);
+			if (cell) {
+				this._graph.translateCell(cell,data.dx,data.dy);
+			}
+		},
+//		setCellChildGeometry:function(data){
+//			var cell = this._graph.getModel().getCell(data.id);
+//			if (cell){
+//				var child = cell.getChildAt(data.index);
+//				if (child){
+//					var cells = [];
+//					cells.push(child);
+//					this._graph.setCellStyle(data.style,cells);
+//				}
+//			}
+//		},
+		
 		insertVertex : function(vertex) {
 			if (this.ready) {
 				async(this, function() {
@@ -321,11 +350,20 @@
 		onCellConnect:function(sender,evt){
 			console.log(evt)
 			var ro = rap.getRemoteObject(this);
-			if (evt.properties.previous){
-				ro.call(evt.name, {edge:evt.properties.edge.id,source:evt.properties.source,
-				terminal:evt.properties.terminal.id,previous:evt.properties.previous.id});
+			var edge = evt.properties.edge;
+			var term = evt.properties.terminal;
+			var je = {};
+			je.id = edge.id;
+			if (edge.source)
+				je.source = edge.source.id;
+			if (edge.target)
+				je.target = edge.target.id;
+			
+			if (evt.properties.previous){	
+				ro.call(evt.name, {edge:je,source:evt.properties.source,
+				terminal:term.id,previous:evt.properties.previous.id});
 			}else{
-				ro.call(evt.name, {edge:evt.properties.edge.id,source:evt.properties.source,terminal:evt.properties.terminal.id});
+				ro.call(evt.name, {edge:je,source:evt.properties.source,terminal:term.id});
 			}
 			
 		},
@@ -351,8 +389,6 @@
 			ro.call('onConnect', {source:source.id,target:target.id});
 
 		},
-
-
 		
 		mouseHover: function(me){
 			var cell = me.getCell();
