@@ -31,9 +31,11 @@ import org.w3c.dom.Node;
 import com.mxgraph.io.mxCodec;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.model.mxGraphModel;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
+import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
@@ -103,7 +105,6 @@ public class GraphJS extends SVWidgetBase{
 				if (e.keyCode == SWT.DEL){
 					removeCells();
 				}
-				
 			}
 		});
 
@@ -143,6 +144,7 @@ public class GraphJS extends SVWidgetBase{
 				}
 			}
 		});
+		
 		g.addPropertyChangeListener(new PropertyChangeListener() {
 			
 			@Override
@@ -163,7 +165,6 @@ public class GraphJS extends SVWidgetBase{
 					obj.add("value",  (Long)v);
 				
 				setRemoteProp("prop", obj);
-				
 			}
 		});
 		
@@ -244,6 +245,7 @@ public class GraphJS extends SVWidgetBase{
 			appendModel(cells);
 			//System.out.println("after update:"+getGraphXml());
 		}
+		
 		
 	}
 	
@@ -394,6 +396,39 @@ public class GraphJS extends SVWidgetBase{
 		param.add("style", style);
 		
 		super.callRemoteMethod("setCellChildStyle", param);
+	}
+	
+	public void setCellChildOffset(String cellid,int childIndex,double offsetX,double offsetY){
+		JsonObject param = new JsonObject();
+		param.add("id", cellid);
+		param.add("index", childIndex);
+		param.add("offsetX", offsetX);
+		param.add("offsetY", offsetY);
+		
+		super.callRemoteMethod("setCellChildOffset", param);
+	}
+	
+	public void setCellOffset(String cellid,double offsetX,double offsetY){
+		JsonObject param = new JsonObject();
+		param.add("id", cellid);
+		param.add("offsetX", offsetX);
+		param.add("offsetY", offsetY);
+		
+		super.callRemoteMethod("setCellOffset", param);
+	}
+	
+	public void updateEdgeLabelPosition(String edgeId,double offsetX,double offsetY,double angle){
+		mxGraphModel model = (mxGraphModel) graph.getModel();
+		Object edge = model.getCell(edgeId);
+		if (edge != null){
+			mxICell child = ((mxCell)edge).getChildAt(0);
+			if (child != null){
+				String style = child.getStyle();
+				String newStyle = mxStyleUtils.setStyle(style, "rotation", String.valueOf(angle));
+				setCellStyle(child.getId(), newStyle);
+				setCellOffset(child.getId(), offsetX, offsetY);
+			}
+		}
 	}
 	
 	public void translateCell(String id,double dx,double dy){

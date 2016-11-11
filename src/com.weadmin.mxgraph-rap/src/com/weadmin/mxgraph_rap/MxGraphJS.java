@@ -382,7 +382,6 @@ public class MxGraphJS extends SVWidgetBase{
 	}
 	
 	
-	
 	private void appendModel(String cell){
 		Document doc = mxXmlUtils.parseXml(cell);
 		mxCodec codec = new mxCodec(doc){

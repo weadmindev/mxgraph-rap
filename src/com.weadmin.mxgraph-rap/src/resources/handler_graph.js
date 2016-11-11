@@ -12,7 +12,7 @@
 
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
-		            'putCellStyle','setCellStyle','translateCell'],
+		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset'],
 		properties : [ "size", "xmlModel","prop"],
 		events:['modelUpdate']
 
@@ -271,10 +271,10 @@
 		setCellChildStyle:function(data){
 			var cell = this._graph.getModel().getCell(data.id);
 			if (cell){
-				var label = cell.getChildAt(data.index);
-				if (label){
+				var child = cell.getChildAt(data.index);
+				if (child){
 					var cells = [];
-					cells.push(label);
+					cells.push(child);
 					this._graph.setCellStyle(data.style,cells);
 				}
 			}
@@ -283,6 +283,34 @@
 			var cell = this._graph.getModel().getCell(data.id);
 			if (cell) {
 				this._graph.translateCell(cell,data.dx,data.dy);
+			}
+		},
+		setCellOffset : function(data){
+			var cell = this._graph.getModel().getCell(data.id);
+			if (cell){
+				var geometry = this._graph.getModel().getGeometry(cell);
+				var geom = geometry.clone();
+				if (geom.relative){
+					geom.offset = new mxPoint(data.offsetX,data.offsetY);
+					this._graph.getModel().setGeometry(cell, geom);
+				}
+			}
+		},
+		
+		setCellChildOffset:function(data){
+			var cell = this._graph.getModel().getCell(data.id);
+			if (cell){
+				var child = cell.getChildAt(data.index);
+				
+				if (child){
+					var geometry = this._graph.getModel().getGeometry(child);
+					var geom = geometry.clone();
+					if (geom.relative){
+						geom.offset = new mxPoint(data.offsetX,data.offsetY);
+						this._graph.getModel().setGeometry(child, geom);
+					}
+					
+				}
 			}
 		},
 //		setCellChildGeometry:function(data){
