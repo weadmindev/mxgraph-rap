@@ -253,6 +253,11 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("stencils/cisco/wireless.xml", false, false));
 		res.add(new CustomRes("stencils/cisco/storage.xml", false, false));
 		res.add(new CustomRes("stencils/cisco/security.xml", false, false));
+		res.add(new CustomRes("stencils/cisco/hubs_and_gateways.xml", false, false));
+		res.add(new CustomRes("stencils/cisco/computers_and_peripherals.xml", false, false));
+		res.add(new CustomRes("stencils/cisco/directors.xml", false, false));
+		res.add(new CustomRes("stencils/cisco/misc.xml", false, false));
+		res.add(new CustomRes("stencils/cisco/modems_and_phones.xml", false, false));
 		
 		res.add(new CustomRes("resources/graph.txt", false, false));
 		res.add(new CustomRes("resources/graph_zh.txt", false, false));
