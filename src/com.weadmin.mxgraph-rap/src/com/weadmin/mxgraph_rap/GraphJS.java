@@ -49,7 +49,10 @@ public class GraphJS extends SVWidgetBase{
 		public static String EDGE_Connect = "onConnect";
 		public static String MOUSE_HOVER = "onMouseHover";
 		public static String MOUSE_LEAVE = "onMouseLeave";
-		public static String CELL_REMOVE = "onCellRemove";
+		public static String CELL_REMOVE = mxEvent.CELLS_REMOVED;
+		public static String CELL_MOVED = mxEvent.CELLS_MOVED;
+		public static String CELL_RESIZE = mxEvent.CELLS_RESIZED;
+		public static String CELL_CONNECT = mxEvent.CELL_CONNECTED;
 	};
 
 	private List<mxIEventListener>  graphListeners;
@@ -160,7 +163,6 @@ public class GraphJS extends SVWidgetBase{
 					obj.add("value",  (Long)v);
 				
 				setRemoteProp("prop", obj);
-				mxCell cell;
 				
 			}
 		});
@@ -211,10 +213,26 @@ public class GraphJS extends SVWidgetBase{
 				l.invoke(this, event);
 			}
 		}
-		if (method.equals(MxGraphEvent.CELL_REMOVE)){
+		if (method.equals(MxGraphEvent.CELL_REMOVE)||method.equals(MxGraphEvent.CELL_MOVED)
+				||method.equals(MxGraphEvent.CELL_RESIZE)){
 			JsonArray ids = parameters.get("ids").asArray();
 
 			mxEventObject event = new mxEventObject(method,"id",ids);
+			for (mxIEventListener l:graphListeners){
+				l.invoke(this, event);
+			}
+		}
+		
+		if (method.equals(MxGraphEvent.CELL_CONNECT)){
+			String edge = parameters.get("edge").asString();
+			String terminal = parameters.get("terminal").asString();
+			boolean source = parameters.get("source").asBoolean();
+
+			mxEventObject event = new mxEventObject(method,"edge",edge,"terminal",terminal,"source",source);
+			if (parameters.get("previous")!=null){
+				String previous = parameters.get("previous").asString();
+				event.getProperties().put("previous", previous);
+			}
 			for (mxIEventListener l:graphListeners){
 				l.invoke(this, event);
 			}
@@ -270,6 +288,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/close.gif", false, false));
 		res.add(new CustomRes("images/maximize.gif", false, false));
 		res.add(new CustomRes("images/minimize.gif", false, false));
+		res.add(new CustomRes("images/point.gif", false, false));
 		res.add(new CustomRes("images/mail_find.svg", false, false));
 		res.add(new CustomRes("images/resize.gif", false, false));
 		res.add(new CustomRes("css/common.css", true, true));
@@ -336,7 +355,7 @@ public class GraphJS extends SVWidgetBase{
 		super.callRemoteMethod("insertEdge", obj);
 	}
 	
-	public void putCellStyle(Map<String,Object> styleMap){
+	public void putCellStyleSheet(String name,Map<String,Object> styleMap){
 		JsonObject obj = new JsonObject();
 		
 		for(String k:styleMap.keySet()){
@@ -351,8 +370,21 @@ public class GraphJS extends SVWidgetBase{
 				obj.add(k, (String)v);
 			else if  (v instanceof Long)
 				obj.add(k, (Long)v);
-			
 		}
+		
+		JsonObject param = new JsonObject();
+		param.add("name", name);
+		param.add("style", obj);
+		
+		super.callRemoteMethod("putCellStyle", param);
+	}
+	
+	public void setCellStyle(String id,String style){
+		JsonObject param = new JsonObject();
+		param.add("id", id);
+		param.add("style", style);
+		
+		super.callRemoteMethod("setCellStyle", param);
 	}
 	
 	public String getGraphXml(){

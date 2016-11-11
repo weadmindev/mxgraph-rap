@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
+import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
 import org.eclipse.rap.rwt.RWT;
@@ -39,6 +40,7 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.view.mxGraph;
+import com.weadmin.mxgraph_rap.GraphJS.MxGraphEvent;
 import com.weadmin.mxgraph_rap.SVWidgetBase.CustomRes;
 
 
@@ -51,7 +53,10 @@ public class MxGraphJS extends SVWidgetBase{
 		public static String EDGE_Connect = "onConnect";
 		public static String MOUSE_HOVER = "onMouseHover";
 		public static String MOUSE_LEAVE = "onMouseLeave";
-		public static String CELL_REMOVE = "onCellRemove";
+		public static String CELL_REMOVE = mxEvent.CELLS_REMOVED;
+		public static String CELL_MOVED = mxEvent.CELLS_MOVED;
+		public static String CELL_RESIZE = mxEvent.CELLS_RESIZED;
+		public static String CELL_CONNECT = mxEvent.CELL_CONNECTED;
 	};
 
 	private List<mxIEventListener>  graphListeners;
@@ -207,6 +212,30 @@ public class MxGraphJS extends SVWidgetBase{
 			String target = parameters.get("target").asString();
 
 			mxEventObject event = new mxEventObject(method,"source",source,"target",target);
+			for (mxIEventListener l:graphListeners){
+				l.invoke(this, event);
+			}
+		}
+		if (method.equals(MxGraphEvent.CELL_REMOVE)||method.equals(MxGraphEvent.CELL_MOVED)
+				||method.equals(MxGraphEvent.CELL_RESIZE)){
+			JsonArray ids = parameters.get("ids").asArray();
+
+			mxEventObject event = new mxEventObject(method,"id",ids);
+			for (mxIEventListener l:graphListeners){
+				l.invoke(this, event);
+			}
+		}
+		
+		if (method.equals(MxGraphEvent.CELL_CONNECT)){
+			String edge = parameters.get("edge").asString();
+			String terminal = parameters.get("terminal").asString();
+			boolean source = parameters.get("source").asBoolean();
+
+			mxEventObject event = new mxEventObject(method,"edge",edge,"terminal",terminal,"source",source);
+			if (parameters.get("previous")!=null){
+				String previous = parameters.get("previous").asString();
+				event.getProperties().put("previous", previous);
+			}
 			for (mxIEventListener l:graphListeners){
 				l.invoke(this, event);
 			}

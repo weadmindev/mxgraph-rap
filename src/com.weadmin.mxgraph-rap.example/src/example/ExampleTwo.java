@@ -1,8 +1,15 @@
 package example;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.UUID;
 
+import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
+import org.eclipse.rap.rwt.client.Client;
+import org.eclipse.rap.rwt.internal.service.ServiceContext;
+import org.eclipse.rap.rwt.service.ServerPushSession;
+import org.eclipse.rap.rwt.service.UISession;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
@@ -28,6 +35,12 @@ public class ExampleTwo extends AbstractEntryPoint{
 	
 	private Label hoverText;
 	private int count = 100;
+	
+	String style1 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
+	String style2 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffff00;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
+	String style3 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ff0000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
+	private long tick = 0;
+	private Display display;
 	
 	private String getId(){
 		return UUID.randomUUID().toString();
@@ -64,6 +77,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 		//g.setModel(gd.getModel());
 //		
 //
+		
+		
 		g.addGraphListener(new mxIEventListener(){
 			
 			@Override
@@ -77,11 +92,12 @@ public class ExampleTwo extends AbstractEntryPoint{
 					if (button == 0){
 						String id = getId();
 						System.out.println("id:"+ id);
-						Object v = gd.insertVertex(gd.getDefaultParent(),id, "node!", x, y, 80, 60, "node");
+						Object v = gd.insertVertex(gd.getDefaultParent(),id, "node!", x, y, 80, 60, style2);
 						//gd.insertEdge(gd.getDefaultParent(),getId(), "", v2, v);
 
 					}else{
 						//gd.insertEdge(gd.getDefaultParent(), getId(), "", v2, v);
+						g.setCellStyle("5", style3);	
 					}
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_HOVER)){
 					double x = (double) evt.getProperty("x");
@@ -97,8 +113,49 @@ public class ExampleTwo extends AbstractEntryPoint{
 				}
 				
 			}});
+	
+		display = Display.getCurrent();
 		
-		
+		final ServerPushSession pushSession = new ServerPushSession();
+		pushSession.start();
+		new Thread(new Runnable(){
+			
+			@Override
+			public void run() {
+				//Client client = RWT.getClient();
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				while(true){
+					//UISession uiSession = RWT.getUISession( display );
+					display.asyncExec(new Runnable() {
+						
+						@Override
+						public void run() {
+							
+							long m = tick++ % 3;
+							System.out.println("timer..."+m);
+							if (m==0){
+								g.setCellStyle("5", style1);
+							}else if (m==1){
+								g.setCellStyle("5", style2);
+							}else if (m==2){
+								g.setCellStyle("5", style3);
+							}
+						}
+					});
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+		}).start();
 	}
 
 }

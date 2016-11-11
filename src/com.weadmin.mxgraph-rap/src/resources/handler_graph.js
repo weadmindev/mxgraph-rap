@@ -11,7 +11,8 @@
 		},
 
 		destructor : "destroy",
-		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells'],
+		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
+		            'putCellStyle','setCellStyle'],
 		properties : [ "size", "xmlModel","prop"],
 		events:['modelUpdate']
 
@@ -23,7 +24,7 @@
 
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
-		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove"]);
+		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove","onCellConnect"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.parent.append(this.element);
@@ -103,7 +104,11 @@
 				mgr.save = this.autoSave;
 				
 				graph.addListener(mxEvent.CELLS_REMOVED,this.onRemove);
-
+				graph.addListener(mxEvent.CELLS_RESIZED,this.onRemove);
+				graph.addListener(mxEvent.CELLS_MOVED,this.onRemove);
+				graph.addListener(mxEvent.CELL_CONNECTED,this.onCellConnect);
+				//graph.addListener(mxEvent.DISCONNECT,this.onCellConnect);
+				
 				rap.on("send", this.onSend);
 
 				this.ready = true;
@@ -226,6 +231,43 @@
 			
 		},
 		
+		putCellStyle : function(data){
+			var name = data.name;
+			var stylejson = data.style;
+			var style = new Object();
+			for(var k in stylejson){
+				if (k == mxConstants.STYLE_PERIMETER){
+					if (stylejson[k]=='mxPerimeter.EllipsePerimeter'){
+						style[k] = mxPerimeter.EllipsePerimeter;
+					}else if (stylejson[k]=='mxPerimeter.RectanglePerimeter'){
+						style[k] = mxPerimeter.RectanglePerimeter;
+					}else if (stylejson[k]=='mxPerimeter.RhombusPerimeter'){
+						style[k] = mxPerimeter.RhombusPerimeter;
+					}else if (stylejson[k]=='mxPerimeter.TrianglePerimeter'){
+						style[k] = mxPerimeter.TrianglePerimeter;
+					}else if (stylejson[k]=='mxPerimeter.HexagonPerimeter'){
+						style[k] = mxPerimeter.HexagonPerimeter;
+					}
+				}else if (k == mxConstants.STYLE_IMAGE){
+					style[k] = MXGRAPH_BASEPATH + stylejson[k];
+				}else{
+					style[k] = stylejson[k];
+				}
+			}
+			
+			this._graph.getStylesheet().putCellStyle(name, style);
+		},
+		
+		setCellStyle : function(data){
+			var cell = this._graph.getModel().getCell(data.id);
+			var cells = [];
+			cells.push(cell);
+			
+			this._graph.setCellStyle(data.style,cells);
+
+			
+		},
+		
 		insertVertex : function(vertex) {
 			if (this.ready) {
 				async(this, function() {
@@ -266,13 +308,26 @@
 			var ro = rap.getRemoteObject(this);
 			var cells = evt.getProperty('cells');
 			var ids = [];
-			for(var cell in cells){
-				ids.push(cell.id);
+			for(var i in cells){
+				var cell = cells[i];
+				ids.push({id:cell.id,edge:cell.edge});
 			}
 			
-			ro.call('onCellRemove', {
+			ro.call(evt.name, {
 				ids :ids
 			});
+		},
+		
+		onCellConnect:function(sender,evt){
+			console.log(evt)
+			var ro = rap.getRemoteObject(this);
+			if (evt.properties.previous){
+				ro.call(evt.name, {edge:evt.properties.edge.id,source:evt.properties.source,
+				terminal:evt.properties.terminal.id,previous:evt.properties.previous.id});
+			}else{
+				ro.call(evt.name, {edge:evt.properties.edge.id,source:evt.properties.source,terminal:evt.properties.terminal.id});
+			}
+			
 		},
 		
 		onConnect:function(sender, evt) {
@@ -306,7 +361,7 @@
 				this._hoverCell = cell;
 				var ro = rap.getRemoteObject(this);
 				ro.call('onMouseHover',{id:cell.id,edge:cell.edge,x : me.graphX,y : me.graphY,button : me.evt.button});
-			}	
+			}
 			if (cell == null && this._hoverCell != null){
 				var ro = rap.getRemoteObject(this);
 				var cell = this._hoverCell;
@@ -365,7 +420,6 @@
 			context[methodNames[i]] = bind(context, method);
 		}
 	};
-
 	var async = function(context, func) {
 		window.setTimeout(function() {
 			func.apply(context);
