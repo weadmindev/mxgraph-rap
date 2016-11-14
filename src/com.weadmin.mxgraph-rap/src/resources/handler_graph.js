@@ -124,8 +124,8 @@
 			var enc = new mxCodec(mxUtils.createXmlDocument());
 			var node = enc.encode(this._graph.getModel());
 			var xml = mxUtils.getXml(node);
-			//rap.getRemoteObject( this ).set( "model", xml);
-			//console.log("graph...onSend..")
+			rap.getRemoteObject( this ).set( "model", xml);
+			console.log("graph...onSend..")
 		},
 
 		mouseDown : function(sender, me) {
@@ -386,7 +386,7 @@
 				je.source = edge.source.id;
 			if (edge.target)
 				je.target = edge.target.id;
-			
+			//this.autoSave();
 			if (evt.properties.previous){	
 				ro.call(evt.name, {edge:je,source:evt.properties.source,
 				terminal:term.id,previous:evt.properties.previous.id});
