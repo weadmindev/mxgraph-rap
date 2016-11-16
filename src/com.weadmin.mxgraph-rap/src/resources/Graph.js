@@ -384,7 +384,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 		this.setDropEnabled(true);
 		this.setPanning(true);
 		this.setTooltips(true);
-		this.setAllowLoops(true);
+		this.setAllowLoops(false);
 		this.allowAutoPanning = true;
 		this.resetEdgesOnConnect = false;
 		this.constrainChildren = false;
