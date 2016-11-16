@@ -490,7 +490,7 @@ public class GraphJS extends SVWidgetBase{
 		}
 	}
 	
-	private void removeCells(){
+	public void removeCells(){
 		super.callRemoteMethod("removeCells", new JsonObject());
 	}
 }
