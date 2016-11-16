@@ -493,4 +493,26 @@ public class GraphJS extends SVWidgetBase{
 	public void removeCells(){
 		super.callRemoteMethod("removeCells", new JsonObject());
 	}
+	
+	public void zoomIn(){
+		super.callRemoteMethod("zoomIn", new JsonObject());
+	}
+	
+	public void setTooltip(String id,String tooltip){
+		JsonObject param = new JsonObject();
+		param.add("id", id);
+		param.add("tooltip", tooltip);
+		
+		super.callRemoteMethod("setTooltip", param);
+	}
+	
+	public void zoomOut(){
+		super.callRemoteMethod("zoomOut", new JsonObject());
+	}
+	
+	public void selectCell(String id){
+		JsonObject param = new JsonObject();
+		param.add("id", id);
+		super.callRemoteMethod("selectCell", param);
+	}
 }

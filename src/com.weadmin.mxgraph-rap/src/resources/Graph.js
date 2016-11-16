@@ -2241,7 +2241,7 @@ HoverIcons.prototype.activeArrow = null;
 /**
  * Up arrow.
  */
-HoverIcons.prototype.inactiveOpacity = 15;
+HoverIcons.prototype.inactiveOpacity = 25;
 
 /**
  * Whether to hide arrows that collide with vertices.

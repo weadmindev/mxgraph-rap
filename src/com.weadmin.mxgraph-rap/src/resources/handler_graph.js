@@ -12,7 +12,8 @@
 
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
-		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset'],
+		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset',
+		            'zoomIn','zoomOut','setTooltip','selectCell'],
 		properties : [ "size", "xmlModel","prop"],
 		events:['modelUpdate']
 
@@ -24,7 +25,7 @@
 
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
-		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove","onCellConnect"]);
+		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove","onCellConnect","getTooltipForCell"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.parent.append(this.element);
@@ -35,19 +36,53 @@
 			height : 300
 		};
 		
+//		
+//		mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
+//		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
+//		{
+//			var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
+//			
+//			if (point != null)
+//			{
+//				var perimeter = this.getPerimeterFunction(terminal);
+//
+//				if (terminal.text != null && terminal.text.boundingBox != null)
+//				{
+//					// Adds a small border to the label bounds
+//					var b = terminal.text.boundingBox.clone();
+//					b.grow(3)
+//
+//					if (mxUtils.rectangleIntersectsSegment(b, point, next))
+//					{
+//						point = perimeter(b, terminal, next, orthogonal);
+//					}
+//				}
+//			}
+//			
+//			return point;
+//		};
+//		
+		
 		// Disables the built-in context menu
 		mxEvent.disableContextMenu(this.element);
+		
+		mxTooltipHandler.prototype.zIndex = 1000500000;
 		
 		this._graph = new Graph(this.element);
 		this._parent = null;
 		this._xmlModel = null;
 		this._hoverCell = null;
+		this._tooltips = {};
 		
 		new HoverIcons(this._graph);
 
 		this._graph.setAllowDanglingEdges(false);
 		this._graph.setDisconnectOnMove(false);
 		//this._graph.setConnectable(true);
+		
+		this._graph.setTooltips(true);
+		
+		this._graph.getTooltipForCell = this.getTooltipForCell;
 		
 		mxStencilRegistry.loadStencilSet(MXGRAPH_BASEPATH+"stencils/cisco/routers.xml");
 
@@ -116,6 +151,15 @@
 				this.ready = true;
 				this.layout();
 			}
+		},
+		
+		getTooltipForCell:function(cell){
+			if (cell){
+				return this._tooltips[cell.getId()];
+			}else{
+				return '';
+			}
+			
 		},
 
 		onSend : function() {
@@ -446,6 +490,34 @@
 			var node = enc.encode(this._graph.getModel());
 			var xml = mxUtils.getXml(node);
 			rap.getRemoteObject( this ).set( "model", xml);
+		},
+		
+		zoomIn :function(obj){
+			if (this.ready) {
+				async(this, function(){
+					this._graph.zoomIn();
+				});
+			}
+		},
+		
+		zoomOut :function(obj){
+			if (this.ready) {
+				async(this, function(){
+					this._graph.zoomOut();
+				});
+			}
+		},
+		
+		setTooltip : function(obj){
+			if (obj)
+				this._tooltips[obj.id] = obj.tooltip;
+		},
+		
+		selectCell : function(obj){
+			var cell = this._graph.getModel().getCell(obj.id);
+			if (cell){
+				this._graph.setSelectionCell(cell);
+			}
 		},
 
 		setSize : function(size) {
