@@ -42,6 +42,8 @@
 		this._parent = null;
 		this._xmlModel = null;
 		this._hoverCell = null;
+		
+		new HoverIcons(this._graph);
 
 		this._graph.setAllowDanglingEdges(false);
 		this._graph.setDisconnectOnMove(false);

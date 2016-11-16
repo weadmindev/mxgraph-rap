@@ -384,7 +384,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 		this.setDropEnabled(true);
 		this.setPanning(true);
 		this.setTooltips(true);
-		this.setAllowLoops(false);
+		this.setAllowLoops(true);
 		this.allowAutoPanning = true;
 		this.resetEdgesOnConnect = false;
 		this.constrainChildren = false;
@@ -3517,51 +3517,51 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.getAllConnectionConstraints = function(terminal, source)
 		{
-			if (terminal != null)
-			{
-				var constraints = mxUtils.getValue(terminal.style, 'points', null);
-				
-				if (constraints != null)
-				{
-					// Requires an array of arrays with x, y (0..1) and an optional
-					// perimeter (0 or 1), eg. points=[[0,0,1],[0,1,0],[1,1]]
-					var result = [];
-					
-					try
-					{
-						var c = JSON.parse(constraints);
-						
-						for (var i = 0; i < c.length; i++)
-						{
-							var tmp = c[i];
-							result.push(new mxConnectionConstraint(new mxPoint(tmp[0], tmp[1]), (tmp.length > 2) ? tmp[2] != '0' : true));
-						}
-					}
-					catch (e)
-					{
-						// ignore
-					}
-					
-					return result;
-				}
-				else
-				{
-					if (terminal.shape != null)
-					{
-						if (terminal.shape.stencil != null)
-						{
-							if (terminal.shape.stencil != null)
-							{
-								return terminal.shape.stencil.constraints;
-							}
-						}
-						else if (terminal.shape.constraints != null)
-						{
-							return terminal.shape.constraints;
-						}
-					}
-				}
-			}
+//			if (terminal != null)
+//			{
+//				var constraints = mxUtils.getValue(terminal.style, 'points', null);
+//				
+//				if (constraints != null)
+//				{
+//					// Requires an array of arrays with x, y (0..1) and an optional
+//					// perimeter (0 or 1), eg. points=[[0,0,1],[0,1,0],[1,1]]
+//					var result = [];
+//					
+//					try
+//					{
+//						var c = JSON.parse(constraints);
+//						
+//						for (var i = 0; i < c.length; i++)
+//						{
+//							var tmp = c[i];
+//							result.push(new mxConnectionConstraint(new mxPoint(tmp[0], tmp[1]), (tmp.length > 2) ? tmp[2] != '0' : true));
+//						}
+//					}
+//					catch (e)
+//					{
+//						// ignore
+//					}
+//					
+//					return result;
+//				}
+//				else
+//				{
+//					if (terminal.shape != null)
+//					{
+//						if (terminal.shape.stencil != null)
+//						{
+//							if (terminal.shape.stencil != null)
+//							{
+//								return terminal.shape.stencil.constraints;
+//							}
+//						}
+//						else if (terminal.shape.constraints != null)
+//						{
+//							return terminal.shape.constraints;
+//						}
+//					}
+//				}
+//			}
 		
 			return null;
 		};

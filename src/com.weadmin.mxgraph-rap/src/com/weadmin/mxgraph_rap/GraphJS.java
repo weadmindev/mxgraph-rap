@@ -293,6 +293,18 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/point.gif", false, false));
 		res.add(new CustomRes("images/mail_find.svg", false, false));
 		res.add(new CustomRes("images/resize.gif", false, false));
+		
+		res.add(new CustomRes("images/handle-fixed.png", false, false));
+		res.add(new CustomRes("images/handle-main.png", false, false));
+		res.add(new CustomRes("images/handle-rotate.png", false, false));
+		res.add(new CustomRes("images/handle-secondary.png", false, false));
+		res.add(new CustomRes("images/handle-terminal.png", false, false));
+		res.add(new CustomRes("images/triangle-down.png", false, false));
+		res.add(new CustomRes("images/triangle-left.png", false, false));
+		res.add(new CustomRes("images/triangle-right.png", false, false));
+		res.add(new CustomRes("images/triangle-up.png", false, false));
+		
+		
 		res.add(new CustomRes("css/common.css", true, true));
 		res.add(new CustomRes("css/explorer.css", true, true));
 		res.add(new CustomRes("add_path_graph.js", true, false));
