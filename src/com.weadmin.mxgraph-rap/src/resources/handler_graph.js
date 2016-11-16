@@ -262,11 +262,13 @@
 		
 		setCellStyle : function(data){
 			var cell = this._graph.getModel().getCell(data.id);
-			var cells = [];
-			cells.push(cell);
 			
-			this._graph.setCellStyle(data.style,cells);
-
+			if (cell){
+				var cells = [];
+				cells.push(cell);
+				
+				this._graph.setCellStyle(data.style,cells);
+			}
 			
 		},
 		
