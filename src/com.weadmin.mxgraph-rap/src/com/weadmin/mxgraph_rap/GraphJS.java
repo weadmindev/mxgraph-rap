@@ -455,8 +455,6 @@ public class GraphJS extends SVWidgetBase{
         this.setModel(graph.getModel());
 	}
 	
-	
-	
 	private void appendModel(String cell){
 		Document doc = mxXmlUtils.parseXml(cell);
 		mxCodec codec = new mxCodec(doc){

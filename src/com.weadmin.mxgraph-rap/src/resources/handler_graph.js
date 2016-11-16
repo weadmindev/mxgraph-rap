@@ -45,7 +45,7 @@
 
 		this._graph.setAllowDanglingEdges(false);
 		this._graph.setDisconnectOnMove(false);
-		this._graph.setConnectable(true);
+		//this._graph.setConnectable(true);
 		
 		mxStencilRegistry.loadStencilSet(MXGRAPH_BASEPATH+"stencils/cisco/routers.xml");
 

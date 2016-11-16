@@ -384,7 +384,7 @@ Graph = function(container, model, renderHint, stylesheet, themes)
 		this.setDropEnabled(true);
 		this.setPanning(true);
 		this.setTooltips(true);
-		this.setAllowLoops(true);
+		this.setAllowLoops(false);
 		this.allowAutoPanning = true;
 		this.resetEdgesOnConnect = false;
 		this.constrainChildren = false;
@@ -3346,7 +3346,7 @@ if (typeof mxVertexHandler != 'undefined')
 		mxEdgeHandler.prototype.snapToTerminals = true;
 	
 		//Enables guides
-		mxGraphHandler.prototype.guidesEnabled = true;
+		mxGraphHandler.prototype.guidesEnabled = false;
 	
 		//Alt-move disables guides
 		mxGuide.prototype.isEnabledForEvent = function(evt)
@@ -3431,7 +3431,7 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		//Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'orthogonalEdgeStyle', 'rounded': '0', 'html': '1',
 		//	'jettySize': 'auto', 'orthogonalLoop': '1'};
-		Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none',  'html': '1','orthogonalLoop':1};
+		Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none','rounded': '0',  'html': '1','orthogonalLoop':1};
 		
 		/**
 		 * Contains the current style for edges.
@@ -5901,7 +5901,7 @@ if (typeof mxVertexHandler != 'undefined')
 		mxRubberband.prototype.defaultOpacity = 30;
 		
 		// Enables connections along the outline, virtual waypoints, parent highlight etc
-		mxConnectionHandler.prototype.outlineConnect = true;
+		mxConnectionHandler.prototype.outlineConnect = false;
 		mxCellHighlight.prototype.keepOnTop = true;
 		mxVertexHandler.prototype.parentHighlightEnabled = true;
 		mxVertexHandler.prototype.rotationHandleVSpacing = -20;
@@ -5912,7 +5912,7 @@ if (typeof mxVertexHandler != 'undefined')
 		mxEdgeHandler.prototype.virtualBendsEnabled = true;
 		mxEdgeHandler.prototype.mergeRemoveEnabled = true;
 		mxEdgeHandler.prototype.manageLabelHandle = true;
-		mxEdgeHandler.prototype.outlineConnect = true;
+		mxEdgeHandler.prototype.outlineConnect = false;
 		
 		// Disables adding waypoints if shift is pressed
 		mxEdgeHandler.prototype.isAddVirtualBendEvent = function(me)
@@ -6234,7 +6234,7 @@ if (typeof mxVertexHandler != 'undefined')
 				this.graph.getConnectionConstraint(this.state, terminalState, source) : null;
 			var pt = (c != null) ? this.graph.getConnectionPoint(this.state.getVisibleTerminalState(source), c) : null;
 			var img = (pt != null) ? this.fixedHandleImage : ((c != null && terminalState != null) ?
-				this.terminalHandleImage : this.handleImage);
+				this.terminal	 : this.handleImage);
 			
 			if (img != null)
 			{
