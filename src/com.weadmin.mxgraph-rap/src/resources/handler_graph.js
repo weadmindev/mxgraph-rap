@@ -65,7 +65,7 @@
 		
 		// Disables the built-in context menu
 		mxEvent.disableContextMenu(this.element);
-		
+		HoverIcons.prototype.checkCollisions = false;
 		mxTooltipHandler.prototype.zIndex = 1000500000;
 		
 		this._graph = new Graph(this.element);

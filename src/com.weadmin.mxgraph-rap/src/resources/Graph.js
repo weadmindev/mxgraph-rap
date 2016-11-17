@@ -1482,7 +1482,7 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		}
 	}
 	
-	var duplicate = !mxEvent.isShiftDown(evt) || forceClone;
+	var duplicate = forceClone;// !mxEvent.isShiftDown(evt) || forceClone;
 	
 	if (duplicate)
 	{
@@ -1502,6 +1502,8 @@ Graph.prototype.connectVertex = function(source, direction, length, evt, forceCl
 		{
 			pt.x += source.geometry.width / 2;
 		}
+	}else if (target==null){
+		return [];
 	}
 
 	// Uses connectable parent vertex if one exists
