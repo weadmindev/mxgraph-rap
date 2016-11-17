@@ -78,6 +78,7 @@
 
 		this._graph.setAllowDanglingEdges(false);
 		this._graph.setDisconnectOnMove(false);
+		this._graph.allowAutoPanning = true;
 		//this._graph.setConnectable(true);
 		
 		this._graph.setTooltips(true);
