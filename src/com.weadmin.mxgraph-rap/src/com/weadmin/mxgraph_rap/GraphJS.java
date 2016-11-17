@@ -279,6 +279,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("stencils/cisco/misc.xml", false, false));
 		res.add(new CustomRes("stencils/cisco/modems_and_phones.xml", false, false));
 		res.add(new CustomRes("stencils/office/concepts.xml", false, false));
+		res.add(new CustomRes("stencils/veeam/2d.xml", false, false));
 		
 		res.add(new CustomRes("resources/graph.txt", false, false));
 		res.add(new CustomRes("resources/graph_zh.txt", false, false));
