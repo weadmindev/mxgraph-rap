@@ -70,24 +70,24 @@ public class GraphJS extends SVWidgetBase{
 		
 		enableMenu = true;
 		
-		menu = new Menu(this.getParent());
-		
-		MenuItem mi = new MenuItem(menu, SWT.NONE);
-		mi.setText("Delete");
-		mi.addSelectionListener(new SelectionListener() {
-			
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				removeCells();
-				
-			}
-			
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		});
+//		menu = new Menu(this.getParent());
+//		
+//		MenuItem mi = new MenuItem(menu, SWT.NONE);
+//		mi.setText("Delete");
+//		mi.addSelectionListener(new SelectionListener() {
+//			
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				removeCells();
+//				
+//			}
+//			
+//			@Override
+//			public void widgetDefaultSelected(SelectionEvent e) {
+//				// TODO Auto-generated method stub
+//				
+//			}
+//		});
 		//this.setMenu(menu);
 		
 		graphListeners = new Vector<>();
@@ -113,16 +113,16 @@ public class GraphJS extends SVWidgetBase{
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				if (evt.getName().equals(MxGraphEvent.NODE_SELECT)||evt.getName().equals(MxGraphEvent.EDGE_SELECT)){
-					double x = (double) evt.getProperty("x");
-					double y = (double) evt.getProperty("y");
-					int button = (int) evt.getProperty("button");
-					Point pt = toDisplay((int)x, (int)y);
-					
-					System.out.println(evt.getName());
-					if (button==2){
-						menu.setLocation(pt);
-						menu.setVisible(true);
-					}
+//					double x = (double) evt.getProperty("x");
+//					double y = (double) evt.getProperty("y");
+//					int button = (int) evt.getProperty("button");
+//					Point pt = toDisplay((int)x, (int)y);
+//					
+//					System.out.println(evt.getName());
+//					if (button==2){
+//						menu.setLocation(pt);
+//						menu.setVisible(true);
+//					}
 				}
 				
 			}
@@ -278,6 +278,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("stencils/cisco/directors.xml", false, false));
 		res.add(new CustomRes("stencils/cisco/misc.xml", false, false));
 		res.add(new CustomRes("stencils/cisco/modems_and_phones.xml", false, false));
+		res.add(new CustomRes("stencils/office/concepts.xml", false, false));
 		
 		res.add(new CustomRes("resources/graph.txt", false, false));
 		res.add(new CustomRes("resources/graph_zh.txt", false, false));
