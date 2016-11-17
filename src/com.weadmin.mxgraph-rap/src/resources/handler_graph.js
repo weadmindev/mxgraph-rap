@@ -36,6 +36,8 @@
 			height : 300
 		};
 		
+		this.element.style.overflowY = 'auto';
+		this.element.style.overflowX = 'auto';
 //		
 //		mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
 //		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
