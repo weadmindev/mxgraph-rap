@@ -13,7 +13,7 @@
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
 		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset',
-		            'zoomIn','zoomOut','setTooltip','selectCell'],
+		            'zoomIn','zoomOut','setTooltip','selectCell','selectCells'],
 		properties : [ "size", "xmlModel","prop"],
 		events:['modelUpdate']
 
@@ -518,6 +518,19 @@
 			if (cell){
 				this._graph.setSelectionCell(cell);
 			}
+		},
+		
+		selectCells : function(obj){
+			var cells = [];
+			for(var i in obj.ids){
+				var id = obj.ids[i];
+				var cell = this._graph.getModel().getCell(id);
+				if (cell)
+					cells.push(cell);
+			}
+			
+			this._graph.setSelectionCells(cells);
+			
 		},
 
 		setSize : function(size) {

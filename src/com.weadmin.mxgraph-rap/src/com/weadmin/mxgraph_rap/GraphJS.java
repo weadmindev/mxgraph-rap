@@ -515,4 +515,14 @@ public class GraphJS extends SVWidgetBase{
 		param.add("id", id);
 		super.callRemoteMethod("selectCell", param);
 	}
+	
+	public void selectCells(String[] ids){
+		JsonObject param = new JsonObject();
+		JsonArray ars = new JsonArray();
+		for (String id :ids){
+			ars.add(id);
+		}
+		param.add("ids", ars);
+		super.callRemoteMethod("selectCells", param);
+	}
 }
