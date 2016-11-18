@@ -284,7 +284,7 @@ public class MxGraphJS extends SVWidgetBase{
 		res.add(new CustomRes("css/common.css", true, true));
 		res.add(new CustomRes("css/explorer.css", true, true));
 		res.add(new CustomRes("add_path.js", true, false));
-		res.add(new CustomRes("mxClient.js", true, false));
+		res.add(new CustomRes("mxClient.min.js", true, false));
 		res.add(new CustomRes("handler.js", true, false));
 		return res;
 	}
