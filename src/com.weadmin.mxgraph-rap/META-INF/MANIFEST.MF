@@ -3,7 +3,7 @@ Bundle-ManifestVersion: 2
 Bundle-Name: mxgraph-rap
 Bundle-SymbolicName: com.weadmin.mxgraph-rap;singleton:=true
 Bundle-Version: 1.0.0.qualifier
-Bundle-RequiredExecutionEnvironment: JavaSE-1.8
+Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Require-Bundle: org.eclipse.rap.rwt;bundle-version="3.1.0"
 Bundle-ClassPath: .
 Export-Package: com.mxgraph.analysis,

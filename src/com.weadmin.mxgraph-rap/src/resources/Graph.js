@@ -4577,7 +4577,8 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		Graph.prototype.isCloneEvent = function(evt)
 		{
-			return (mxClient.IS_MAC && mxEvent.isMetaDown(evt)) || mxEvent.isControlDown(evt);
+			return false;
+			//return (mxClient.IS_MAC && mxEvent.isMetaDown(evt)) || mxEvent.isControlDown(evt);
 		};
 		
 		/**
