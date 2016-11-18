@@ -2653,47 +2653,47 @@ HoverIcons.prototype.drag = function(evt, x, y)
  */
 HoverIcons.prototype.click = function(state, dir, me)
 {
-	var evt = me.getEvent();
-	var x = me.getGraphX();
-	var y = me.getGraphY();
-	
-	var tmp = this.graph.view.getState(this.graph.getCellAt(x, y));
-	
-	if (tmp != null && this.graph.model.isEdge(tmp.cell) && !mxEvent.isControlDown(evt) &&
-		(tmp.getVisibleTerminalState(true) == state || tmp.getVisibleTerminalState(false) == state))
-	{
-		this.graph.setSelectionCell(tmp.cell);
-		this.reset();
-	}
-	else if (state != null)
-	{
-		var cells = this.graph.connectVertex(state.cell, dir, this.graph.defaultEdgeLength, evt);
-		this.graph.selectCellsForConnectVertex(cells, evt, this);
-		
-		// Selects only target vertex if one exists
-		if (cells.length == 2 && this.graph.model.isVertex(cells[1]))
-		{
-			this.graph.setSelectionCell(cells[1]);
-			
-			// Adds hover icons to new target vertex for touch devices
-			if (mxEvent.isTouchEvent(evt))
-			{
-				this.update(this.getState(this.graph.view.getState(cells[1])));
-			}
-			else
-			{
-				// Hides hover icons after click with mouse
-				this.reset();
-			}
-			
-			this.graph.scrollCellToVisible(cells[1]);
-		}
-		else
-		{
-			this.graph.setSelectionCells(cells);
-		}
-	}
-	
+//	var evt = me.getEvent();
+//	var x = me.getGraphX();
+//	var y = me.getGraphY();
+//	
+//	var tmp = this.graph.view.getState(this.graph.getCellAt(x, y));
+//	
+//	if (tmp != null && this.graph.model.isEdge(tmp.cell) && !mxEvent.isControlDown(evt) &&
+//		(tmp.getVisibleTerminalState(true) == state || tmp.getVisibleTerminalState(false) == state))
+//	{
+//		this.graph.setSelectionCell(tmp.cell);
+//		this.reset();
+//	}
+//	else if (state != null)
+//	{
+//		var cells = this.graph.connectVertex(state.cell, dir, this.graph.defaultEdgeLength, evt);
+//		this.graph.selectCellsForConnectVertex(cells, evt, this);
+//		
+//		// Selects only target vertex if one exists
+//		if (cells.length == 2 && this.graph.model.isVertex(cells[1]))
+//		{
+//			this.graph.setSelectionCell(cells[1]);
+//			
+//			// Adds hover icons to new target vertex for touch devices
+//			if (mxEvent.isTouchEvent(evt))
+//			{
+//				this.update(this.getState(this.graph.view.getState(cells[1])));
+//			}
+//			else
+//			{
+//				// Hides hover icons after click with mouse
+//				this.reset();
+//			}
+//			
+//			this.graph.scrollCellToVisible(cells[1]);
+//		}
+//		else
+//		{
+//			this.graph.setSelectionCells(cells);
+//		}
+//	}
+//	
 	me.consume();
 };
 
