@@ -119,6 +119,7 @@ public class ExampleOne extends AbstractEntryPoint{
 
 					}else{
 						//gd.insertEdge(gd.getDefaultParent(), getId(), "", v2, v);
+						
 					}
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_HOVER)){
 					double x = (double) evt.getProperty("x");

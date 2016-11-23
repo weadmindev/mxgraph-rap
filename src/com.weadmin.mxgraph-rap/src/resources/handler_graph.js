@@ -14,7 +14,7 @@
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
 		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset',
 		            'zoomIn','zoomOut','setTooltip','selectCell','selectCells'],
-		properties : [ "size", "xmlModel","prop"],
+		properties : [ "size", "xmlModel","prop","arrowOffset"],
 		events:['modelUpdate']
 
 	});
@@ -25,7 +25,8 @@
 
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
-		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove","onCellConnect","getTooltipForCell"]);
+		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove",
+		                "onCellConnect","getTooltipForCell"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.parent.append(this.element);
@@ -64,6 +65,50 @@
 //			return point;
 //		};
 //		
+		mxConnector.arrowOffset = 1.0;
+		
+		mxConnector.prototype.paintEdgeShape = function(c, pts)
+		{
+			var offset = mxConnector.arrowOffset;
+			// The indirection via functions for markers is needed in
+			// order to apply the offsets before painting the line and
+			// paint the markers after painting the line.
+			var ptss = [];
+			var ptst = [];
+			ptss.push(pts[0].clone());
+			ptss.push(pts[1].clone());
+			ptst.push(pts[0].clone());
+			ptst.push(pts[1].clone());
+			if (offset < 1){
+				var ag = (pts[1].y-pts[0].y)/(pts[1].x-pts[0].x);
+				var ag2 = (pts[0].y-pts[1].y)/(pts[0].x-pts[1].x);
+				ptss[0].x = pts[1].x+(pts[0].x-pts[1].x)*offset;//(pts[0].x+pts[1].x)/2;
+				ptss[0].y = pts[1].y+offset*(pts[0].y-pts[1].y);//(pts[0].y+pts[1].y)/2;
+				ptst[1].x = pts[0].x+offset*(pts[1].x-pts[0].x);//(pts[0].x+pts[1].x)/2;
+				ptst[1].y = pts[0].y+offset*(pts[1].y-pts[0].y);//(pts[0].y+pts[1].y)/2;
+			}
+			
+			
+			var sourceMarker = this.createMarker(c, ptss, true);
+			var targetMarker = this.createMarker(c, ptst, false);
+
+			mxPolyline.prototype.paintEdgeShape.apply(this, arguments);	
+			
+			// Disables shadows, dashed styles and fixes fill color for markers
+			c.setFillColor(this.stroke);
+			c.setShadow(false);
+			c.setDashed(false);
+			
+			if (sourceMarker != null)
+			{
+				sourceMarker();
+			}
+			
+			if (targetMarker != null)
+			{
+				targetMarker();
+			}
+		},
 		
 		// Disables the built-in context menu
 		mxEvent.disableContextMenu(this.element);
@@ -536,6 +581,10 @@
 			
 			this._graph.setSelectionCells(cells);
 			
+		},
+		
+		setArrowOffset : function(v){
+			mxConnector.arrowOffset = v;
 		},
 
 		setSize : function(size) {

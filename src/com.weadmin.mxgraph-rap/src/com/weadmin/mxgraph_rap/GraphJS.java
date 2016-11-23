@@ -527,4 +527,10 @@ public class GraphJS extends SVWidgetBase{
 		param.add("ids", ars);
 		super.callRemoteMethod("selectCells", param);
 	}
+	
+	//set offset present of arrow,default is 1.0
+	public void setArrowOffset(double offset){
+
+		setRemoteProp("arrowOffset", offset);
+	}
 }
