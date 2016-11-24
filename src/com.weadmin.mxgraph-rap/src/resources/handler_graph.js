@@ -14,7 +14,7 @@
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
 		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset',
 		            'zoomIn','zoomOut','setTooltip','selectCell','selectCells'],
-		properties : [ "size", "xmlModel","prop","arrowOffset"],
+		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation"],
 		events:['modelUpdate']
 
 	});
@@ -75,17 +75,21 @@
 			// paint the markers after painting the line.
 			var ptss = [];
 			var ptst = [];
-			ptss.push(pts[0].clone());
-			ptss.push(pts[1].clone());
-			ptst.push(pts[0].clone());
-			ptst.push(pts[1].clone());
+			for(var i in pts){
+				ptss.push(pts[i].clone());
+			}
+			for(var i in pts){
+				ptst.push(pts[i].clone());
+			}
+//			ptss.push(pts[0].clone());
+//			ptss.push(pts[1].clone());
+//			ptst.push(pts[0].clone());
+//			ptst.push(pts[1].clone());
 			if (offset < 1){
-				var ag = (pts[1].y-pts[0].y)/(pts[1].x-pts[0].x);
-				var ag2 = (pts[0].y-pts[1].y)/(pts[0].x-pts[1].x);
 				ptss[0].x = pts[1].x+(pts[0].x-pts[1].x)*offset;//(pts[0].x+pts[1].x)/2;
 				ptss[0].y = pts[1].y+offset*(pts[0].y-pts[1].y);//(pts[0].y+pts[1].y)/2;
-				ptst[1].x = pts[0].x+offset*(pts[1].x-pts[0].x);//(pts[0].x+pts[1].x)/2;
-				ptst[1].y = pts[0].y+offset*(pts[1].y-pts[0].y);//(pts[0].y+pts[1].y)/2;
+				ptst[pts.length-1].x = pts[pts.length-2].x+offset*(pts[pts.length-1].x-pts[pts.length-2].x);//(pts[0].x+pts[1].x)/2;
+				ptst[pts.length-1].y = pts[pts.length-2].y+offset*(pts[pts.length-1].y-pts[pts.length-2].y);//(pts[0].y+pts[1].y)/2;
 			}
 			
 			
@@ -120,6 +124,7 @@
 		this._xmlModel = null;
 		this._hoverCell = null;
 		this._tooltips = {};
+		this._textAutoRotation = false;
 		
 		new HoverIcons(this._graph);
 
@@ -148,14 +153,7 @@
 			// transparent explicitly
 			this.ready = true;
 			this.layout();
-			if (this._text) {
-				// this.setText( this._text );
-				delete this._text;
-			}
-			if (this._font) {
-				// this.setFont( this._font );
-				delete this._font;
-			}
+
 			console.log("graph...onReady..")
 
 		},
@@ -299,7 +297,7 @@
 			
 			var n = codec.decode(doc.documentElement);
 			n.parent = null;
-			console.log(n);
+			//console.log(n);
 			//graph.getModel().beginUpdate();
 			
 			var cells = [];
@@ -317,9 +315,9 @@
 			var val = data.value;
 			var fn = "set"+name.substr(0,1).toUpperCase()+name.substr(1,name.length-1);
 			var f = this._graph[fn];
-			console.log(fn);
+			//console.log(fn);
 			if (f){
-				console.log(f);
+				//console.log(f);
 				var graph = this._graph;
 				f.call(graph,val);
 			}
@@ -459,13 +457,61 @@
 			}
 		},
 		onRemove:function(sender,evt){
-			console.log(evt)
+			//console.log(evt)
 			var ro = rap.getRemoteObject(this);
 			var cells = evt.getProperty('cells');
 			var ids = [];
 			for(var i in cells){
 				var cell = cells[i];
 				ids.push({id:cell.id,edge:cell.edge});
+				
+				//text auto ratation
+				if (this._textAutoRotation){
+					var edges = cell.edges;
+					for(var j in edges){
+						var e = edges[j];
+						if (e.children && e.children.length>0){
+							var text = e.children[0];
+							var sx = e.source.getGeometry().getCenterX();
+							var sy = e.source.getGeometry().getCenterY();
+							var dx = e.target.getGeometry().getCenterX();
+							var dy = e.target.getGeometry().getCenterY();
+							var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
+							if (dx<sx&&dy>sy){
+								angle = 180+angle;
+							}else if (dx<sx&&dy<sy){
+								angle = 180+angle;
+							}else if (dx>sx&&dy<sy){
+								angle = 360+angle;
+							}
+							var style = text.getStyle();
+							var newstyle = "";
+							
+							var pos = style.indexOf("rotation=");
+							if (pos>0){
+								var t1 = style.substring(0,pos)
+								var t2 = style.substring(pos,style.length)
+								var pos2 = t2.indexOf(";");
+								if (pos2<0){
+									newstyle = t1+"rotation="+angle+";";
+								}else{
+									var t3=t2.substring(pos2,t2.length);
+									newstyle = t1+"rotation="+angle+t3;	
+								}
+							}else{
+								if (style.charAt(style.length-1) != ";"){
+									style = style +";"
+								}
+								newstyle = style+"rotation="+angle +";"
+							}
+							
+							var texts = [];
+							texts.push(text);
+							this._graph.setCellStyle(newstyle,texts);
+							console.log(newstyle);
+						}
+					}
+				}
 			}
 			
 			ro.call(evt.name, {
@@ -474,7 +520,7 @@
 		},
 		
 		onCellConnect:function(sender,evt){
-			console.log(evt)
+			//console.log(evt)
 			var ro = rap.getRemoteObject(this);
 			var edge = evt.properties.edge;
 			var term = evt.properties.terminal;
@@ -585,6 +631,10 @@
 		
 		setArrowOffset : function(v){
 			mxConnector.arrowOffset = v;
+		},
+		
+		setTextAutoRotation : function(v){
+			this._textAutoRotation = v;
 		},
 
 		setSize : function(size) {

@@ -533,4 +533,9 @@ public class GraphJS extends SVWidgetBase{
 
 		setRemoteProp("arrowOffset", offset);
 	}
+	
+	public void setTextAutoRotation(boolean value){
+
+		setRemoteProp("textAutoRotation", value);
+	}
 }
