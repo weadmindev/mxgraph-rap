@@ -81,10 +81,7 @@
 			for(var i in pts){
 				ptst.push(pts[i].clone());
 			}
-//			ptss.push(pts[0].clone());
-//			ptss.push(pts[1].clone());
-//			ptst.push(pts[0].clone());
-//			ptst.push(pts[1].clone());
+
 			if (offset < 1){
 				ptss[0].x = pts[1].x+(pts[0].x-pts[1].x)*offset;//(pts[0].x+pts[1].x)/2;
 				ptss[0].y = pts[1].y+offset*(pts[0].y-pts[1].y);//(pts[0].y+pts[1].y)/2;
@@ -113,6 +110,8 @@
 				targetMarker();
 			}
 		},
+		
+
 		
 		// Disables the built-in context menu
 		mxEvent.disableContextMenu(this.element);
@@ -635,6 +634,31 @@
 		
 		setTextAutoRotation : function(v){
 			this._textAutoRotation = v;
+			if (v){
+				mxPolyline.prototype.getRotation = function()
+				{
+					var sx = this.points[0].x;
+					var sy = this.points[0].y;
+					var dx = this.points[1].x;
+					var dy = this.points[1].y;
+					var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
+					if (dx<sx&&dy>sy){
+						angle = 180+angle;
+					}else if (dx<sx&&dy<sy){
+						angle = 180+angle;
+					}else if (dx>sx&&dy<sy){
+						angle = 360+angle;
+					}
+					
+					return angle;
+				};
+			}else{
+				mxPolyline.prototype.getRotation = function()
+				{
+					return 0;
+				};
+			}
+			
 		},
 
 		setSize : function(size) {
