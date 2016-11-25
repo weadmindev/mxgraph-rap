@@ -29,6 +29,7 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
 import org.w3c.dom.Element;
 
+import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
@@ -102,7 +103,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 		//g.setModel(gd.getModel());
 //		
 //
-		
+		Object v2=((mxGraphModel)gd.getModel()).getCell("3");
 		
 		g.addGraphListener(new mxIEventListener(){
 			
@@ -133,7 +134,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 						
 						Object v = gd.insertVertex(gd.getDefaultParent(),id, "node!", x, y, 80, 60, style2);
 						g.setTooltip(id, "<h1>aaaaaaaaaaaaaaaa</h1>");
-						//gd.insertEdge(gd.getDefaultParent(),getId(), "", v2, v);
+						
+						gd.insertEdge(gd.getDefaultParent(),getId(), "aaaabbccc", v2, v);
 						
 
 					}else{
@@ -172,7 +174,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 				
 			}
 		});
-		g.setArrowOffset(0.3);
+		g.setArrowOffset(0.8);
+		g.setTextAutoRotation(true);
+	
 		display = Display.getCurrent();
 //		
 //		final ServerPushSession pushSession = new ServerPushSession();
