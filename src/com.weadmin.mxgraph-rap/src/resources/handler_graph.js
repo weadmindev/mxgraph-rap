@@ -39,32 +39,32 @@
 		
 		this.element.style.overflowY = 'auto';
 		this.element.style.overflowX = 'auto';
-//		
+		
 //		mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
 //		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
 //		{
 //			var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
 //			
-//			if (point != null)
-//			{
-//				var perimeter = this.getPerimeterFunction(terminal);
-//
-//				if (terminal.text != null && terminal.text.boundingBox != null)
-//				{
-//					// Adds a small border to the label bounds
-//					var b = terminal.text.boundingBox.clone();
-//					b.grow(3)
-//
-//					if (mxUtils.rectangleIntersectsSegment(b, point, next))
-//					{
-//						point = perimeter(b, terminal, next, orthogonal);
-//					}
-//				}
-//			}
-//			
+////			if (point != null)
+////			{
+////				var perimeter = this.getPerimeterFunction(terminal);
+////
+////				if (terminal.text != null && terminal.text.boundingBox != null)
+////				{
+////					// Adds a small border to the label bounds
+////					var b = terminal.text.boundingBox.clone();
+////					b.grow(3)
+////
+////					if (mxUtils.rectangleIntersectsSegment(b, point, next))
+////					{
+////						point = perimeter(b, terminal, next, orthogonal);
+////					}
+////				}
+////			}
+//				
 //			return point;
-//		};
-//		
+//		},
+		
 		mxConnector.arrowOffset = 1.0;
 		
 		mxConnector.prototype.paintEdgeShape = function(c, pts)
@@ -408,17 +408,6 @@
 				}
 			}
 		},
-//		setCellChildGeometry:function(data){
-//			var cell = this._graph.getModel().getCell(data.id);
-//			if (cell){
-//				var child = cell.getChildAt(data.index);
-//				if (child){
-//					var cells = [];
-//					cells.push(child);
-//					this._graph.setCellStyle(data.style,cells);
-//				}
-//			}
-//		},
 		
 		insertVertex : function(vertex) {
 			if (this.ready) {

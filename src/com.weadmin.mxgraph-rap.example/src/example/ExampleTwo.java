@@ -85,7 +85,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 		g.setGraph(gd);
 		
 		try{
-			g.loadGrapXml(mxUtils.readFile("D:\\Documents\\Downloads\\edge_label.xml"));
+			g.loadGrapXml(mxUtils.readInputStream(this.getClass().getResourceAsStream("edge_label.xml")));
+			
+			//g.loadGrapXml(mxUtils.readFile("D:\\Documents\\Downloads\\edge_label.xml"));
 		}catch(Exception e){
 			e.printStackTrace();
 		}
