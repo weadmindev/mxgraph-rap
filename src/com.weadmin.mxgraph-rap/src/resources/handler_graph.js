@@ -40,30 +40,33 @@
 		this.element.style.overflowY = 'auto';
 		this.element.style.overflowX = 'auto';
 		
-//		mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
-//		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
-//		{
-//			var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
-//			
-////			if (point != null)
-////			{
-////				var perimeter = this.getPerimeterFunction(terminal);
-////
-////				if (terminal.text != null && terminal.text.boundingBox != null)
-////				{
-////					// Adds a small border to the label bounds
-////					var b = terminal.text.boundingBox.clone();
-////					b.grow(3)
-////
-////					if (mxUtils.rectangleIntersectsSegment(b, point, next))
-////					{
-////						point = perimeter(b, terminal, next, orthogonal);
-////					}
-////				}
-////			}
-//				
-//			return point;
-//		},
+		this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
+		
+		
+		var mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
+		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
+		{
+			var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
+			
+			if (point != null)
+			{
+				var perimeter = this.getPerimeterFunction(terminal);
+
+				if (terminal.text != null && terminal.text.boundingBox != null)
+				{
+					// Adds a small border to the label bounds
+					var b = terminal.text.boundingBox.clone();
+					b.grow(3)
+
+					if (mxUtils.rectangleIntersectsSegment(b, point, next))
+					{
+						point = perimeter(b, terminal, next, orthogonal);
+					}
+				}
+			}
+				
+			return point;
+		},
 		
 		mxConnector.arrowOffset = 1.0;
 		
@@ -497,6 +500,11 @@
 							texts.push(text);
 							this._graph.setCellStyle(newstyle,texts);
 							console.log(newstyle);
+							
+							var data = {id:text.id};
+							data.offsetX=15*Math.sin(angle*0.017453293)
+							data.offsetY=-15*Math.cos(angle*0.017453293)
+							this.setCellOffset(data)
 						}
 					}
 				}
@@ -641,11 +649,19 @@
 					
 					return angle;
 				};
+				var CreateLabel = this.mxCreateLabel;
+				mxCellRenderer.prototype.createLabel = function(state, value){
+					if (state.cell.edge==1){
+						state.style['verticalAlign']='bottom';
+					}
+					return CreateLabel.apply(this, arguments);
+				}
 			}else{
 				mxPolyline.prototype.getRotation = function()
 				{
 					return 0;
 				};
+				mxCellRenderer.prototype.createLabel = this.mxCreateLabel;
 			}
 			
 		},

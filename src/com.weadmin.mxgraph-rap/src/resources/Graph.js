@@ -3433,7 +3433,7 @@ if (typeof mxVertexHandler != 'undefined')
 		 */
 		//Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'orthogonalEdgeStyle', 'rounded': '0', 'html': '1',
 		//	'jettySize': 'auto', 'orthogonalLoop': '1'};
-		Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none','rounded': '0',  'html': '1','orthogonalLoop':1};
+		Graph.prototype.defaultEdgeStyle = {'edgeStyle': 'none','rounded': '0',  'html': '1','orthogonalLoop':1,'verticalAlign':'bottom'};
 		
 		/**
 		 * Contains the current style for edges.
@@ -3487,6 +3487,7 @@ if (typeof mxVertexHandler != 'undefined')
 				style += 'html=1;';
 			}
 			
+			style +="verticalAlign:bottom;";
 			return style;
 		};
 	
