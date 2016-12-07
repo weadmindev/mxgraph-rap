@@ -295,6 +295,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/point.gif", false, false));
 		res.add(new CustomRes("images/mail_find.svg", false, false));
 		res.add(new CustomRes("images/resize.gif", false, false));
+		res.add(new CustomRes("images/warning.gif", false, false));
 		
 		res.add(new CustomRes("images/handle-fixed.png", false, false));
 		res.add(new CustomRes("images/handle-main.png", false, false));
@@ -537,5 +538,23 @@ public class GraphJS extends SVWidgetBase{
 	public void setTextAutoRotation(boolean value){
 
 		setRemoteProp("textAutoRotation", value);
+	}
+	
+	public void addCellOverlay(String id,String imgPath,int width,int height,String tooltip){
+		JsonObject param = new JsonObject();
+		param.add("id", id);
+		param.add("image", imgPath);
+		param.add("width", width);
+		param.add("height", height);
+		if (tooltip != null){
+			param.add("tooltip", tooltip);
+		}
+		super.callRemoteMethod("addCellOverlay", param);
+	}
+	
+	public void removeCellOverlays(String id){
+		JsonObject param = new JsonObject();
+		param.add("id", id);
+		super.callRemoteMethod("removeCellOverlays", param);
 	}
 }

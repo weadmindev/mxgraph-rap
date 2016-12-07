@@ -13,7 +13,7 @@
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
 		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset',
-		            'zoomIn','zoomOut','setTooltip','selectCell','selectCells'],
+		            'zoomIn','zoomOut','setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays'],
 		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation"],
 		events:['modelUpdate']
 
@@ -665,7 +665,23 @@
 			}
 			
 		},
-
+		
+		addCellOverlay : function(obj){
+			var cell = this._graph.getModel().getCell(obj.id);
+			if (cell){
+				this._graph.removeCellOverlays(cell);
+				var overlay = new mxCellOverlay(
+						new mxImage(obj.image, obj.width, obj.height),
+						obj.tooltip);
+				this._graph.addCellOverlay(cell, overlay);
+			}
+		},
+		removeCellOverlays : function(obj){
+			var cell = this._graph.getModel().getCell(obj.id);
+			if (cell){
+				this._graph.removeCellOverlays(cell);
+			}
+		},
 		setSize : function(size) {
 			if (this.ready) {
 				async(this, function() { // Needed by IE for some reason

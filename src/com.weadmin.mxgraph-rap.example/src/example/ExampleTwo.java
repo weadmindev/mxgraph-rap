@@ -50,6 +50,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 	String style2 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffff00;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style3 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ff0000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style4 = "text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;";
+	String style5 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/earth.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
 	
 	private long tick = 0;
 	private Display display;
@@ -134,8 +135,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 						node.setAttribute("tooltip", "akkdkdkdkdk");
 						node.setAttribute("placeholders", "1");
 						
-						Object v = gd.insertVertex(gd.getDefaultParent(),id, "node!", x, y, 80, 60, style2);
-						g.setTooltip(id, "<h1>aaaaaaaaaaaaaaaa</h1>");
+						Object v = gd.insertVertex(gd.getDefaultParent(),id, "node!", x, y, 80, 60, style5);
+						g.setTooltip(id, "<h1>aaaaaaaaaaaaaaaa</h1><img src='rwt-resources/graph/images/warning.gif'/>");
+						g.addCellOverlay(id, "rwt-resources/graph/images/warning.gif", 16, 16, "error");
 						
 						gd.insertEdge(gd.getDefaultParent(),getId(), "aaaabbccc", v2, v);
 						
@@ -150,8 +152,11 @@ public class ExampleTwo extends AbstractEntryPoint{
 						
 						//g.updateEdgeLabelPosition("4",258,8,80);
 						//g.selectCell(id);
-						g.selectCells(ids.toArray(new String[]{}) );
+						//g.selectCells(ids.toArray(new String[]{}) );
 						//g.zoomOut();
+						for(String id:ids){
+							g.removeCellOverlays(id);
+						}
 					}
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_HOVER)){
 					double x = (double) evt.getProperty("x");
@@ -176,7 +181,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				
 			}
 		});
-		g.setArrowOffset(0.8);
+		//g.setArrowOffset(0.8);
 		g.setTextAutoRotation(true);
 	
 		display = Display.getCurrent();
