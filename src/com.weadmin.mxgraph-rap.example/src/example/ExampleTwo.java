@@ -3,6 +3,8 @@ package example;
 import java.util.ArrayList;
 import java.util.UUID;
 
+import org.eclipse.jface.layout.GridDataFactory;
+import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -10,7 +12,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -53,21 +54,22 @@ public class ExampleTwo extends AbstractEntryPoint{
 		parent.setLayout(new FillLayout());
 		display = Display.getCurrent();
 		Composite composite = new Composite(parent, SWT.NONE);
-		composite.setLayout(new GridLayout(1, false));
-//		Tree s = new Tree(parent, SWT.BORDER);
-//		s.setBounds(820, 20, 400, 600);
-//		
-//		TreeItem treeItem= new TreeItem(s, SWT.NONE);
-//		treeItem.setText(0, "aaaaaaa");
-//		
-//		TreeItem treeItem2 = new TreeItem(s, SWT.NONE);
-//		treeItem2.setText(0, "bbbbbbb");
+		GridLayoutFactory.fillDefaults().numColumns( 1 ).margins( 0, 0 ).applyTo( composite );
 		
-		GraphJS g = new GraphJS(parent, SWT.BORDER);
-		g.setBounds(20, 30, 800, 600);
+		Composite one = new Composite(composite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns( 6 ).extendedMargins(10, 0, 10, 5).applyTo( one );
+		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, false ).applyTo( one );
 		
-		Button button = new Button(composite, SWT.PUSH);
-		//button.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		Composite two = new Composite(composite, SWT.NONE);
+		GridLayoutFactory.fillDefaults().numColumns( 6 ).margins( 0, 0 ).applyTo( two );
+		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, true ).applyTo( two );
+		
+		GraphJS g = new GraphJS(two, SWT.BORDER);
+		//g.setBounds(20, 30, 800, 600);
+	    GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).span(6, 1).grab( true, true ).applyTo( g );
+		
+		Button button = new Button(one, SWT.PUSH);
+		button.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		button.setText("树型");
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -76,7 +78,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 			}
 		});
 		
-		Button button2 = new Button(composite, SWT.PUSH);
+		Button button2 = new Button(one, SWT.PUSH);
 		button2.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		button2.setText("圆型");
 		button2.addSelectionListener(new SelectionAdapter() {
@@ -86,7 +88,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 			}
 		});
 		
-		Button button3 = new Button(composite, SWT.PUSH);
+		Button button3 = new Button(one, SWT.PUSH);
 		button3.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		button3.setText("堆型");
 		button3.addSelectionListener(new SelectionAdapter() {
@@ -96,7 +98,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 			}
 		});
 		
-		Button button5 = new Button(composite, SWT.PUSH);
+		Button button5 = new Button(one, SWT.PUSH);
 		button5.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		button5.setText("随意");
 		button5.addSelectionListener(new SelectionAdapter() {
@@ -106,7 +108,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 			}
 		});
 		
-		Button button6 = new Button(composite, SWT.PUSH);
+		Button button6 = new Button(one, SWT.PUSH);
 		button6.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		button6.setText("分层型");
 		button6.addSelectionListener(new SelectionAdapter() {
@@ -116,7 +118,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 			}
 		});
 		
-		Button button4 = new Button(composite, SWT.PUSH);
+		Button button4 = new Button(one, SWT.PUSH);
 		button4.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		button4.setText("分割型（慎点）");
 		button4.addSelectionListener(new SelectionAdapter() {
