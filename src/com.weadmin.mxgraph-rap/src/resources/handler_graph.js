@@ -323,19 +323,19 @@
 				var layouts = new mxStackLayout(graph);
 				layouts.execute(parent);
 				if(type == 'circle'){
-					var layout = new mxCircleLayout(graph);//圆型
+					var layout = new mxCircleLayout(graph);//circle
 				}else if(type == 'tree'){
-					var layout = new mxCompactTreeLayout(graph);//树型
+					var layout = new mxCompactTreeLayout(graph);//tree
 				}else if(type == 'stack'){
 					var fast = new mxFastOrganicLayout(graph);
 					fast.execute(parent);
-					var layout = new mxStackLayout(graph);//堆型
+					var layout = new mxStackLayout(graph);//stack
 				}else if(type == 'partition'){
-					var layout = new mxPartitionLayout(graph);//分割型
+					var layout = new mxPartitionLayout(graph);//partition
 				}else if(type == 'hierarchical'){
-					var layout = new mxHierarchicalLayout(graph);//分割型mxHierarchicalLayout
+					var layout = new mxHierarchicalLayout(graph);//hierarchical
 				}else if(type == 'fast'){
-					var layout = new mxFastOrganicLayout(graph);//随意（星型）
+					var layout = new mxFastOrganicLayout(graph);//fastorganic
 				}
 				layout.execute(parent);
 			} finally {
