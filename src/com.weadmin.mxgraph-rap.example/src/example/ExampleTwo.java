@@ -1,44 +1,31 @@
 package example;
 
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
 
-import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
-import org.eclipse.rap.rwt.client.Client;
-import org.eclipse.rap.rwt.internal.service.ServiceContext;
-import org.eclipse.rap.rwt.service.ServerPushSession;
-import org.eclipse.rap.rwt.service.UISession;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.TraverseEvent;
-import org.eclipse.swt.events.TraverseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.List;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Tree;
-import org.eclipse.swt.widgets.TreeItem;
 import org.w3c.dom.Element;
 
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
-import com.mxgraph.util.mxXmlUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
-import com.mxgraph.util.mxStyleUtils;
 import com.mxgraph.view.mxGraph;
 import com.weadmin.mxgraph_rap.GraphJS;
-import com.weadmin.mxgraph_rap.MxGraphJS;
 import com.weadmin.mxgraph_rap.MxGraphJS.MxGraphEvent;
 
 public class ExampleTwo extends AbstractEntryPoint{
@@ -65,7 +52,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 	protected void createContents(Composite parent) {
 		parent.setLayout(new FillLayout());
 		display = Display.getCurrent();
-		
+		Composite composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(new GridLayout(1, false));
 //		Tree s = new Tree(parent, SWT.BORDER);
 //		s.setBounds(820, 20, 400, 600);
 //		
@@ -77,18 +65,78 @@ public class ExampleTwo extends AbstractEntryPoint{
 		
 		GraphJS g = new GraphJS(parent, SWT.BORDER);
 		g.setBounds(20, 30, 800, 600);
+		
+		Button button = new Button(composite, SWT.PUSH);
+		//button.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		button.setText("树型");
+		button.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				g.graghLayout("tree");
+			}
+		});
+		
+		Button button2 = new Button(composite, SWT.PUSH);
+		button2.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		button2.setText("圆型");
+		button2.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				g.graghLayout("circle");
+			}
+		});
+		
+		Button button3 = new Button(composite, SWT.PUSH);
+		button3.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		button3.setText("堆型");
+		button3.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				g.graghLayout("stack");
+			}
+		});
+		
+		Button button5 = new Button(composite, SWT.PUSH);
+		button5.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		button5.setText("随意");
+		button5.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				g.graghLayout("fast");
+			}
+		});
+		
+		Button button6 = new Button(composite, SWT.PUSH);
+		button6.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		button6.setText("分层型");
+		button6.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				g.graghLayout("hierarchical");
+			}
+		});
+		
+		Button button4 = new Button(composite, SWT.PUSH);
+		button4.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		button4.setText("分割型（慎点）");
+		button4.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				g.graghLayout("partition");
+			}
+		});
+		
 		hoverText = new Label(g, SWT.BORDER);
 		hoverText.setVisible(false);
 		hoverText.setSize(100, 40);
 		
 		hoverText.setForeground(new Color(Display.getCurrent(), 255, 0, 0));
 		mxGraph gd = new mxGraph();
+		Object parentG = gd.getDefaultParent();
 		g.setGraph(gd);
 		
 		try{
 			g.loadGrapXml(mxUtils.readInputStream(this.getClass().getResourceAsStream("edge_label.xml")));
-			
-			//g.loadGrapXml(mxUtils.readFile("D:\\Documents\\Downloads\\edge_label.xml"));
 		}catch(Exception e){
 			e.printStackTrace();
 		}
@@ -127,21 +175,19 @@ public class ExampleTwo extends AbstractEntryPoint{
 					double y = (double) evt.getProperty("y");
 					int button = (int) evt.getProperty("button");
 					if (button == 0){
-						 String id= getId();
-						 ids.add(id);
+						String id= getId();
+						ids.add(id);
 						System.out.println("id:"+ id);
 						Element node = mxDomUtils.createDocument().createElement("UserObject");
 						node.setAttribute("label", "node!");
 						node.setAttribute("tooltip", "akkdkdkdkdk");
 						node.setAttribute("placeholders", "1");
 						
-						Object v = gd.insertVertex(gd.getDefaultParent(),id, "node!", x, y, 80, 60, style5);
-						g.setTooltip(id, "<h1>aaaaaaaaaaaaaaaa</h1><img src='rwt-resources/graph/images/warning.gif'/>");
+						Object v = gd.insertVertex(parentG,id, "node!", x, y, 80, 60, style5);
+						g.setTooltip(id, "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/warning.gif'/>");
 						g.addCellOverlay(id, "rwt-resources/graph/images/warning.gif", 16, 16, "error");
+						gd.insertEdge(parentG,getId(), "aaabbcc", v2, v);
 						
-						gd.insertEdge(gd.getDefaultParent(),getId(), "aaaabbccc", v2, v);
-						
-
 					}else{
 						//gd.insertEdge(gd.getDefaultParent(), getId(), "", v2, v);
 						//g.setCellStyle("5", style3);	
@@ -182,7 +228,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 			}
 		});
 		//g.setArrowOffset(0.8);
-		g.setTextAutoRotation(true);
+		//g.setTextAutoRotation(true);
 	
 		display = Display.getCurrent();
 //		

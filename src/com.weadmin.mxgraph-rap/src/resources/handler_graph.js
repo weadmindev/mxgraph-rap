@@ -13,7 +13,7 @@
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
 		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset',
-		            'zoomIn','zoomOut','setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays'],
+		            'zoomIn','zoomOut','setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graghLayout'],
 		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation"],
 		events:['modelUpdate']
 
@@ -182,7 +182,7 @@
 					// Updates the display
 					graph.getModel().endUpdate();
 				}
-
+				
 				var parent = graph.getDefaultParent();
 				this._parent = parent;
 
@@ -309,6 +309,42 @@
 			} finally {
 				// Updates the display
 				//graph.getModel().endUpdate();
+			}
+		},
+		
+		//auto composing
+		graghLayout:function(obj){
+			console.log(obj);
+			var type = obj.type;
+			var graph = this._graph;
+			var parent = graph.getDefaultParent();
+			graph.getModel().beginUpdate();
+			try{
+				var layouts = new mxStackLayout(graph);
+				layouts.execute(parent);
+				if(type == 'circle'){
+					var layout = new mxCircleLayout(graph);//圆型
+				}else if(type == 'tree'){
+					var layout = new mxCompactTreeLayout(graph);//树型
+				}else if(type == 'stack'){
+					var fast = new mxFastOrganicLayout(graph);
+					fast.execute(parent);
+					var layout = new mxStackLayout(graph);//堆型
+				}else if(type == 'partition'){
+					var layout = new mxPartitionLayout(graph);//分割型
+				}else if(type == 'hierarchical'){
+					var layout = new mxHierarchicalLayout(graph);//分割型mxHierarchicalLayout
+				}else if(type == 'fast'){
+					var layout = new mxFastOrganicLayout(graph);//随意（星型）
+				}
+				layout.execute(parent);
+			} finally {
+				var morph = new mxMorphing(graph);
+				morph.addListener(mxEvent.DONE, function()
+				{
+					graph.getModel().endUpdate();
+				});
+				morph.startAnimation();
 			}
 		},
 

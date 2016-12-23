@@ -63,8 +63,6 @@ public class GraphJS extends SVWidgetBase{
 	private mxGraph graph;
 	private boolean enableMenu;
 	
-
-	
 	public GraphJS(Composite parent, int style) {
 		super(parent, style);
 		
@@ -108,7 +106,7 @@ public class GraphJS extends SVWidgetBase{
 			}
 		});
 
-		this.addGraphListener(new mxIEventListener() {
+		/*this.addGraphListener(new mxIEventListener() {
 			
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
@@ -126,7 +124,7 @@ public class GraphJS extends SVWidgetBase{
 				}
 				
 			}
-		});
+		});*/
 	}
 	
 	public void setGraph(mxGraph g){
@@ -348,6 +346,12 @@ public class GraphJS extends SVWidgetBase{
 			obj.set("content", xmlText);
 			super.callRemoteMethod("appendXmlModel", obj);
 		}
+	}
+	
+	public void graghLayout(String type){
+		JsonObject obj = new JsonObject();
+		obj.add("type", type);
+		super.callRemoteMethod("graghLayout", obj);
 	}
 	
 	public void insertVertex(String id, String value,double x,double y,double width,double height,String shape){
