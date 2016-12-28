@@ -13,12 +13,14 @@ import java.util.Vector;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
+import org.eclipse.rap.rwt.internal.protocol.Operation.CallOperation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.internal.SWTEventObject;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -244,7 +246,6 @@ public class GraphJS extends SVWidgetBase{
 			//System.out.println("after update:"+getGraphXml());
 		}
 		
-		
 	}
 	
 	@Override
@@ -254,8 +255,9 @@ public class GraphJS extends SVWidgetBase{
 	
 	public void addGraphListener(mxIEventListener l){
 		graphListeners.add(l);
+		mxEventObject event = new mxEventObject("completed");
+		graphListeners.get(graphListeners.size()-1).invoke(this, event);
 	}
-
 
 	@Override
 	protected String getWidgetName() {

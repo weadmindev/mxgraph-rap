@@ -22,6 +22,7 @@ import org.w3c.dom.Element;
 
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxDomUtils;
+import com.mxgraph.util.mxEvent;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
@@ -171,7 +172,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 					}
 				});
 				System.out.println("listener:"+evt.getName()+":"+evt.getProperties());
-				
+				if (evt.getName().equals("completed")) {
+					System.out.println("初始化完成，开始载入数据...");
+				}
 				if (evt.getName().equals(MxGraphEvent.MOUSE_DOWN)){
 					double x = (double) evt.getProperty("x");
 					double y = (double) evt.getProperty("y");
@@ -220,7 +223,6 @@ public class ExampleTwo extends AbstractEntryPoint{
 				}
 				
 			}});
-		
 		g.addListener(SWT.MouseWheel, new Listener() {
 			
 			@Override
@@ -231,7 +233,6 @@ public class ExampleTwo extends AbstractEntryPoint{
 		});
 		//g.setArrowOffset(0.8);
 		//g.setTextAutoRotation(true);
-	
 		display = Display.getCurrent();
 //		
 //		final ServerPushSession pushSession = new ServerPushSession();
