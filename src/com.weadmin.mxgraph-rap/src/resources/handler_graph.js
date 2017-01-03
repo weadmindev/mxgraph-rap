@@ -283,6 +283,11 @@
 					}
 				});
 			}
+			var ro = rap.getRemoteObject(this)
+			ro.call('isCompleted', {
+				isCompleted : true
+			});
+			console.log('xml loaded');
 		},
 		
 		appendXmlModel : function(model) {
@@ -752,10 +757,6 @@
 				this.element.style.width = area[2] + "px";
 				this.element.style.height = area[3] + "px";
 			}
-			var ro = rap.getRemoteObject(this)
-			ro.call('isCompleted', {
-				isCompleted : true
-			});
 		}
 
 	};

@@ -46,6 +46,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 	String style3 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ff0000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style4 = "text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;";
 	String style5 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
+	String style6 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
 	
 	private Display display;
 	Label title;
@@ -206,7 +207,6 @@ public class ExampleTwo extends AbstractEntryPoint{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		
 		ids = new ArrayList<>();
 //		gd.setConnectableEdges(false);
 //		gd.setAllowDanglingEdges(false);
@@ -231,7 +231,6 @@ public class ExampleTwo extends AbstractEntryPoint{
 					@Override
 					public void run() {
 //						s.select(s.getItem(0));
-						
 					}
 				});
 				System.out.println("listener:"+evt.getName()+":"+evt.getProperties());
@@ -248,14 +247,23 @@ public class ExampleTwo extends AbstractEntryPoint{
 					if (button == 0){
 						String id= getId();
 						ids.add(id);
-						System.out.println("id:"+ id);
 						Element node = mxDomUtils.createDocument().createElement("UserObject");
 						node.setAttribute("label", "node!");
 						node.setAttribute("tooltip", "akkdkdkdkdk");
 						node.setAttribute("placeholders", "1");
-						
-						Object v = gd.insertVertex(parentG,id, "node!", x, y, 80, 60, style5);
-						g.setTooltip(id, "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/warning.gif'/>");
+						int styleNum = (int) (Math.random()*3);
+						System.out.println(styleNum);
+						String style;
+						String status;
+						if (styleNum==1) {
+							style = style6;
+							status = "warning";
+						}else{
+							style = style5;
+							status = "error";
+						}
+						Object v = gd.insertVertex(parentG,id, "node!", x, y, 80, 60, style);
+						g.setTooltip(id, "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/"+status+".gif'/>");
 						g.addCellOverlay(id, "rwt-resources/graph/images/warning.gif", 16, 16, "error");
 						gd.insertEdge(parentG,getId(), "aaabbcc", v2, v);
 						
