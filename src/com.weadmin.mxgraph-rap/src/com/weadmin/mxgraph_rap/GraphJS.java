@@ -2,10 +2,11 @@ package com.weadmin.mxgraph_rap;
 
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.lang.reflect.Array;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -13,20 +14,11 @@ import java.util.Vector;
 import org.eclipse.rap.json.JsonArray;
 import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.json.JsonValue;
-import org.eclipse.rap.rwt.internal.protocol.Operation.CallOperation;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
-import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.internal.SWTEventObject;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.MenuItem;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -204,7 +196,13 @@ public class GraphJS extends SVWidgetBase{
 				l.invoke(this, event);
 			}
 		}
-		
+		if(method.equals("isCompleted")){
+			boolean isCompleted = parameters.get("isCompleted").asBoolean();
+			mxEventObject event = new mxEventObject(method,"isCompleted",isCompleted);
+			for (mxIEventListener l:graphListeners){
+				l.invoke(this, event);
+			}
+		}
 		if (method.equals(MxGraphEvent.EDGE_Connect)){
 			String source = parameters.get("source").asString();
 			String target = parameters.get("target").asString();
@@ -255,8 +253,6 @@ public class GraphJS extends SVWidgetBase{
 	
 	public void addGraphListener(mxIEventListener l){
 		graphListeners.add(l);
-		mxEventObject event = new mxEventObject("completed");
-		graphListeners.get(graphListeners.size()-1).invoke(this, event);
 	}
 
 	@Override
@@ -286,6 +282,9 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("resources/editor.txt", false, false));
 		res.add(new CustomRes("resources/editor_zh.txt", false, false));
 		res.add(new CustomRes("images/earth.png", false, false));
+		res.add(new CustomRes("images/application.png", false, false));
+		res.add(new CustomRes("images/equipment.png", false, false));
+		res.add(new CustomRes("images/server.png", false, false));
 		res.add(new CustomRes("images/window.gif", false, false));
 		res.add(new CustomRes("images/window-title.gif", false, false));
 		res.add(new CustomRes("images/button.gif", false, false));
@@ -326,6 +325,29 @@ public class GraphJS extends SVWidgetBase{
 		String xmlText = mxUtils.getPrettyXml(node);
 		//System.out.println(mxUtils.getPrettyXml(node));
 		super.setRemoteProp("xmlModel", xmlText);
+	}
+	
+	@SuppressWarnings({ "deprecation" })
+	public void setModelXml(String filename){
+		mxCodec codec = new mxCodec();
+		Node node = codec.encode(graph.getModel());
+		String xml = mxUtils.getXml(node);
+		byte[] b = xml.getBytes();
+		String path = "D:/mxgragh";
+		try {
+			File file = new File(path+"/"+filename);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+			FileOutputStream wf = new FileOutputStream(file);
+			wf.write(b);
+			wf.flush();
+			wf.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	

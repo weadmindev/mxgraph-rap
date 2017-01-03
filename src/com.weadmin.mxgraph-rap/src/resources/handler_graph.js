@@ -155,8 +155,8 @@
 			// transparent explicitly
 			this.ready = true;
 			this.layout();
-
-			console.log("graph...onReady..")
+			
+			console.log("graph...onReady..");
 
 		},
 
@@ -733,6 +733,17 @@
 		},
 
 		layout : function() {
+			var div = this.element;
+			var sizee = this._size;
+			console.log(div.scrollHeight)
+			console.log(div.scrollWidth)
+			console.log(sizee)
+			while(true){
+				if(div.scrollHeight<=sizee.height&&div.scrollWidth<=sizee.width){
+					break;
+				}
+				this._graph.zoomOut();
+			}
 			console.log("graph...layout..")
 			if (this.ready) {
 				var area = this.parent.getClientArea();
@@ -740,8 +751,11 @@
 				this.element.style.top = area[1] + "px";
 				this.element.style.width = area[2] + "px";
 				this.element.style.height = area[3] + "px";
-
 			}
+			var ro = rap.getRemoteObject(this)
+			ro.call('isCompleted', {
+				isCompleted : true
+			});
 		}
 
 	};

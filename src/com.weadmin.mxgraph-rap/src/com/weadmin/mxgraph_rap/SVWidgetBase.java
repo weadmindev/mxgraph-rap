@@ -72,8 +72,6 @@ public abstract class SVWidgetBase extends Composite {
 		}
 	};
 	
-	
-	
 	protected abstract void handleSetProp(JsonObject properties);
 	protected abstract void handleCallMethod(String method, JsonObject parameters);
 	protected abstract void handleCallNotify(String event, JsonObject parameters);
