@@ -4,9 +4,19 @@
    <extension
          point="org.eclipse.rap.ui.entrypoint">
       <entrypoint
+            class="example.ExampleOne"
+            id="com.weadmin.mxgraph-rap.example.entrypoint1"
+            path="/hello1">
+      </entrypoint>
+      <entrypoint
             class="example.ExampleTwo"
             id="com.weadmin.mxgraph-rap.example.entrypoint1"
-            path="/hello">
+            path="/hello2">
+      </entrypoint>
+      <entrypoint
+            class="example.SmallGragh"
+            id="com.weadmin.mxgraph-rap.example.entrypoint1"
+            path="/small">
       </entrypoint>
    </extension>
 
