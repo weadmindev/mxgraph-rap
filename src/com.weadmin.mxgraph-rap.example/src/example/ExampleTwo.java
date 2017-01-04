@@ -76,7 +76,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 		GridLayoutFactory.fillDefaults().numColumns( 9 ).margins( 0, 0 ).applyTo( two );
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, true ).applyTo( two );
 		
-		GraphJS g = new GraphJS(two, SWT.BORDER);
+		GraphJS g = new GraphJS(two, SWT.NONE);
 		//g.setBounds(20, 30, 800, 600);
 	    GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).span(9, 1).grab( true, true ).applyTo( g );
 		
@@ -251,20 +251,25 @@ public class ExampleTwo extends AbstractEntryPoint{
 						node.setAttribute("label", "node!");
 						node.setAttribute("tooltip", "akkdkdkdkdk");
 						node.setAttribute("placeholders", "1");
-						int styleNum = (int) (Math.random()*3);
-						System.out.println(styleNum);
+						int styleNum = (int) (Math.random()*4);
+						int statusNum = (int) (Math.random()*4);
 						String style;
 						String status;
+						int height = 60;
 						if (styleNum==1) {
 							style = style6;
-							status = "warning";
+							height = 80;
 						}else{
 							style = style5;
-							status = "error";
 						}
-						Object v = gd.insertVertex(parentG,id, "node!", x, y, 80, 60, style);
-						g.setTooltip(id, "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/"+status+".gif'/>");
-						g.addCellOverlay(id, "rwt-resources/graph/images/warning.gif", 16, 16, "error");
+						if (statusNum==1) {
+							status = "error.png";
+						}else{
+							status = "warning.gif";
+						}
+						Object v = gd.insertVertex(parentG,id, "node!", x, y, 80, height, style);
+						g.setTooltip(id, "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/"+status+"/>");
+						g.addCellOverlay(id, "rwt-resources/graph/images/"+status, 16, 16, "error");
 						gd.insertEdge(parentG,getId(), "aaabbcc", v2, v);
 						
 					}else{

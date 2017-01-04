@@ -49,6 +49,7 @@ public class GraphJS extends SVWidgetBase{
 		public static String CELL_MOVED = mxEvent.CELLS_MOVED;
 		public static String CELL_RESIZE = mxEvent.CELLS_RESIZED;
 		public static String CELL_CONNECT = mxEvent.CELL_CONNECTED;
+		public static String CONTENT_COMPLETED = "isCompleted";
 	};
 
 	private List<mxIEventListener>  graphListeners;
@@ -196,7 +197,7 @@ public class GraphJS extends SVWidgetBase{
 				l.invoke(this, event);
 			}
 		}
-		if(method.equals("isCompleted")){
+		if(method.equals(MxGraphEvent.CONTENT_COMPLETED)){
 			boolean isCompleted = parameters.get("isCompleted").asBoolean();
 			mxEventObject event = new mxEventObject(method,"isCompleted",isCompleted);
 			for (mxIEventListener l:graphListeners){
@@ -295,6 +296,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/mail_find.svg", false, false));
 		res.add(new CustomRes("images/resize.gif", false, false));
 		res.add(new CustomRes("images/warning.gif", false, false));
+		res.add(new CustomRes("images/error.png", false, false));
 		
 		res.add(new CustomRes("images/handle-fixed.png", false, false));
 		res.add(new CustomRes("images/handle-main.png", false, false));
@@ -305,7 +307,6 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/triangle-left.png", false, false));
 		res.add(new CustomRes("images/triangle-right.png", false, false));
 		res.add(new CustomRes("images/triangle-up.png", false, false));
-		
 		
 		res.add(new CustomRes("css/common.css", true, true));
 		res.add(new CustomRes("css/explorer.css", true, true));

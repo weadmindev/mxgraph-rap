@@ -30,6 +30,7 @@
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.parent.append(this.element);
+		
 		this.parent.addListener("Resize", this.layout);
 
 		this._size = properties.size ? properties.size : {
@@ -37,11 +38,22 @@
 			height : 300
 		};
 		
-		this.element.style.overflowY = 'auto';
-		this.element.style.overflowX = 'auto';
+		this.element.style.overflow = 'hidden';
+		
+		this.outline = document.createElement("div");
+		this.outline.style.zIndex = '1';
+		this.outline.style.position = 'absolute';
+		this.outline.style.overflow = 'hidden';
+		this.outline.style.bottom = '5px';
+		this.outline.style.right = '5px';
+		this.outline.style.width = '250px';
+		this.outline.style.height = '160px';
+		this.outline.style.background = 'transparent';
+		this.outline.style.border='solid gray';
+		
+		this.parent.append(this.outline);
 		
 		this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
-		
 		
 		var mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
 		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
@@ -64,7 +76,6 @@
 					}
 				}
 			}
-				
 			return point;
 		},
 		
@@ -143,6 +154,7 @@
 		
 		mxStencilRegistry.loadStencilSet(MXGRAPH_BASEPATH+"stencils/cisco/routers.xml");
 
+		var outln = new mxOutline(this._graph, this.outline);
 		rap.on("render", this.onRender);
 	};
 
@@ -287,7 +299,6 @@
 			ro.call('isCompleted', {
 				isCompleted : true
 			});
-			console.log('xml loaded');
 		},
 		
 		appendXmlModel : function(model) {
@@ -319,7 +330,7 @@
 		
 		//auto composing
 		graghLayout:function(obj){
-			console.log(obj);
+			//console.log(obj);
 			var type = obj.type;
 			var graph = this._graph;
 			var parent = graph.getDefaultParent();
@@ -740,14 +751,18 @@
 		layout : function() {
 			var div = this.element;
 			var sizee = this._size;
-			console.log(div.scrollHeight)
-			console.log(div.scrollWidth)
-			console.log(sizee)
-			while(true){
-				if(div.scrollHeight<=sizee.height&&div.scrollWidth<=sizee.width){
-					break;
+			if(sizee.width<=466&&sizee.height<=355){
+				div.style.overflow = 'auto';
+				if(this.outline){
+					this.outline.style.display = 'none';
 				}
-				this._graph.zoomOut();
+				while(true){//auto zommOut
+					if(div.scrollHeight<=sizee.height&&div.scrollWidth<=sizee.width){
+						break;
+					}
+					this._graph.zoomOut();
+				}
+				div.style.overflow = 'hidden';
 			}
 			console.log("graph...layout..")
 			if (this.ready) {
