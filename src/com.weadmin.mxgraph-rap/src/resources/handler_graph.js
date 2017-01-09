@@ -12,9 +12,9 @@
 
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
-		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset',
-		            'zoomIn','zoomOut','setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graghLayout'],
-		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation"],
+		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset','zoomIn','zoomOut',
+		            'setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graghLayout','resetView'],
+		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation","controlarea","pageType"],
 		events:['modelUpdate']
 
 	});
@@ -41,17 +41,33 @@
 		this.element.style.overflow = 'hidden';
 		
 		this.outline = document.createElement("div");
-		this.outline.style.zIndex = '1';
+		this.outline.style.zIndex = '2';
 		this.outline.style.position = 'absolute';
 		this.outline.style.overflow = 'hidden';
-		this.outline.style.bottom = '5px';
-		this.outline.style.right = '5px';
+		this.outline.style.bottom = '1px';
+		this.outline.style.right = '1px';
 		this.outline.style.width = '250px';
 		this.outline.style.height = '160px';
 		this.outline.style.background = 'transparent';
 		this.outline.style.border='solid gray';
 		
 		this.parent.append(this.outline);
+		
+		this.cover = document.createElement("div");
+		this.cover.style.zIndex = '1';
+		this.cover.style.position = 'absolute';
+		this.cover.style.overflow = 'hidden';
+		this.cover.style.left = '0px';
+		this.cover.style.top = '0px';
+		this.cover.style.bottom = '0px';
+		this.cover.style.right = '0px';
+		this.cover.style.background = 'transparent';
+		this.cover.style.display = 'none';
+		this.cover.onmouseover = function(){
+			this.style.cursor = 'pointer';
+		};
+		
+		this.parent.append(this.cover);
 		
 		this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
 		
@@ -136,6 +152,7 @@
 		this._parent = null;
 		this._xmlModel = null;
 		this._hoverCell = null;
+		this._pagetype = null;
 		this._tooltips = {};
 		this._textAutoRotation = false;
 		
@@ -145,7 +162,7 @@
 		this._graph.setDisconnectOnMove(false);
 		this._graph.ignoreScrollbars = true;
 		this._graph.allowNegativeCoordinates = false;
-
+		this._graph.centerZoom = false;
 		//this._graph.setConnectable(true);
 		
 		this._graph.setTooltips(true);
@@ -154,7 +171,6 @@
 		
 		mxStencilRegistry.loadStencilSet(MXGRAPH_BASEPATH+"stencils/cisco/routers.xml");
 
-		var outln = new mxOutline(this._graph, this.outline);
 		rap.on("render", this.onRender);
 	};
 
@@ -197,7 +213,7 @@
 				
 				var parent = graph.getDefaultParent();
 				this._parent = parent;
-
+				
 				graph.connectionHandler.addListener(mxEvent.CONNECT, this.onConnect);
 				var mgr = new mxAutoSaveManager(graph);
 				mgr.save = this.autoSave;
@@ -208,8 +224,8 @@
 				graph.addListener(mxEvent.CELL_CONNECTED,this.onCellConnect);
 				//graph.addListener(mxEvent.DISCONNECT,this.onCellConnect);
 				
+				var outln = new mxOutline(graph, this.outline);
 				rap.on("send", this.onSend);
-
 				this.ready = true;
 				this.layout();
 			}
@@ -339,9 +355,10 @@
 				var layouts = new mxStackLayout(graph);
 				layouts.execute(parent);
 				if(type == 'circle'){
-					var layout = new mxCircleLayout(graph);//circle
+					var layout = new mxCircleLayout(graph,50);//circle
 				}else if(type == 'tree'){
 					var layout = new mxCompactTreeLayout(graph);//tree
+					//var layout = new mxRadialTreeLayout(graph);
 				}else if(type == 'stack'){
 					var fast = new mxFastOrganicLayout(graph);
 					fast.execute(parent);
@@ -362,6 +379,10 @@
 				});
 				morph.startAnimation();
 			}
+		},
+		resetView:function(obj){
+			var graph = this._graph;
+			graph.view.scaleAndTranslate(1, 0, 0);
 		},
 
 		setProp:function(data){
@@ -520,13 +541,13 @@
 							var dx = e.target.getGeometry().getCenterX();
 							var dy = e.target.getGeometry().getCenterY();
 							var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
-							if (dx<sx&&dy>sy){
-								angle = 180+angle;
-							}else if (dx<sx&&dy<sy){
-								angle = 180+angle;
-							}else if (dx>sx&&dy<sy){
-								angle = 360+angle;
-							}
+//							if (dx<sx&&dy>sy){
+//								angle = 180+angle;
+//							}else if (dx<sx&&dy<sy){
+//								angle = 180+angle;
+//							}else if (dx>sx&&dy<sy){
+//								angle = 360+angle;
+//							}
 							var style = text.getStyle();
 							var newstyle = "";
 							
@@ -551,7 +572,7 @@
 							var texts = [];
 							texts.push(text);
 							this._graph.setCellStyle(newstyle,texts);
-							console.log(newstyle);
+							//console.log(newstyle);
 							
 							var data = {id:text.id};
 							data.offsetX=15*Math.sin(angle*0.017453293)
@@ -681,6 +702,14 @@
 			mxConnector.arrowOffset = v;
 		},
 		
+		setControlarea : function(value){
+			this.outline.style.display = value;
+		},
+		
+		setPageType : function(type){
+			this._pagetype = type;
+		},
+		
 		setTextAutoRotation : function(v){
 			this._textAutoRotation = v;
 			if (v){
@@ -691,14 +720,19 @@
 					var dx = this.points[1].x;
 					var dy = this.points[1].y;
 					var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
-					if (dx<sx&&dy>sy){
-						angle = 180+angle;
-					}else if (dx<sx&&dy<sy){
-						angle = 180+angle;
-					}else if (dx>sx&&dy<sy){
-						angle = 360+angle;
-					}
-					
+//					if (dx<sx&&dy>sy){
+//						angle = 180+angle;
+//					}else if (dx<sx&&dy<sy){
+//						angle = 180+angle;
+//					}else if (dx>sx&&dy<sy){
+//						angle = 360+angle;
+//					}
+//					console.log("auto relative"+angle+'\n'+
+//							'sx'+'-'+sx+'\n'+
+//							'sy'+'-'+sy+'\n'+
+//							'dx'+'-'+dx+'\n'+
+//							'dy'+'-'+dy
+//							);
 					return angle;
 				};
 				var CreateLabel = this.mxCreateLabel;
@@ -749,20 +783,8 @@
 		},
 
 		layout : function() {
-			var div = this.element;
-			var sizee = this._size;
-			if(sizee.width<=466&&sizee.height<=355){
-				div.style.overflow = 'auto';
-				if(this.outline){
-					this.outline.style.display = 'none';
-				}
-				while(true){//auto zommOut
-					if(div.scrollHeight<=sizee.height&&div.scrollWidth<=sizee.width){
-						break;
-					}
-					this._graph.zoomOut();
-				}
-				div.style.overflow = 'hidden';
+			if(this._pagetype=='small'){
+				this.smallpage(this);
 			}
 			console.log("graph...layout..")
 			if (this.ready) {
@@ -772,10 +794,38 @@
 				this.element.style.width = area[2] + "px";
 				this.element.style.height = area[3] + "px";
 			}
+		},
+		
+		smallpage : function(target){
+			var outlines = this.outline;
+			var divs = this.element;
+			var sizees = this._size;
+			divs.style.overflow = 'auto';
+			this._graph.setEnabled(false);
+			this.cover.style.display = 'block';
+			this.cover.onmouseup = function(){
+				var ro = rap.getRemoteObject(target)
+				ro.call('OpenGragh', {
+					OpenGragh : true
+				});
+			};
+			if(outlines){
+				outlines.style.display = 'none';
+				outlines.style.width = sizees.width/5 + "px";
+				outlines.style.height = sizees.height/5 + "px";
+			}
+			while(true){//auto zommOut
+				if(divs.scrollHeight<=sizees.height&&divs.scrollWidth<=sizees.width){
+					console.log(divs.scrollHeight);
+					break;
+				}
+				this._graph.zoomOut();
+			}
+			divs.style.overflow = 'hidden';
 		}
 
 	};
-
+	
 	var bind = function(context, method) {
 		return function() {
 			return method.apply(context, arguments);

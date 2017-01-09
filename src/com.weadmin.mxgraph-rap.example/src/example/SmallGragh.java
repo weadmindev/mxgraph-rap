@@ -13,6 +13,8 @@ import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
+import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -74,7 +76,7 @@ public class SmallGragh extends AbstractEntryPoint {
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).hint(468, 390).grab(true, true).applyTo(composite);
 
 			Composite one = new Composite(composite, SWT.NONE);
-			GridLayoutFactory.fillDefaults().numColumns(4).extendedMargins(10, 10, 10, 5).equalWidth(true).applyTo(one);
+			GridLayoutFactory.fillDefaults().numColumns(5).extendedMargins(10, 10, 10, 5).equalWidth(true).applyTo(one);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(one);
 
 			Composite two = new Composite(composite, SWT.BORDER);
@@ -101,6 +103,26 @@ public class SmallGragh extends AbstractEntryPoint {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
 					g.zoomOut();
+				}
+			});
+			
+			Button showArea = new Button(one, SWT.PUSH);
+			showArea.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+			showArea.setText("Òþ²Ø");
+			showArea.setData("show", true);
+			showArea.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(SelectionEvent e) {
+					boolean area = (boolean) showArea.getData("show");
+					if (area) {
+						showArea.setText("ÏÔÊ¾");
+						showArea.setData("show", false);
+						g.setControlarea("none");
+					}else{
+						showArea.setText("Òþ²Ø");
+						showArea.setData("show", true);
+						g.setControlarea("block");
+					}
 				}
 			});
 
@@ -149,8 +171,30 @@ public class SmallGragh extends AbstractEntryPoint {
 
 						}
 					});
+					if (evt.getName().equals("OpenGragh")) {
+						boolean open = (boolean) evt.getProperty("OpenGragh");
+						if (open) {
+							JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
+							executor.execute("window.location.href='http://localhost:10010/hello2?filename=" + f.getName() + "'");
+						}
+					}
 				}
 			});
+			g.addControlListener(new ControlListener() {
+				
+				@Override
+				public void controlResized(ControlEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+				@Override
+				public void controlMoved(ControlEvent e) {
+					System.out.println(g.getSize());
+					
+				}
+			});
+			g.setPageType("small");
 		}
 	}
 

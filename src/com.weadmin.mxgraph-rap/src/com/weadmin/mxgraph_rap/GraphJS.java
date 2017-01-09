@@ -50,6 +50,7 @@ public class GraphJS extends SVWidgetBase{
 		public static String CELL_RESIZE = mxEvent.CELLS_RESIZED;
 		public static String CELL_CONNECT = mxEvent.CELL_CONNECTED;
 		public static String CONTENT_COMPLETED = "isCompleted";
+		public static String OPEN_GRAGH = "OpenGragh";
 	};
 
 	private List<mxIEventListener>  graphListeners;
@@ -186,7 +187,7 @@ public class GraphJS extends SVWidgetBase{
 			double x = parameters.get("x").asDouble();
 			double y = parameters.get("y").asDouble();
 			int b =parameters.get("button").asInt();
-			mxEventObject event = new mxEventObject(method,"x",x,"y",y,"button",b);
+		mxEventObject event = new mxEventObject(method,"x",x,"y",y,"button",b);
 			if (parameters.get("id")!=null){
 				event.getProperties().put("id", parameters.get("id").asString());
 			}
@@ -200,6 +201,13 @@ public class GraphJS extends SVWidgetBase{
 		if(method.equals(MxGraphEvent.CONTENT_COMPLETED)){
 			boolean isCompleted = parameters.get("isCompleted").asBoolean();
 			mxEventObject event = new mxEventObject(method,"isCompleted",isCompleted);
+			for (mxIEventListener l:graphListeners){
+				l.invoke(this, event);
+			}
+		}
+		if (method.equals(MxGraphEvent.OPEN_GRAGH)) {
+			boolean open = parameters.get("OpenGragh").asBoolean();
+			mxEventObject event = new mxEventObject(method,"OpenGragh",open);
 			for (mxIEventListener l:graphListeners){
 				l.invoke(this, event);
 			}
@@ -295,8 +303,9 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/point.gif", false, false));
 		res.add(new CustomRes("images/mail_find.svg", false, false));
 		res.add(new CustomRes("images/resize.gif", false, false));
-		res.add(new CustomRes("images/warning.gif", false, false));
+		res.add(new CustomRes("images/warning.png", false, false));
 		res.add(new CustomRes("images/error.png", false, false));
+		res.add(new CustomRes("images/unconn.png", false, false));
 		
 		res.add(new CustomRes("images/handle-fixed.png", false, false));
 		res.add(new CustomRes("images/handle-main.png", false, false));
@@ -585,5 +594,17 @@ public class GraphJS extends SVWidgetBase{
 		JsonObject param = new JsonObject();
 		param.add("id", id);
 		super.callRemoteMethod("removeCellOverlays", param);
+	}
+	
+	public void setControlarea(String value){
+		super.setRemoteProp("controlarea", value);
+	}
+	
+	public void resetView(){
+		super.callRemoteMethod("resetView", new JsonObject());
+	}
+	
+	public void setPageType(String type){
+		super.setRemoteProp("pageType", type);
 	}
 }
