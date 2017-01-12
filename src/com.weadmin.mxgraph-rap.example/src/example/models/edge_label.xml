@@ -5,26 +5,26 @@
 		<mxCell id="0" />
 		<mxCell id="1" parent="0" />
 		<mxCell id="4"
-			style="edgeStyle=none;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;"
-			edge="1" parent="1" source="2" value="sfsdfsfsdf" target="3">
-			<mxGeometry relative="1" as="geometry" />
+			style="edgeStyle=none;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;dashed=0;"
+			edge="1" parent="1" source="2" value="oaoshu" target="3">
+			<mxGeometry x="0.6" y="-10" relative="1" as="geometry" />
 		</mxCell>
-		<mxCell id="5" value=""
+		<!-- <mxCell id="5" value="sssss"
 			style="text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;rotation=45;"
 			vertex="1" connectable="0" parent="4">
 			<mxGeometry x="0.0635" y="-2" relative="1" as="geometry">
 				<mxPoint x="-7" y="-35" as="offset" />
 			</mxGeometry>
-		</mxCell>
+		</mxCell> -->
 		<mxCell id="2" value=""
 			style="shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/equipment.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;"
 			vertex="1" parent="1">
-			<mxGeometry x="30" y="40" width="50" height="45" as="geometry" />
+			<mxGeometry x="30" y="40" width="60" height="45" as="geometry" />
 		</mxCell>
 		<mxCell id="3" value="" 
 			style="shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;"
 			vertex="1" parent="1">
-			<mxGeometry x="220" y="200" width="50" height="50" as="geometry" />
+			<mxGeometry x="220" y="200" width="60" height="60" as="geometry" />
 		</mxCell>
 	</root>
 </mxGraphModel>

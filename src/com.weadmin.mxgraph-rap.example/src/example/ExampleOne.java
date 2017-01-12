@@ -49,7 +49,7 @@ public class ExampleOne extends AbstractEntryPoint{
 		hoverText.setForeground(new Color(Display.getCurrent(), 255, 0, 0));
 		mxGraph gd = new mxGraph();
 		g.setGraph(gd);
-			
+		
 		gd.setConnectableEdges(false);
 		gd.setAllowDanglingEdges(false);
 		gd.setDisconnectOnMove(false);	

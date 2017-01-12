@@ -726,7 +726,9 @@
 					var edge = incomingedge[j];
 					var style = edge.getStyle();
 					if(!incoming){
-						edge.style = style+"endArrow=none;"
+						if(style.indexOf("endArrow=none;")==-1){
+							edge.style = style+"endArrow=none;"
+						}
 					}else{
 						if(style.indexOf("endArrow=none;")!=-1){
 							edge.style = style.substring(0,style.length-14);
@@ -738,7 +740,9 @@
 					var edge = outgoingedge[j];
 					var style = edge.getStyle();
 					if(!outgoing){
-						edge.style = style+"endArrow=none;"
+						if(style.indexOf("endArrow=none;")==-1){
+							edge.style = style+"endArrow=none;"
+						}
 					}else{
 						if(style.indexOf("endArrow=none;")!=-1){
 							edge.style = style.substring(0,style.length-14);
@@ -856,12 +860,12 @@
 			divs.style.overflow = 'auto';
 			this._graph.setEnabled(false);
 			this.cover.style.display = 'block';
-//			this.cover.onmouseup = function(){
-//				var ro = rap.getRemoteObject(target)
-//				ro.call('OpenGragh', {
-//					OpenGragh : true
-//				});
-//			};
+			this.cover.onmouseup = function(){
+				var ro = rap.getRemoteObject(target)
+				ro.call('OpenGragh', {
+					OpenGragh : true
+				});
+			};
 			if(outlines){
 				outlines.style.display = 'none';
 				outlines.style.width = sizees.width/5 + "px";
