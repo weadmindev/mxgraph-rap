@@ -79,13 +79,14 @@ public class SmallGragh extends AbstractEntryPoint {
 			GridLayoutFactory.fillDefaults().numColumns(5).extendedMargins(10, 10, 10, 5).equalWidth(true).applyTo(one);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, false).applyTo(one);
 
-			Composite two = new Composite(composite, SWT.BORDER);
+			Composite two = new Composite(composite, SWT.NONE);
 			GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).applyTo(two);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(two);
-
+			two.setBackground(two.getDisplay().getSystemColor(SWT.COLOR_GREEN));
+			
 			GraphJS g = new GraphJS(two, SWT.NONE);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(g);
-
+			
 			Button zoomIn = new Button(one, SWT.PUSH);
 			zoomIn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
 			zoomIn.setText("zoomIn(+)");

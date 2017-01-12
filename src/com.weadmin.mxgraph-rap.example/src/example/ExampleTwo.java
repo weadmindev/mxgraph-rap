@@ -15,19 +15,19 @@ import org.eclipse.rap.rwt.client.service.StartupParameters;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.w3c.dom.Element;
 
 import com.mxgraph.model.mxGraphModel;
-import com.mxgraph.util.mxDomUtils;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
@@ -42,9 +42,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 	String style1 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style2 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffff00;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style3 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ff0000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
-	String style4 = "text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;";
-	String style5 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
-	String style6 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
+	String style4 = "strokeColor=green;dashed=0;";
+	String style5 = "shape=image;html=1;verticalLabelPosition=top;labelBackgroundColor=#ffffff;verticalAlign=bottom;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;from=123;";
+	String style6 = "shape=image;html=1;verticalLabelPosition=top;labelBackgroundColor=#ffffff;verticalAlign=bottom;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
 	
 	private Display display;
 	Label title;
@@ -129,15 +129,15 @@ public class ExampleTwo extends AbstractEntryPoint{
 			}
 		});
 		
-		Button button4 = new Button(one, SWT.PUSH);
-		button4.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button4.setText("分割型（慎点）");
-		button4.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				g.graghLayout("partition");
-			}
-		});
+//		Button button4 = new Button(one, SWT.PUSH);
+//		button4.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+//		button4.setText("分割型（慎点）");
+//		button4.addSelectionListener(new SelectionAdapter() {
+//			@Override
+//			public void widgetSelected(SelectionEvent e) {
+//				g.graghLayout("partition");
+//			}
+//		});
 		
 		Button zoomIn = new Button(one, SWT.PUSH);
 		zoomIn.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -218,6 +218,31 @@ public class ExampleTwo extends AbstractEntryPoint{
 			}
 		});
 		
+		Combo combo = new Combo(one, SWT.DROP_DOWN);
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		combo.setItems(new String[]{"出","入","总"});
+		combo.select(2);
+		combo.addSelectionListener(new SelectionListener() {
+			 
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (combo.getSelectionIndex()==0) {
+					g.arrowVisible(new String[]{"3","2"}, "out");
+				}if (combo.getSelectionIndex()==1) {
+					g.arrowVisible(new String[]{"3","2"}, "in");
+				}if (combo.getSelectionIndex()==2) {
+					g.arrowVisible(new String[]{"3","2"}, "both");
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		
+		
+		
 		hoverText = new Label(g, SWT.BORDER);
 		hoverText.setVisible(false);
 		hoverText.setSize(100, 40);
@@ -237,7 +262,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 		}catch(Exception e){
 			e.printStackTrace();
 		}
-		ids = new ArrayList<>();
+		ids = new ArrayList<String>();
 //		gd.setConnectableEdges(false);
 //		gd.setAllowDanglingEdges(false);
 //		gd.setDisconnectOnMove(false);	
@@ -277,10 +302,10 @@ public class ExampleTwo extends AbstractEntryPoint{
 					if (button == 0){
 						String id= getId();
 						ids.add(id);
-						Element node = mxDomUtils.createDocument().createElement("UserObject");
-						node.setAttribute("label", "node!");
-						node.setAttribute("tooltip", "akkdkdkdkdk");
-						node.setAttribute("placeholders", "1");
+//						Element node = mxDomUtils.createDocument().createElement("UserObject");
+//						node.setAttribute("label", "node!");
+//						node.setAttribute("tooltip", "akkdkdkdkdk");
+//						node.setAttribute("placeholders", "1");
 						int styleNum = (int) (Math.random()*4);
 						int statusNum = (int) (Math.random()*4);
 						String style;
@@ -295,13 +320,17 @@ public class ExampleTwo extends AbstractEntryPoint{
 						}else{
 							status = "unconn";
 						}
-						Object v = gd.insertVertex(parentG,id, "node!", x, y, 50, 50, style);
+						Object v = gd.insertVertex(parentG,id, "node!", x, y, 60, 60, style);
 						g.setTooltip(id, "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/"+status+".png"+"'/>");
 						g.addCellOverlay(id, "rwt-resources/graph/images/"+status+".png", 16, 16, status);
-						gd.insertEdge(parentG,getId(), "aaabbcc", v2, v);
+						gd.insertEdge(parentG, getId(), "aaabbcc", v2, v, style4);
+						//gd.setAlternateEdgeStyle(null);
+//						Object[] objects = gd.getOutgoingEdges(parentG);
+//						Object[] objects2 = gd.getIncomingEdges(parentG);
+//						System.out.println(objects.length+"--"+objects2.length);
 					}else{
 //						gd.insertEdge(gd.getDefaultParent(), getId(), "", v2, v);
-//						g.setCellStyle("5", style3);	
+//						g.setCellStyle("5", style3);
 //						g.translateCell("5", 5, 3);
 //						String newStyle = mxStyleUtils.setStyle(style4, "rotation", "80");
 //						g.setCellStyle("5", newStyle);
