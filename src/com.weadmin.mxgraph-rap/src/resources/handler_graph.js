@@ -13,7 +13,7 @@
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
 		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset','zoomIn','zoomOut',
-		            'setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graghLayout','resetView'],
+		            'setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graghLayout','resetView',"arrowVisible"],
 		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation","controlarea","pageType"],
 		events:['modelUpdate']
 
@@ -69,7 +69,7 @@
 		
 		this.parent.append(this.cover);
 		
-		this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
+		//this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
 		
 		var mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
 		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
@@ -106,23 +106,25 @@
 			var ptss = [];
 			var ptst = [];
 			for(var i in pts){
-				ptss.push(pts[i].clone());
+				if(pts[i]!=null){
+					ptss.push(pts[i].clone());
+				}
 			}
 			for(var i in pts){
-				ptst.push(pts[i].clone());
+				if(pts[i]!=null){
+					ptst.push(pts[i].clone());
+				}
 			}
-
 			if (offset < 1){
 				ptss[0].x = pts[1].x+(pts[0].x-pts[1].x)*offset;//(pts[0].x+pts[1].x)/2;
-				ptss[0].y = pts[1].y+offset*(pts[0].y-pts[1].y);//(pts[0].y+pts[1].y)/2;
+				ptss[0].y = pts[1].y+(pts[0].y-pts[1].y)*offset;//(pts[0].y+pts[1].y)/2;
 				ptst[pts.length-1].x = pts[pts.length-2].x+offset*(pts[pts.length-1].x-pts[pts.length-2].x);//(pts[0].x+pts[1].x)/2;
 				ptst[pts.length-1].y = pts[pts.length-2].y+offset*(pts[pts.length-1].y-pts[pts.length-2].y);//(pts[0].y+pts[1].y)/2;
 			}
 			
-			
 			var sourceMarker = this.createMarker(c, ptss, true);
 			var targetMarker = this.createMarker(c, ptst, false);
-
+			
 			mxPolyline.prototype.paintEdgeShape.apply(this, arguments);	
 			
 			// Disables shadows, dashed styles and fixes fill color for markers
@@ -355,7 +357,7 @@
 				var layouts = new mxStackLayout(graph);
 				layouts.execute(parent);
 				if(type == 'circle'){
-					var layout = new mxCircleLayout(graph,50);//circle
+					var layout = new mxCircleLayout(graph);//circle
 				}else if(type == 'tree'){
 					var layout = new mxCompactTreeLayout(graph);//tree
 					//var layout = new mxRadialTreeLayout(graph);
@@ -396,8 +398,6 @@
 				var graph = this._graph;
 				f.call(graph,val);
 			}
-			
-			
 		},
 		
 		putCellStyle : function(data){
@@ -456,34 +456,34 @@
 				this._graph.translateCell(cell,data.dx,data.dy);
 			}
 		},
-		setCellOffset : function(data){
-			var cell = this._graph.getModel().getCell(data.id);
-			if (cell){
-				var geometry = this._graph.getModel().getGeometry(cell);
-				var geom = geometry.clone();
-				if (geom.relative){
-					geom.offset = new mxPoint(data.offsetX,data.offsetY);
-					this._graph.getModel().setGeometry(cell, geom);
-				}
-			}
-		},
+//		setCellOffset : function(data){
+//			var cell = this._graph.getModel().getCell(data.id);
+//			if (cell){
+//				var geometry = this._graph.getModel().getGeometry(cell);
+//				var geom = geometry.clone();
+//				if (geom.relative){
+//					geom.offset = new mxPoint(data.offsetX,data.offsetY);
+//					this._graph.getModel().setGeometry(cell, geom);
+//				}
+//			}
+//		},
 		
-		setCellChildOffset:function(data){
-			var cell = this._graph.getModel().getCell(data.id);
-			if (cell){
-				var child = cell.getChildAt(data.index);
-				
-				if (child){
-					var geometry = this._graph.getModel().getGeometry(child);
-					var geom = geometry.clone();
-					if (geom.relative){
-						geom.offset = new mxPoint(data.offsetX,data.offsetY);
-						this._graph.getModel().setGeometry(child, geom);
-					}
-					
-				}
-			}
-		},
+//		setCellChildOffset:function(data){
+//			var cell = this._graph.getModel().getCell(data.id);
+//			if (cell){
+//				var child = cell.getChildAt(data.index);
+//				
+//				if (child){
+//					var geometry = this._graph.getModel().getGeometry(child);
+//					var geom = geometry.clone();
+//					if (geom.relative){
+//						geom.offset = new mxPoint(data.offsetX,data.offsetY);
+//						this._graph.getModel().setGeometry(child, geom);
+//					}
+//					
+//				}
+//			}
+//		},
 		
 		insertVertex : function(vertex) {
 			if (this.ready) {
@@ -548,36 +548,35 @@
 //							}else if (dx>sx&&dy<sy){
 //								angle = 360+angle;
 //							}
-							var style = text.getStyle();
-							var newstyle = "";
-							
-							var pos = style.indexOf("rotation=");
-							if (pos>0){
-								var t1 = style.substring(0,pos)
-								var t2 = style.substring(pos,style.length)
-								var pos2 = t2.indexOf(";");
-								if (pos2<0){
-									newstyle = t1+"rotation="+angle+";";
-								}else{
-									var t3=t2.substring(pos2,t2.length);
-									newstyle = t1+"rotation="+angle+t3;	
-								}
-							}else{
-								if (style.charAt(style.length-1) != ";"){
-									style = style +";"
-								}
-								newstyle = style+"rotation="+angle +";"
-							}
-							
-							var texts = [];
-							texts.push(text);
-							this._graph.setCellStyle(newstyle,texts);
+//							var style = text.getStyle();
+//							var newstyle = "";
+//							var pos = style.indexOf("rotation=");
+//							if (pos>0){
+//								var t1 = style.substring(0,pos)
+//								var t2 = style.substring(pos,style.length)
+//								var pos2 = t2.indexOf(";");
+//								if (pos2<0){
+//									newstyle = t1+"rotation="+angle+";";
+//								}else{
+//									var t3=t2.substring(pos2,t2.length);
+//									newstyle = t1+"rotation="+angle+t3;	
+//								}
+//							}else{
+//								if (style.charAt(style.length-1) != ";"){
+//									style = style +";"
+//								}
+//								newstyle = style+"rotation="+angle +";"
+//							}
+//							
+//							var texts = [];
+//							texts.push(text);
+//							this._graph.setCellStyle(newstyle,texts);
 							//console.log(newstyle);
 							
-							var data = {id:text.id};
-							data.offsetX=15*Math.sin(angle*0.017453293)
-							data.offsetY=-15*Math.cos(angle*0.017453293)
-							this.setCellOffset(data)
+//							var data = {id:text.id};
+//							data.offsetX=15*Math.sin(angle*0.017453293)
+//							data.offsetY=-15*Math.cos(angle*0.017453293)
+//							this.setCellOffset(data)
 						}
 					}
 				}
@@ -600,7 +599,7 @@
 			if (edge.target)
 				je.target = edge.target.id;
 			//this.autoSave();
-			if (evt.properties.previous){	
+			if (evt.properties.previous){
 				ro.call(evt.name, {edge:je,source:evt.properties.source,
 				terminal:term.id,previous:evt.properties.previous.id});
 			}else{
@@ -610,9 +609,20 @@
 		},
 		
 		onConnect:function(sender, evt) {
-			
 			var graph = this._graph;
 			var edge = evt.getProperty('cell');
+			edge.value = 'default';
+			var style = 'edgeStyle=none;rounded=0;html=1;strokeColor=green;dashed=0;';
+//			if(this._edgestyle.color){
+//				style += 'strokeColor='+this._edgestyle.color;
+//			}
+//			if(this._edgestyle.isdashed){
+//				style += 'dashed=1;';
+//			}
+			edge.style = style;
+			var geo = new mxGeometry(0.6, -10, 0, 0);
+			geo.relative = true;
+			edge.setGeometry(geo);
 			var source = graph.getModel().getTerminal(edge, true);
 			var target = graph.getModel().getTerminal(edge, false);
 
@@ -695,7 +705,48 @@
 			}
 			
 			this._graph.setSelectionCells(cells);
-			
+		},
+		
+		arrowVisible:function(obj){
+			var serverids = obj.serverids;
+			var type = obj.type;
+			var outgoing = true;
+			var incoming = true;
+			var both = true;
+			if(type=='in'){
+				outgoing = false;
+			}
+			if(type=='out'){
+				incoming = false;
+			}
+			for(var i=0;i<serverids.length;i++){
+				var server = this._graph.getModel().getCell(serverids[i]);
+				var incomingedge = this._graph.getModel().getIncomingEdges(server);
+				for(var j=0;j<incomingedge.length;j++){
+					var edge = incomingedge[j];
+					var style = edge.getStyle();
+					if(!incoming){
+						edge.style = style+"endArrow=none;"
+					}else{
+						if(style.indexOf("endArrow=none;")!=-1){
+							edge.style = style.substring(0,style.length-14);
+						}
+					}
+				}
+				var outgoingedge = this._graph.getModel().getOutgoingEdges(server);
+				for(var j=0;j<outgoingedge.length;j++){
+					var edge = outgoingedge[j];
+					var style = edge.getStyle();
+					if(!outgoing){
+						edge.style = style+"endArrow=none;"
+					}else{
+						if(style.indexOf("endArrow=none;")!=-1){
+							edge.style = style.substring(0,style.length-14);
+						}
+					}
+				}
+			}
+			this._graph.refresh();
 		},
 		
 		setArrowOffset : function(v){
@@ -715,11 +766,19 @@
 			if (v){
 				mxPolyline.prototype.getRotation = function()
 				{
-					var sx = this.points[0].x;
-					var sy = this.points[0].y;
-					var dx = this.points[1].x;
-					var dy = this.points[1].y;
-					var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
+					var len = this.points.length;
+					if(len>3){
+						var sx = this.points[len-3].x;
+						var sy = this.points[len-3].y;
+						var dx = this.points[len-2].x;
+						var dy = this.points[len-2].y;
+					}else{
+						var sx = this.points[len-2].x;
+						var sy = this.points[len-2].y;
+						var dx = this.points[len-1].x;
+						var dy = this.points[len-1].y;
+					}
+					var angle = Math.atan((dy-sy)/((dx-sx)==0?1:(dx-sx)))*360/(2*Math.PI);
 //					if (dx<sx&&dy>sy){
 //						angle = 180+angle;
 //					}else if (dx<sx&&dy<sy){
@@ -727,27 +786,21 @@
 //					}else if (dx>sx&&dy<sy){
 //						angle = 360+angle;
 //					}
-//					console.log("auto relative"+angle+'\n'+
-//							'sx'+'-'+sx+'\n'+
-//							'sy'+'-'+sy+'\n'+
-//							'dx'+'-'+dx+'\n'+
-//							'dy'+'-'+dy
-//							);
 					return angle;
 				};
-				var CreateLabel = this.mxCreateLabel;
-				mxCellRenderer.prototype.createLabel = function(state, value){
-					if (state.cell.edge==1){
-						state.style['verticalAlign']='bottom';
-					}
-					return CreateLabel.apply(this, arguments);
-				}
+//				var CreateLabel = this.mxCreateLabel;
+//				mxCellRenderer.prototype.createLabel = function(state, value){
+//					if (state.cell.edge==1){
+//						state.style['verticalAlign']='bottom';
+//					}
+//					return CreateLabel.apply(this, arguments);
+//				}
 			}else{
 				mxPolyline.prototype.getRotation = function()
 				{
 					return 0;
 				};
-				mxCellRenderer.prototype.createLabel = this.mxCreateLabel;
+				//mxCellRenderer.prototype.createLabel = this.mxCreateLabel;
 			}
 			
 		},
@@ -803,12 +856,12 @@
 			divs.style.overflow = 'auto';
 			this._graph.setEnabled(false);
 			this.cover.style.display = 'block';
-			this.cover.onmouseup = function(){
-				var ro = rap.getRemoteObject(target)
-				ro.call('OpenGragh', {
-					OpenGragh : true
-				});
-			};
+//			this.cover.onmouseup = function(){
+//				var ro = rap.getRemoteObject(target)
+//				ro.call('OpenGragh', {
+//					OpenGragh : true
+//				});
+//			};
 			if(outlines){
 				outlines.style.display = 'none';
 				outlines.style.width = sizees.width/5 + "px";

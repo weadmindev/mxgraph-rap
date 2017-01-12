@@ -121,6 +121,7 @@ public class GraphJS extends SVWidgetBase{
 				
 			}
 		});*/
+		
 	}
 	
 	public void setGraph(mxGraph g){
@@ -187,7 +188,7 @@ public class GraphJS extends SVWidgetBase{
 			double x = parameters.get("x").asDouble();
 			double y = parameters.get("y").asDouble();
 			int b =parameters.get("button").asInt();
-		mxEventObject event = new mxEventObject(method,"x",x,"y",y,"button",b);
+			mxEventObject event = new mxEventObject(method,"x",x,"y",y,"button",b);
 			if (parameters.get("id")!=null){
 				event.getProperties().put("id", parameters.get("id").asString());
 			}
@@ -306,6 +307,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/warning.png", false, false));
 		res.add(new CustomRes("images/error.png", false, false));
 		res.add(new CustomRes("images/unconn.png", false, false));
+		res.add(new CustomRes("images/transparent.gif", false, false));
 		
 		res.add(new CustomRes("images/handle-fixed.png", false, false));
 		res.add(new CustomRes("images/handle-main.png", false, false));
@@ -321,7 +323,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("css/explorer.css", true, true));
 		res.add(new CustomRes("add_path_graph.js", true, false));
 		res.add(new CustomRes("sanitizer.min.js", true, false));
-		res.add(new CustomRes("mxClient.min.js", true, false));
+		res.add(new CustomRes("mxClient.js", true, false));
 		res.add(new CustomRes("Graph.js", true, false));
 		res.add(new CustomRes("Shapes.js", true, false));
 		res.add(new CustomRes("handler_graph.js", true, false));
@@ -606,5 +608,21 @@ public class GraphJS extends SVWidgetBase{
 	
 	public void setPageType(String type){
 		super.setRemoteProp("pageType", type);
+	}
+	
+	/**
+	 * 设置显示进/出/全部流量箭头
+	 * @param serverids 服务器id
+	 * @param type in,out,both 分别表示进流量，出流量，总流量
+	 */
+	public void arrowVisible(String[] serverids,String type){
+		JsonObject json = new JsonObject();
+		JsonArray ids = new JsonArray();
+		for (String id :serverids){
+			ids.add(id);
+		}
+		json.add("serverids", ids);
+		json.add("type", type);
+		super.callRemoteMethod("arrowVisible", json);
 	}
 }
