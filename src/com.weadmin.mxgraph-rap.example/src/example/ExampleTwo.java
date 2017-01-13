@@ -36,21 +36,21 @@ import com.weadmin.mxgraph_rap.GraphJS;
 import com.weadmin.mxgraph_rap.MxGraphJS.MxGraphEvent;
 
 public class ExampleTwo extends AbstractEntryPoint{
-	
+
 	private Label hoverText;
-	
+
 	String style1 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style2 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffff00;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style3 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ff0000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
-	String style4 = "strokeColor=green;dashed=0;";
-	String style5 = "shape=image;html=1;verticalLabelPosition=top;labelBackgroundColor=#ffffff;verticalAlign=bottom;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;from=123;";
-	String style6 = "shape=image;html=1;verticalLabelPosition=top;labelBackgroundColor=#ffffff;verticalAlign=bottom;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
-	
+	String style4 = "strokeColor=green;dashed=0;edgeStyle=straightEdgeStyle;sourcePerimeterSpacing=-6;targetPerimeterSpacing=-6;";
+	String style5 = "shape=image;html=1;labelPosition=center;verticalLabelPosition=top;verticalAlign=bottom;imageAspect=1;whiteSpace=wrap;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;from=123;";
+	String style6 = "shape=image;html=1;labelPosition=center;verticalLabelPosition=top;verticalAlign=bottom;imageAspect=1;whiteSpace=wrap;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
+
 	private Display display;
 	Label title;
 	ArrayList<String> ids;
 	private String filename;
-	
+
 	private String getId(){
 		return UUID.randomUUID().toString();
 	}
@@ -59,86 +59,86 @@ public class ExampleTwo extends AbstractEntryPoint{
 	protected void createContents(Composite parent) {
 		parent.setLayout(new FillLayout());
 		display = Display.getCurrent();
-		
+
 		StartupParameters service = RWT.getClient().getService(StartupParameters.class);
 		filename = service.getParameter("filename");
-		
+
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 1 ).margins( 0, 0 ).applyTo( composite );
-		
+
 		Composite one = new Composite(composite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 13 ).extendedMargins(10, 0, 10, 5).applyTo( one );
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, false ).applyTo( one );
-		
+
 		Composite two = new Composite(composite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 9 ).margins( 0, 0 ).applyTo( two );
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, true ).applyTo( two );
-		
+
 		GraphJS g = new GraphJS(two, SWT.BORDER);
 		//g.setBounds(20, 30, 800, 600);
 	    GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).span(9, 1).grab( true, true ).applyTo( g );
-		
-	    
+
+
 		Button button = new Button(one, SWT.PUSH);
 		button.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button.setText(" ˜–Õ");
+		button.setText("Ê†ëÂûã");
 		button.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.graghLayout("tree");
 			}
 		});
-		
+
 		Button button2 = new Button(one, SWT.PUSH);
 		button2.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button2.setText("‘≤–Õ");
+		button2.setText("ÂúÜÂûã");
 		button2.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.graghLayout("circle");
 			}
 		});
-		
+
 		Button button3 = new Button(one, SWT.PUSH);
 		button3.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button3.setText("∂—–Õ");
+		button3.setText("Â†ÜÂûã");
 		button3.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.graghLayout("stack");
 			}
 		});
-		
+
 		Button button5 = new Button(one, SWT.PUSH);
 		button5.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button5.setText("ÀÊ“‚");
+		button5.setText("ÈöèÊÑè");
 		button5.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.graghLayout("fast");
 			}
 		});
-		
+
 		Button button6 = new Button(one, SWT.PUSH);
 		button6.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button6.setText("∑÷≤„–Õ");
+		button6.setText("ÂàÜÂ±ÇÂûã");
 		button6.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.graghLayout("hierarchical");
 			}
 		});
-		
+
 //		Button button4 = new Button(one, SWT.PUSH);
 //		button4.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-//		button4.setText("∑÷∏Ó–Õ£®…˜µ„£©");
+//		button4.setText("ÂàÜÂâ≤ÂûãÔºàÊÖéÁÇπÔºâ");
 //		button4.addSelectionListener(new SelectionAdapter() {
 //			@Override
 //			public void widgetSelected(SelectionEvent e) {
 //				g.graghLayout("partition");
 //			}
 //		});
-		
+
 		Button zoomIn = new Button(one, SWT.PUSH);
 		zoomIn.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		zoomIn.setText("zoomIn(+)");
@@ -148,7 +148,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				g.zoomIn();
 			}
 		});
-		
+
 		Button zoomOut = new Button(one, SWT.PUSH);
 		zoomOut.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		zoomOut.setText("zoomOut(-)");
@@ -158,41 +158,41 @@ public class ExampleTwo extends AbstractEntryPoint{
 				g.zoomOut();
 			}
 		});
-		
+
 		Button zoomActual = new Button(one, SWT.PUSH);
 		zoomActual.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		zoomActual.setText("ªπ‘≠");
+		zoomActual.setText("ËøòÂéü");
 		zoomActual.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.resetView();
 			}
 		});
-		
-		
+
+
 		Button showArea = new Button(one, SWT.PUSH);
 		showArea.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		showArea.setText("“˛≤ÿ…∏—°∆˜");
+		showArea.setText("ÈöêËóèÁ≠õÈÄâÂô®");
 		showArea.setData("show", true);
 		showArea.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				boolean area = (boolean) showArea.getData("show");
 				if (area) {
-					showArea.setText("œ‘ æ…∏—°∆˜");
+					showArea.setText("ÊòæÁ§∫Á≠õÈÄâÂô®");
 					showArea.setData("show", false);
 					g.setControlarea("none");
 				}else{
-					showArea.setText("“˛≤ÿ…∏—°∆˜");
+					showArea.setText("ÈöêËóèÁ≠õÈÄâÂô®");
 					showArea.setData("show", true);
 					g.setControlarea("block");
 				}
 			}
 		});
-		
+
 		Button small = new Button(one, SWT.PUSH);
 		small.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		small.setText("Àı¬‘Õº");
+		small.setText("Áº©Áï•Âõæ");
 		small.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -201,10 +201,10 @@ public class ExampleTwo extends AbstractEntryPoint{
 				executor.execute("window.location.href='http://localhost:10010/small'");
 			}
 		});
-		
+
 		Button finish = new Button(one, SWT.PUSH);
 		finish.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		finish.setText("ÕÍ≥…");
+		finish.setText("ÂÆåÊàê");
 		finish.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent e) {
@@ -217,13 +217,13 @@ public class ExampleTwo extends AbstractEntryPoint{
 				executor.execute("window.location.href='http://localhost:10010/small'");
 			}
 		});
-		
+
 		Combo combo = new Combo(one, SWT.DROP_DOWN);
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		combo.setItems(new String[]{"≥ˆ","»Î","◊‹"});
+		combo.setItems(new String[]{"Âá∫","ÂÖ•","ÊÄª"});
 		combo.select(2);
 		combo.addSelectionListener(new SelectionListener() {
-			 
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (combo.getSelectionIndex()==0) {
@@ -234,24 +234,24 @@ public class ExampleTwo extends AbstractEntryPoint{
 					g.arrowVisible(new String[]{"3","2"}, "both");
 				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
-		
-		
-		
+
+
+
+
 		hoverText = new Label(g, SWT.BORDER);
 		hoverText.setVisible(false);
 		hoverText.setSize(100, 40);
-		
+
 		hoverText.setForeground(new Color(Display.getCurrent(), 255, 0, 0));
 		mxGraph gd = new mxGraph();
 		Object parentG = gd.getDefaultParent();
 		g.setGraph(gd);
-		
+
 		try{
 			if (filename!=null) {
 				InputStream in = new FileInputStream(new File("D:/mxgragh/"+filename));
@@ -265,24 +265,24 @@ public class ExampleTwo extends AbstractEntryPoint{
 		ids = new ArrayList<String>();
 //		gd.setConnectableEdges(false);
 //		gd.setAllowDanglingEdges(false);
-//		gd.setDisconnectOnMove(false);	
-//		
-//		
+//		gd.setDisconnectOnMove(false);
+//
+//
 //		Object v1 = gd.insertVertex(gd.getDefaultParent(), getId(), "Hello", 20, 20, 160, 48,"box");
 //		String iid =getId();
 //		Object v2 = gd.insertVertex(gd.getDefaultParent(), iid, "World!", 200, 150, 120, 48);
 //		Object e1 = gd.insertEdge(gd.getDefaultParent(), getId(), "", v1, v2);
 		//g.setModel(gd.getModel());
-//		
+//
 //
 		Object v2=((mxGraphModel)gd.getModel()).getCell("3");
-		
+
 		g.addGraphListener(new mxIEventListener(){
-			
+
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				display.asyncExec(new Runnable() {
-					
+
 					@Override
 					public void run() {
 //						s.select(s.getItem(0));
@@ -292,10 +292,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 				if (evt.getName().equals("isCompleted")) {
 					boolean isCompleted = (boolean) evt.getProperty("isCompleted");
 					if (isCompleted) {
-						System.out.println("≥ı ºªØÕÍ≥…£¨ø™ º‘ÿ»Î ˝æ›...");
+						System.out.println("ÂàùÂßãÂåñÂÆåÊàêÔºåÂºÄÂßãËΩΩÂÖ•Êï∞ÊçÆ...");
 					}
-				}
-				if (evt.getName().equals(MxGraphEvent.MOUSE_DOWN)){
+				}else if (evt.getName().equals(MxGraphEvent.MOUSE_DOWN)){
 					double x = (double) evt.getProperty("x");
 					double y = (double) evt.getProperty("y");
 					int button = (int) evt.getProperty("button");
@@ -320,10 +319,10 @@ public class ExampleTwo extends AbstractEntryPoint{
 						}else{
 							status = "unconn";
 						}
-						Object v = gd.insertVertex(parentG,id, "node!", x, y, 60, 60, style);
+						g.insertVertex(id, "node!", x, y, 60, 60, style);
 						g.setTooltip(id, "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/"+status+".png"+"'/>");
 						g.addCellOverlay(id, "rwt-resources/graph/images/"+status+".png", 16, 16, status);
-						gd.insertEdge(parentG, getId(), "aaabbcc", v2, v, style4);
+						g.insertEdge(getId(), "aaabbcc", "3", id, style4);
 						//gd.setAlternateEdgeStyle(null);
 //						Object[] objects = gd.getOutgoingEdges(parentG);
 //						Object[] objects2 = gd.getIncomingEdges(parentG);
@@ -335,7 +334,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 //						String newStyle = mxStyleUtils.setStyle(style4, "rotation", "80");
 //						g.setCellStyle("5", newStyle);
 //						g.setCellChildOffset("4", 0, 258, 8);
-//						
+//
 //						g.updateEdgeLabelPosition("4",258,8,80);
 //						g.selectCell(id);
 //						g.selectCells(ids.toArray(new String[]{}) );
@@ -355,24 +354,24 @@ public class ExampleTwo extends AbstractEntryPoint{
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_LEAVE)){
 					hoverText.setVisible(false);
 				}
-				
+
 			}});
 		g.addListener(SWT.MouseWheel, new Listener() {
-			
+
 			@Override
 			public void handleEvent(Event event) {
 				System.out.println(event);
-				
+
 			}
 		});
 		g.setArrowOffset(0.8);
 		g.setTextAutoRotation(true);
 		display = Display.getCurrent();
-//		
+//
 //		final ServerPushSession pushSession = new ServerPushSession();
 //		pushSession.start();
 //		new Thread(new Runnable(){
-//			
+//
 //			@Override
 //			public void run() {
 //				//Client client = RWT.getClient();
@@ -385,10 +384,10 @@ public class ExampleTwo extends AbstractEntryPoint{
 //				while(true){
 //					//UISession uiSession = RWT.getUISession( display );
 //					display.asyncExec(new Runnable() {
-//						
+//
 //						@Override
 //						public void run() {
-//							
+//
 //							long m = tick++ % 3;
 //							System.out.println("timer..."+m);
 //							if (m==0){

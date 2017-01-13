@@ -29,17 +29,14 @@
 		                "onCellConnect","getTooltipForCell"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
+		this.element.style.overflow = 'hidden';
 		this.parent.append(this.element);
-		
 		this.parent.addListener("Resize", this.layout);
-
 		this._size = properties.size ? properties.size : {
 			width : 300,
 			height : 300
 		};
-		
-		this.element.style.overflow = 'hidden';
-		
+		// 轮廓图容器。
 		this.outline = document.createElement("div");
 		this.outline.style.zIndex = '2';
 		this.outline.style.position = 'absolute';
@@ -50,9 +47,9 @@
 		this.outline.style.height = '160px';
 		this.outline.style.background = 'transparent';
 		this.outline.style.border='solid gray';
-		
+
 		this.parent.append(this.outline);
-		
+
 		this.cover = document.createElement("div");
 		this.cover.style.zIndex = '1';
 		this.cover.style.position = 'absolute';
@@ -66,39 +63,31 @@
 		this.cover.onmouseover = function(){
 			this.style.cursor = 'pointer';
 		};
-		
+
 		this.parent.append(this.cover);
-		
-		//this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
-		
+		this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
+
 		var mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
-		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
-		{
-			var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
-			
-			if (point != null)
-			{
-				var perimeter = this.getPerimeterFunction(terminal);
+		// mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border){
+		// 	var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
+		// 	if (point != null){
+		// 		var perimeter = this.getPerimeterFunction(terminal);
+		//
+		// 		if (terminal.text != null && terminal.text.boundingBox != null){
+		// 			// Adds a small border to the label bounds
+		// 			var b = terminal.text.boundingBox.clone();
+		// 			b.grow(3)
+		//
+		// 			if (mxUtils.rectangleIntersectsSegment(b, point, next)){
+		// 				point = perimeter(b, terminal, next, orthogonal);
+		// 			}
+		// 		}
+		// 	}
+		// 	return point;
+		// },
 
-				if (terminal.text != null && terminal.text.boundingBox != null)
-				{
-					// Adds a small border to the label bounds
-					var b = terminal.text.boundingBox.clone();
-					b.grow(3)
-
-					if (mxUtils.rectangleIntersectsSegment(b, point, next))
-					{
-						point = perimeter(b, terminal, next, orthogonal);
-					}
-				}
-			}
-			return point;
-		},
-		
 		mxConnector.arrowOffset = 1.0;
-		
-		mxConnector.prototype.paintEdgeShape = function(c, pts)
-		{
+		mxConnector.prototype.paintEdgeShape = function(c, pts){
 			var offset = mxConnector.arrowOffset;
 			// The indirection via functions for markers is needed in
 			// order to apply the offsets before painting the line and
@@ -121,35 +110,27 @@
 				ptst[pts.length-1].x = pts[pts.length-2].x+offset*(pts[pts.length-1].x-pts[pts.length-2].x);//(pts[0].x+pts[1].x)/2;
 				ptst[pts.length-1].y = pts[pts.length-2].y+offset*(pts[pts.length-1].y-pts[pts.length-2].y);//(pts[0].y+pts[1].y)/2;
 			}
-			
 			var sourceMarker = this.createMarker(c, ptss, true);
 			var targetMarker = this.createMarker(c, ptst, false);
-			
-			mxPolyline.prototype.paintEdgeShape.apply(this, arguments);	
-			
+			mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
 			// Disables shadows, dashed styles and fixes fill color for markers
 			c.setFillColor(this.stroke);
 			c.setShadow(false);
 			c.setDashed(false);
-			
-			if (sourceMarker != null)
-			{
+			if (sourceMarker != null){
 				sourceMarker();
 			}
-			
-			if (targetMarker != null)
-			{
+			if (targetMarker != null){
 				targetMarker();
 			}
 		},
-		
 
-		
 		// Disables the built-in context menu
 		mxEvent.disableContextMenu(this.element);
 		HoverIcons.prototype.checkCollisions = false;
 		mxTooltipHandler.prototype.zIndex = 1000500000;
-		
+		mxConnectionHandler.prototype.waypointsEnabled = false;
+
 		this._graph = new Graph(this.element);
 		this._parent = null;
 		this._xmlModel = null;
@@ -157,43 +138,38 @@
 		this._pagetype = null;
 		this._tooltips = {};
 		this._textAutoRotation = false;
-		
+
 		new HoverIcons(this._graph);
 
 		this._graph.setAllowDanglingEdges(false);
 		this._graph.setDisconnectOnMove(false);
+		this._graph.setMultigraph(true);
 		this._graph.ignoreScrollbars = true;
 		this._graph.allowNegativeCoordinates = false;
 		this._graph.centerZoom = false;
 		//this._graph.setConnectable(true);
-		
+
 		this._graph.setTooltips(true);
-		
+
 		this._graph.getTooltipForCell = this.getTooltipForCell;
-		
+
 		mxStencilRegistry.loadStencilSet(MXGRAPH_BASEPATH+"stencils/cisco/routers.xml");
 
 		rap.on("render", this.onRender);
 	};
 
 	eclipsesource.graph.prototype = {
-
 		ready : false,
-
 		onReady : function() {
 			// TODO [tb] : on IE 7/8 the iframe and body has to be made
 			// transparent explicitly
 			this.ready = true;
 			this.layout();
-			
 			console.log("graph...onReady..");
-
 		},
-
 		onRender : function() {
 			if (this.element.parentNode) {
 				rap.off("render", this.onRender);
-
 				var graph = this._graph;
 				graph.addMouseListener(this);
 				// Gets the default parent for inserting new cells. This
@@ -212,34 +188,33 @@
 					// Updates the display
 					graph.getModel().endUpdate();
 				}
-				
+
 				var parent = graph.getDefaultParent();
 				this._parent = parent;
-				
 				graph.connectionHandler.addListener(mxEvent.CONNECT, this.onConnect);
 				var mgr = new mxAutoSaveManager(graph);
 				mgr.save = this.autoSave;
-				
+
 				graph.addListener(mxEvent.CELLS_REMOVED,this.onRemove);
 				graph.addListener(mxEvent.CELLS_RESIZED,this.onRemove);
 				graph.addListener(mxEvent.CELLS_MOVED,this.onRemove);
 				graph.addListener(mxEvent.CELL_CONNECTED,this.onCellConnect);
 				//graph.addListener(mxEvent.DISCONNECT,this.onCellConnect);
-				
+
 				var outln = new mxOutline(graph, this.outline);
 				rap.on("send", this.onSend);
 				this.ready = true;
 				this.layout();
 			}
 		},
-		
+
 		getTooltipForCell:function(cell){
 			if (cell){
 				return this._tooltips[cell.getId()];
 			}else{
 				return '';
 			}
-			
+
 		},
 
 		onSend : function() {
@@ -270,11 +245,11 @@
 				});
 			} else {
 
-				
+
 			}
 
 		},
-		
+
 		mouseMove : function(sender, me) {},
 		mouseUp : function(sender, me) {
 			var ro = rap.getRemoteObject(this)
@@ -318,11 +293,11 @@
 				isCompleted : true
 			});
 		},
-		
+
 		appendXmlModel : function(model) {
-			
+
 			var graph = this._graph;
-			
+
 			var doc = mxUtils.parseXml(model.content);
 			var codec = new mxCodec(doc);
 			codec.lookup = function(id){
@@ -330,12 +305,12 @@
 				//console.log(id)
 				return graph.getModel().getCell(id);
 			}
-			
+
 			var n = codec.decode(doc.documentElement);
 			n.parent = null;
 			//console.log(n);
 			//graph.getModel().beginUpdate();
-			
+
 			var cells = [];
 			try {
 				cells.push(n);
@@ -345,7 +320,7 @@
 				//graph.getModel().endUpdate();
 			}
 		},
-		
+
 		//auto composing
 		graghLayout:function(obj){
 			//console.log(obj);
@@ -399,7 +374,7 @@
 				f.call(graph,val);
 			}
 		},
-		
+
 		putCellStyle : function(data){
 			var name = data.name;
 			var stylejson = data.style;
@@ -423,22 +398,22 @@
 					style[k] = stylejson[k];
 				}
 			}
-			
+
 			this._graph.getStylesheet().putCellStyle(name, style);
 		},
-		
+
 		setCellStyle : function(data){
 			var cell = this._graph.getModel().getCell(data.id);
-			
+
 			if (cell){
 				var cells = [];
 				cells.push(cell);
-				
+
 				this._graph.setCellStyle(data.style,cells);
 			}
-			
+
 		},
-		
+
 		setCellChildStyle:function(data){
 			var cell = this._graph.getModel().getCell(data.id);
 			if (cell){
@@ -467,12 +442,12 @@
 //				}
 //			}
 //		},
-		
+
 //		setCellChildOffset:function(data){
 //			var cell = this._graph.getModel().getCell(data.id);
 //			if (cell){
 //				var child = cell.getChildAt(data.index);
-//				
+//
 //				if (child){
 //					var geometry = this._graph.getModel().getGeometry(child);
 //					var geom = geometry.clone();
@@ -480,11 +455,11 @@
 //						geom.offset = new mxPoint(data.offsetX,data.offsetY);
 //						this._graph.getModel().setGeometry(child, geom);
 //					}
-//					
+//
 //				}
 //			}
 //		},
-		
+
 		insertVertex : function(vertex) {
 			if (this.ready) {
 				async(this, function() {
@@ -500,24 +475,25 @@
 				});
 			}
 		},
-		
+
 		insertEdge: function(edge) {
 			if (this.ready) {
 				async(this, function(){
 					var src = this._graph.getModel().getCell(edge.source);
 					var tgt = this._graph.getModel().getCell(edge.target);
-					
-					this._graph.insertEdge(this._parent, edge.id, edge.value, src, tgt);
+					var style = edge.style;
+
+					this._graph.insertEdge(this._parent, edge.id, edge.value, src, tgt,style);
 				});
 			}
 		},
-		
+
 		removeCells : function(){
 			if (this.ready) {
 				if (this._graph.isEnabled()){
 					this._graph.removeCells();
 				}
-				
+
 			}
 		},
 		onRemove:function(sender,evt){
@@ -528,7 +504,7 @@
 			for(var i in cells){
 				var cell = cells[i];
 				ids.push({id:cell.id,edge:cell.edge});
-				
+
 				//text auto ratation
 				if (this._textAutoRotation){
 					var edges = cell.edges;
@@ -559,7 +535,7 @@
 //									newstyle = t1+"rotation="+angle+";";
 //								}else{
 //									var t3=t2.substring(pos2,t2.length);
-//									newstyle = t1+"rotation="+angle+t3;	
+//									newstyle = t1+"rotation="+angle+t3;
 //								}
 //							}else{
 //								if (style.charAt(style.length-1) != ";"){
@@ -567,12 +543,12 @@
 //								}
 //								newstyle = style+"rotation="+angle +";"
 //							}
-//							
+//
 //							var texts = [];
 //							texts.push(text);
 //							this._graph.setCellStyle(newstyle,texts);
 							//console.log(newstyle);
-							
+
 //							var data = {id:text.id};
 //							data.offsetX=15*Math.sin(angle*0.017453293)
 //							data.offsetY=-15*Math.cos(angle*0.017453293)
@@ -581,12 +557,12 @@
 					}
 				}
 			}
-			
+
 			ro.call(evt.name, {
 				ids :ids
 			});
 		},
-		
+
 		onCellConnect:function(sender,evt){
 			//console.log(evt)
 			var ro = rap.getRemoteObject(this);
@@ -605,9 +581,9 @@
 			}else{
 				ro.call(evt.name, {edge:je,source:evt.properties.source,terminal:term.id});
 			}
-			
+
 		},
-		
+
 		onConnect:function(sender, evt) {
 			var graph = this._graph;
 			var edge = evt.getProperty('cell');
@@ -633,14 +609,14 @@
 			var enc = new mxCodec(mxUtils.createXmlDocument());
 			var node = enc.encode(edge);
 			var xml = mxUtils.getXml(node);
-			
+
 			//var ro = rap.getRemoteObject(this)
 			ro.call('modelUpdate',{'cells':xml});
 			//this.autoSave();
 			ro.call('onConnect', {source:source.id,target:target.id});
 
 		},
-		
+
 		mouseHover: function(me){
 			var cell = me.getCell();
 			if (cell != null){
@@ -655,10 +631,10 @@
 				 this._hoverCell = null;
 				ro.call('onMouseLeave',{id:cell.id,edge:cell.edge,x : me.graphX,y : me.graphY,button : me.evt.button});
 			}
-		
+
 			return cell;
 		},
-		
+
 		autoSave : function(){
 			console.log("autoSave");
 			var enc = new mxCodec(mxUtils.createXmlDocument());
@@ -666,7 +642,7 @@
 			var xml = mxUtils.getXml(node);
 			rap.getRemoteObject( this ).set( "model", xml);
 		},
-		
+
 		zoomIn :function(obj){
 			if (this.ready) {
 				async(this, function(){
@@ -674,7 +650,7 @@
 				});
 			}
 		},
-		
+
 		zoomOut :function(obj){
 			if (this.ready) {
 				async(this, function(){
@@ -682,19 +658,19 @@
 				});
 			}
 		},
-		
+
 		setTooltip : function(obj){
 			if (obj)
 				this._tooltips[obj.id] = obj.tooltip;
 		},
-		
+
 		selectCell : function(obj){
 			var cell = this._graph.getModel().getCell(obj.id);
 			if (cell){
 				this._graph.setSelectionCell(cell);
 			}
 		},
-		
+
 		selectCells : function(obj){
 			var cells = [];
 			for(var i in obj.ids){
@@ -703,10 +679,10 @@
 				if (cell)
 					cells.push(cell);
 			}
-			
+
 			this._graph.setSelectionCells(cells);
 		},
-		
+
 		arrowVisible:function(obj){
 			var serverids = obj.serverids;
 			var type = obj.type;
@@ -752,19 +728,19 @@
 			}
 			this._graph.refresh();
 		},
-		
+
 		setArrowOffset : function(v){
 			mxConnector.arrowOffset = v;
 		},
-		
+
 		setControlarea : function(value){
 			this.outline.style.display = value;
 		},
-		
+
 		setPageType : function(type){
 			this._pagetype = type;
 		},
-		
+
 		setTextAutoRotation : function(v){
 			this._textAutoRotation = v;
 			if (v){
@@ -792,23 +768,20 @@
 //					}
 					return angle;
 				};
-//				var CreateLabel = this.mxCreateLabel;
-//				mxCellRenderer.prototype.createLabel = function(state, value){
-//					if (state.cell.edge==1){
-//						state.style['verticalAlign']='bottom';
-//					}
-//					return CreateLabel.apply(this, arguments);
-//				}
+				// var CreateLabel = this.mxCreateLabel;
+				// mxCellRenderer.prototype.createLabel = function(state, value){
+				// 	if (state.cell.edge==1){
+				// 		state.style['verticalAlign']='bottom';
+				// 	}
+				// 	return CreateLabel.apply(this, arguments);
+				// }
 			}else{
-				mxPolyline.prototype.getRotation = function()
-				{
+				mxPolyline.prototype.getRotation = function(){
 					return 0;
 				};
-				//mxCellRenderer.prototype.createLabel = this.mxCreateLabel;
 			}
-			
 		},
-		
+
 		addCellOverlay : function(obj){
 			var cell = this._graph.getModel().getCell(obj.id);
 			if (cell){
@@ -852,7 +825,7 @@
 				this.element.style.height = area[3] + "px";
 			}
 		},
-		
+
 		smallpage : function(target){
 			var outlines = this.outline;
 			var divs = this.element;
@@ -882,7 +855,7 @@
 		}
 
 	};
-	
+
 	var bind = function(context, method) {
 		return function() {
 			return method.apply(context, arguments);

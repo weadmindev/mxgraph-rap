@@ -37,7 +37,7 @@ import com.mxgraph.view.mxGraph;
 
 
 public class GraphJS extends SVWidgetBase{
-	
+
 	public static class MxGraphEvent{
 		public static String MOUSE_DOWN = "onMouseDown";
 		public static String NODE_SELECT = "onNodeSelect";
@@ -58,42 +58,42 @@ public class GraphJS extends SVWidgetBase{
 	Menu menu;
 	private mxGraph graph;
 	private boolean enableMenu;
-	
+
 	public GraphJS(Composite parent, int style) {
 		super(parent, style);
-		
+
 		enableMenu = true;
-		
+
 //		menu = new Menu(this.getParent());
-//		
+//
 //		MenuItem mi = new MenuItem(menu, SWT.NONE);
 //		mi.setText("Delete");
 //		mi.addSelectionListener(new SelectionListener() {
-//			
+//
 //			@Override
 //			public void widgetSelected(SelectionEvent e) {
 //				removeCells();
-//				
+//
 //			}
-//			
+//
 //			@Override
 //			public void widgetDefaultSelected(SelectionEvent e) {
 //				// TODO Auto-generated method stub
-//				
+//
 //			}
 //		});
 		//this.setMenu(menu);
-		
+
 		graphListeners = new Vector<>();
-		
+
 		this.addKeyListener(new KeyListener() {
-			
+
 			@Override
 			public void keyReleased(KeyEvent e) {
 				// TODO Auto-generated method stub
-				
+
 			}
-			
+
 			@Override
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.DEL){
@@ -103,7 +103,7 @@ public class GraphJS extends SVWidgetBase{
 		});
 
 		/*this.addGraphListener(new mxIEventListener() {
-			
+
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				if (evt.getName().equals(MxGraphEvent.NODE_SELECT)||evt.getName().equals(MxGraphEvent.EDGE_SELECT)){
@@ -111,24 +111,24 @@ public class GraphJS extends SVWidgetBase{
 //					double y = (double) evt.getProperty("y");
 //					int button = (int) evt.getProperty("button");
 //					Point pt = toDisplay((int)x, (int)y);
-//					
+//
 //					System.out.println(evt.getName());
 //					if (button==2){
 //						menu.setLocation(pt);
 //						menu.setVisible(true);
 //					}
 				}
-				
+
 			}
 		});*/
-		
+
 	}
-	
+
 	public void setGraph(mxGraph g){
 		this.graph = g;
-		
+
 		g.addListener(mxEvent.ADD_CELLS,new mxIEventListener() {
-			
+
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				System.out.println("event:"+evt.getName());
@@ -139,15 +139,15 @@ public class GraphJS extends SVWidgetBase{
 				}
 			}
 		});
-		
+
 		g.addPropertyChangeListener(new PropertyChangeListener() {
-			
+
 			@Override
 			public void propertyChange(PropertyChangeEvent evt) {
 				Object v = evt.getNewValue();
 				JsonObject obj = new JsonObject();
 				obj.add("name", evt.getPropertyName());
-				
+
 				if (v instanceof Boolean)
 					obj.add("value", (Boolean)v);
 				else if  (v instanceof Double)
@@ -158,11 +158,11 @@ public class GraphJS extends SVWidgetBase{
 					obj.add("value",  (String)v);
 				else if  (v instanceof Long)
 					obj.add("value",  (Long)v);
-				
+
 				setRemoteProp("prop", obj);
 			}
 		});
-		
+
 	}
 
 	@Override
@@ -171,7 +171,7 @@ public class GraphJS extends SVWidgetBase{
 	      if( model != null ) {
 	        String content = model.asString();
 	        //System.out.println("handleSetProp:" +content);
-	        
+
 	        Document doc = mxXmlUtils.parseXml(content);
 	        mxCodec codec = new mxCodec(doc);
 	        codec.decode(doc.getDocumentElement(), graph.getModel());
@@ -181,7 +181,7 @@ public class GraphJS extends SVWidgetBase{
 
 	@Override
 	protected void handleCallMethod(String method, JsonObject parameters) {
-		
+
 		if (method.equals(MxGraphEvent.MOUSE_DOWN)||method.equals(MxGraphEvent.NODE_SELECT)
 				||method.equals(MxGraphEvent.EDGE_SELECT)||method.equals(MxGraphEvent.MOUSE_HOVER)
 				||method.equals(MxGraphEvent.MOUSE_LEAVE)){
@@ -231,7 +231,7 @@ public class GraphJS extends SVWidgetBase{
 				l.invoke(this, event);
 			}
 		}
-		
+
 		if (method.equals(MxGraphEvent.CELL_CONNECT)){
 			JsonValue edge = parameters.get("edge");
 			String terminal = parameters.get("terminal").asString();
@@ -247,20 +247,20 @@ public class GraphJS extends SVWidgetBase{
 			}
 		}
 
-		
+
 		if (method.equals("modelUpdate")){
 			String cells = parameters.get("cells").asString();
 			appendModel(cells);
 			//System.out.println("after update:"+getGraphXml());
 		}
-		
+
 	}
-	
+
 	@Override
 	protected void handleCallNotify(String event, JsonObject parameters) {
 		System.out.println("handleCallNotify:"+event);
 	}
-	
+
 	public void addGraphListener(mxIEventListener l){
 		graphListeners.add(l);
 	}
@@ -286,7 +286,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("stencils/cisco/modems_and_phones.xml", false, false));
 		res.add(new CustomRes("stencils/office/concepts.xml", false, false));
 		res.add(new CustomRes("stencils/veeam/2d.xml", false, false));
-		
+
 		res.add(new CustomRes("resources/graph.txt", false, false));
 		res.add(new CustomRes("resources/graph_zh.txt", false, false));
 		res.add(new CustomRes("resources/editor.txt", false, false));
@@ -308,7 +308,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/error.png", false, false));
 		res.add(new CustomRes("images/unconn.png", false, false));
 		res.add(new CustomRes("images/transparent.gif", false, false));
-		
+
 		res.add(new CustomRes("images/handle-fixed.png", false, false));
 		res.add(new CustomRes("images/handle-main.png", false, false));
 		res.add(new CustomRes("images/handle-rotate.png", false, false));
@@ -318,27 +318,27 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/triangle-left.png", false, false));
 		res.add(new CustomRes("images/triangle-right.png", false, false));
 		res.add(new CustomRes("images/triangle-up.png", false, false));
-		
+
 		res.add(new CustomRes("css/common.css", true, true));
 		res.add(new CustomRes("css/explorer.css", true, true));
 		res.add(new CustomRes("add_path_graph.js", true, false));
 		res.add(new CustomRes("sanitizer.min.js", true, false));
-		res.add(new CustomRes("mxClient.js", true, false));
+		res.add(new CustomRes("mxClient.min.js", true, false));
 		res.add(new CustomRes("Graph.js", true, false));
 		res.add(new CustomRes("Shapes.js", true, false));
 		res.add(new CustomRes("handler_graph.js", true, false));
 		return res;
 	}
-	
+
 	public void setModel(mxIGraphModel mxIGraphModel){
 		mxCodec codec = new mxCodec();
 		Node node = codec.encode(mxIGraphModel);
-		
+
 		String xmlText = mxUtils.getPrettyXml(node);
 		//System.out.println(mxUtils.getPrettyXml(node));
 		super.setRemoteProp("xmlModel", xmlText);
 	}
-	
+
 	@SuppressWarnings({ "deprecation" })
 	public void setModelXml(String filename){
 		mxCodec codec = new mxCodec();
@@ -361,15 +361,15 @@ public class GraphJS extends SVWidgetBase{
 			e.printStackTrace();
 		}
 	}
-	
-	
+
+
 	private void appendToModel(Object objs){
 		List<Object> cells = new Vector<>();
 		if (objs instanceof Object[]){
 			for(Object ob: (Object[])objs){
 				cells.add(ob);//(Arrays.asList(objs));
 			}
-			
+
 		}else{
 			cells.add(objs);
 		}
@@ -383,13 +383,13 @@ public class GraphJS extends SVWidgetBase{
 			super.callRemoteMethod("appendXmlModel", obj);
 		}
 	}
-	
+
 	public void graghLayout(String type){
 		JsonObject obj = new JsonObject();
 		obj.add("type", type);
 		super.callRemoteMethod("graghLayout", obj);
 	}
-	
+
 	public void insertVertex(String id, String value,double x,double y,double width,double height,String shape){
 		JsonObject obj = new JsonObject();
 		obj.set("id", id);
@@ -402,19 +402,20 @@ public class GraphJS extends SVWidgetBase{
 			obj.set("shape", shape);
 		super.callRemoteMethod("insertVertex", obj);
 	}
-	
-	public void insertEdge(String id,String value,String source,String target){
+
+	public void insertEdge(String id,String value,String source,String target, String style){
 		JsonObject obj = new JsonObject();
 		obj.set("id", id);
 		obj.set("value", value);
 		obj.set("source", source);
 		obj.set("target", target);
+		obj.set("style", style);
 		super.callRemoteMethod("insertEdge", obj);
 	}
-	
+
 	public void putCellStyleSheet(String name,Map<String,Object> styleMap){
 		JsonObject obj = new JsonObject();
-		
+
 		for(String k:styleMap.keySet()){
 			Object v = styleMap.get(k);
 			if (v instanceof Boolean)
@@ -428,50 +429,50 @@ public class GraphJS extends SVWidgetBase{
 			else if  (v instanceof Long)
 				obj.add(k, (Long)v);
 		}
-		
+
 		JsonObject param = new JsonObject();
 		param.add("name", name);
 		param.add("style", obj);
-		
+
 		super.callRemoteMethod("putCellStyle", param);
 	}
-	
+
 	public void setCellStyle(String id,String style){
 		JsonObject param = new JsonObject();
 		param.add("id", id);
 		param.add("style", style);
-		
+
 		super.callRemoteMethod("setCellStyle", param);
 	}
-	
+
 	public void setCellChildStyle(String cellid,int childIndex,String style){
 		JsonObject param = new JsonObject();
 		param.add("id", cellid);
 		param.add("index", childIndex);
 		param.add("style", style);
-		
+
 		super.callRemoteMethod("setCellChildStyle", param);
 	}
-	
+
 	public void setCellChildOffset(String cellid,int childIndex,double offsetX,double offsetY){
 		JsonObject param = new JsonObject();
 		param.add("id", cellid);
 		param.add("index", childIndex);
 		param.add("offsetX", offsetX);
 		param.add("offsetY", offsetY);
-		
+
 		super.callRemoteMethod("setCellChildOffset", param);
 	}
-	
+
 	public void setCellOffset(String cellid,double offsetX,double offsetY){
 		JsonObject param = new JsonObject();
 		param.add("id", cellid);
 		param.add("offsetX", offsetX);
 		param.add("offsetY", offsetY);
-		
+
 		super.callRemoteMethod("setCellOffset", param);
 	}
-	
+
 	public void updateEdgeLabelPosition(String edgeId,double offsetX,double offsetY,double angle){
 		mxGraphModel model = (mxGraphModel) graph.getModel();
 		Object edge = model.getCell(edgeId);
@@ -485,23 +486,23 @@ public class GraphJS extends SVWidgetBase{
 			}
 		}
 	}
-	
+
 	public void translateCell(String id,double dx,double dy){
 		JsonObject param = new JsonObject();
 		param.add("id", id);
 		param.add("dx", dx);
 		param.add("dy", dy);
-		
+
 		super.callRemoteMethod("translateCell", param);
 	}
-	
+
 	public String getGraphXml(){
 		mxCodec codec = new mxCodec();
 		Node node = codec.encode(graph.getModel());
 		String xmlText = mxUtils.getPrettyXml(node);
 		return xmlText;
 	}
-	
+
 
 	public void loadGrapXml(String xml){
         Document doc = mxXmlUtils.parseXml(xml);
@@ -509,7 +510,7 @@ public class GraphJS extends SVWidgetBase{
         codec.decode(doc.getDocumentElement(), graph.getModel());
         this.setModel(graph.getModel());
 	}
-	
+
 	private void appendModel(String cell){
 		Document doc = mxXmlUtils.parseXml(cell);
 		mxCodec codec = new mxCodec(doc){
@@ -532,33 +533,33 @@ public class GraphJS extends SVWidgetBase{
 			graph.getModel().endUpdate();
 		}
 	}
-	
+
 	public void removeCells(){
 		super.callRemoteMethod("removeCells", new JsonObject());
 	}
-	
+
 	public void zoomIn(){
 		super.callRemoteMethod("zoomIn", new JsonObject());
 	}
-	
+
 	public void setTooltip(String id,String tooltip){
 		JsonObject param = new JsonObject();
 		param.add("id", id);
 		param.add("tooltip", tooltip);
-		
+
 		super.callRemoteMethod("setTooltip", param);
 	}
-	
+
 	public void zoomOut(){
 		super.callRemoteMethod("zoomOut", new JsonObject());
 	}
-	
+
 	public void selectCell(String id){
 		JsonObject param = new JsonObject();
 		param.add("id", id);
 		super.callRemoteMethod("selectCell", param);
 	}
-	
+
 	public void selectCells(String[] ids){
 		JsonObject param = new JsonObject();
 		JsonArray ars = new JsonArray();
@@ -568,18 +569,18 @@ public class GraphJS extends SVWidgetBase{
 		param.add("ids", ars);
 		super.callRemoteMethod("selectCells", param);
 	}
-	
+
 	//set offset present of arrow,default is 1.0
 	public void setArrowOffset(double offset){
 
 		setRemoteProp("arrowOffset", offset);
 	}
-	
+
 	public void setTextAutoRotation(boolean value){
 
 		setRemoteProp("textAutoRotation", value);
 	}
-	
+
 	public void addCellOverlay(String id,String imgPath,int width,int height,String tooltip){
 		JsonObject param = new JsonObject();
 		param.add("id", id);
@@ -591,29 +592,29 @@ public class GraphJS extends SVWidgetBase{
 		}
 		super.callRemoteMethod("addCellOverlay", param);
 	}
-	
+
 	public void removeCellOverlays(String id){
 		JsonObject param = new JsonObject();
 		param.add("id", id);
 		super.callRemoteMethod("removeCellOverlays", param);
 	}
-	
+
 	public void setControlarea(String value){
 		super.setRemoteProp("controlarea", value);
 	}
-	
+
 	public void resetView(){
 		super.callRemoteMethod("resetView", new JsonObject());
 	}
-	
+
 	public void setPageType(String type){
 		super.setRemoteProp("pageType", type);
 	}
-	
+
 	/**
-	 * …Ë÷√œ‘ æΩ¯/≥ˆ/»´≤ø¡˜¡øº˝Õ∑
-	 * @param serverids ∑˛ŒÒ∆˜id
-	 * @param type in,out,both ∑÷±±Ì æΩ¯¡˜¡ø£¨≥ˆ¡˜¡ø£¨◊‹¡˜¡ø
+	 * ËÆæÁΩÆÊòæÁ§∫Ëøõ/Âá∫/ÂÖ®ÈÉ®ÊµÅÈáèÁÆ≠Â§¥
+	 * @param serverids ÊúçÂä°Âô®id
+	 * @param type in,out,both ÂàÜÂà´Ë°®Á§∫ËøõÊµÅÈáèÔºåÂá∫ÊµÅÈáèÔºåÊÄªÊµÅÈáè
 	 */
 	public void arrowVisible(String[] serverids,String type){
 		JsonObject json = new JsonObject();
