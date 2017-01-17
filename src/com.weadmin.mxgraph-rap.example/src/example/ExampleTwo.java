@@ -8,6 +8,8 @@ import java.util.UUID;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.rap.json.JsonArray;
+import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
@@ -17,6 +19,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
@@ -27,30 +30,38 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxGeometry;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
+import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 import com.weadmin.mxgraph_rap.GraphJS;
 import com.weadmin.mxgraph_rap.MxGraphJS.MxGraphEvent;
 
 public class ExampleTwo extends AbstractEntryPoint{
-
-	private Label hoverText;
+	
+	private static final long serialVersionUID = 1L;
 
 	String style1 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style2 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffff00;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style3 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ff0000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
-	String style4 = "strokeColor=green;dashed=0;edgeStyle=straightEdgeStyle;sourcePerimeterSpacing=-6;targetPerimeterSpacing=-6;";
-	String style5 = "shape=image;html=1;labelPosition=center;verticalLabelPosition=top;verticalAlign=bottom;imageAspect=1;whiteSpace=wrap;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;from=123;";
-	String style6 = "shape=image;html=1;labelPosition=center;verticalLabelPosition=top;verticalAlign=bottom;imageAspect=1;whiteSpace=wrap;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
-
+	String style4 = "strokeColor=#228B22;dashed=0;startArrow=classic;";
+	String style5 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=none;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;resourceLevel=3;";
+	String style6 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=none;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;resourceLevel=2;";
+	String style7 = "text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=none;rotation=45;";
+	
+	private Label hoverText;
 	private Display display;
-	Label title;
-	ArrayList<String> ids;
 	private String filename;
-
+	Label title;
+	String lastids;
+	ArrayList<String> ids;
+	ArrayList<String> edgeids;
+	ArrayList<String> testxml;
+	
 	private String getId(){
 		return UUID.randomUUID().toString();
 	}
@@ -59,141 +70,148 @@ public class ExampleTwo extends AbstractEntryPoint{
 	protected void createContents(Composite parent) {
 		parent.setLayout(new FillLayout());
 		display = Display.getCurrent();
-
+		testxml = new ArrayList<String>();
+		//testxml.add("4");
+//		testxml.add("1e4f7ee7-fffb-46c7-96a4-f1e52158d9f8");
+//		testxml.add("744860a9-a67e-4054-96c0-92462c7448fa");
+//		testxml.add("42c1a055-82a1-48ae-bda9-fb50866b4ad6");
+//		testxml.add("0f14d356-ade5-432f-bea6-e6d1e9d92200");
+//		testxml.add("c3ac924b-a175-473c-818c-6c48d93ecd87");
+//		testxml.add("6");
 		StartupParameters service = RWT.getClient().getService(StartupParameters.class);
 		filename = service.getParameter("filename");
-
+		
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 1 ).margins( 0, 0 ).applyTo( composite );
-
+		
 		Composite one = new Composite(composite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 13 ).extendedMargins(10, 0, 10, 5).applyTo( one );
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, false ).applyTo( one );
-
+		
 		Composite two = new Composite(composite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 9 ).margins( 0, 0 ).applyTo( two );
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, true ).applyTo( two );
-
+		
 		GraphJS g = new GraphJS(two, SWT.BORDER);
 		//g.setBounds(20, 30, 800, 600);
 	    GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).span(9, 1).grab( true, true ).applyTo( g );
-
-
-		Button button = new Button(one, SWT.PUSH);
-		button.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button.setText("Ê†ëÂûã");
-		button.addSelectionListener(new SelectionAdapter() {
+		
+	    Button create = new Button(one, SWT.PUSH);
+		create.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		create.setText("–¬Ω®");
+		create.setBackground(new Color(create.getDisplay(), 35, 130, 114));
+		create.setForeground(create.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		create.setFont(new Font(create.getDisplay(), "ø¨ÃÂ",17,SWT.NORMAL));
+		create.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				g.graghLayout("tree");
+				JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
+				executor.execute("window.location.href='http://localhost:10010/hello2'");
 			}
 		});
-
-		Button button2 = new Button(one, SWT.PUSH);
-		button2.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button2.setText("ÂúÜÂûã");
-		button2.addSelectionListener(new SelectionAdapter() {
+	    
+	    Combo layout = new Combo(one, SWT.DROP_DOWN);
+		layout.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		layout.setItems(new String[]{" ˜–Õ","‘≤–Õ","∂—–Õ","ÀÊ“‚","∑÷≤„¿‡–Õ"});
+		layout.setText("—°‘Ò≤ºæ÷");
+		layout.addSelectionListener(new SelectionListener() {
+			private static final long serialVersionUID = 1L;
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-				g.graghLayout("circle");
+				int index = layout.getSelectionIndex();
+				switch (index) {
+				case 0:
+					g.graphLayout("tree");
+					break;
+				case 1:
+					g.graphLayout("circle");
+					break;
+				case 2:
+					g.graphLayout("stack");
+					break;
+				case 3:
+					g.graphLayout("fast");
+					break;
+				case 4:
+					g.graphLayout("hierarchical");
+					break;
+				case 5:
+					g.graphLayout("partition");
+					break;
+				default:
+					break;
+				}
 			}
-		});
-
-		Button button3 = new Button(one, SWT.PUSH);
-		button3.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button3.setText("Â†ÜÂûã");
-		button3.addSelectionListener(new SelectionAdapter() {
 			@Override
-			public void widgetSelected(SelectionEvent e) {
-				g.graghLayout("stack");
+			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-
-		Button button5 = new Button(one, SWT.PUSH);
-		button5.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button5.setText("ÈöèÊÑè");
-		button5.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				g.graghLayout("fast");
-			}
-		});
-
-		Button button6 = new Button(one, SWT.PUSH);
-		button6.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		button6.setText("ÂàÜÂ±ÇÂûã");
-		button6.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				g.graghLayout("hierarchical");
-			}
-		});
-
-//		Button button4 = new Button(one, SWT.PUSH);
-//		button4.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-//		button4.setText("ÂàÜÂâ≤ÂûãÔºàÊÖéÁÇπÔºâ");
-//		button4.addSelectionListener(new SelectionAdapter() {
-//			@Override
-//			public void widgetSelected(SelectionEvent e) {
-//				g.graghLayout("partition");
-//			}
-//		});
-
+		
 		Button zoomIn = new Button(one, SWT.PUSH);
 		zoomIn.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		zoomIn.setText("zoomIn(+)");
+		zoomIn.setText("∑≈¥Û");
 		zoomIn.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.zoomIn();
 			}
 		});
-
+		
 		Button zoomOut = new Button(one, SWT.PUSH);
 		zoomOut.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		zoomOut.setText("zoomOut(-)");
+		zoomOut.setText("Àı–°");
 		zoomOut.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.zoomOut();
 			}
 		});
-
+		
 		Button zoomActual = new Button(one, SWT.PUSH);
 		zoomActual.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		zoomActual.setText("ËøòÂéü");
+		zoomActual.setText("ªπ‘≠");
 		zoomActual.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				g.resetView();
 			}
 		});
-
-
+		
+		
 		Button showArea = new Button(one, SWT.PUSH);
 		showArea.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		showArea.setText("ÈöêËóèÁ≠õÈÄâÂô®");
+		showArea.setText("“˛≤ÿ…∏—°∆˜");
 		showArea.setData("show", true);
 		showArea.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				boolean area = (boolean) showArea.getData("show");
 				if (area) {
-					showArea.setText("ÊòæÁ§∫Á≠õÈÄâÂô®");
+					showArea.setText("œ‘ æ…∏—°∆˜");
 					showArea.setData("show", false);
 					g.setControlarea("none");
 				}else{
-					showArea.setText("ÈöêËóèÁ≠õÈÄâÂô®");
+					showArea.setText("“˛≤ÿ…∏—°∆˜");
 					showArea.setData("show", true);
 					g.setControlarea("block");
 				}
 			}
 		});
-
+		
 		Button small = new Button(one, SWT.PUSH);
 		small.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		small.setText("Áº©Áï•Âõæ");
+		small.setText("Àı¬‘Õº");
 		small.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				JavaScriptExecutor executor = RWT.getClient().getService(
@@ -201,60 +219,187 @@ public class ExampleTwo extends AbstractEntryPoint{
 				executor.execute("window.location.href='http://localhost:10010/small'");
 			}
 		});
+		
+		Combo arrow = new Combo(one, SWT.DROP_DOWN);
+		arrow.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		arrow.setItems(new String[]{"≥ˆº˝Õ∑","»Îº˝Õ∑","◊‹º˝Õ∑"});
+		arrow.setText("º˝Õ∑");
+		arrow.addSelectionListener(new SelectionListener() {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				int index = arrow.getSelectionIndex();
+				switch (index) {
+				case 0:
+					//g.arrowVisible(new String[]{"3","2"}, "out");
+					JsonArray array = new JsonArray();
+					JsonObject json = new JsonObject();
+					JsonObject json2 = new JsonObject();
+					json2.set("image", "rwt-resources/graph/images/error.png");
+					json2.set("width", 16);
+					json2.set("height", 16);
+					json2.set("tooltip", "error");
+					json.set("id", "3");
+					json.set("tooltip", "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/error.png"+"'/>");
+					json.set("overlay", json2);
+					array.add(json);
+					g.updateNodeStatus(array);
+					break;
+				case 1:
+					//g.arrowVisible(new String[]{"3","2"}, "in");
+					JsonArray array1 = new JsonArray();
+					JsonObject json1 = new JsonObject();
+					JsonObject json21 = new JsonObject();
+					json21.set("image", "rwt-resources/graph/images/error.png");
+					json21.set("width", 16);
+					json21.set("height", 16);
+					json21.set("tooltip", "error");
+					json1.set("id", "2");
+					json1.set("tooltip", "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/error.png"+"'/>");
+					json1.set("overlay", json21);
+					array1.add(json1);
+					g.updateNodeStatus(array1);
+					break;
+				case 2:
+					g.arrowVisible(new String[]{"3","2"}, "both");
+					break;
+				default:
+					break;
+				}
+			}
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		
+		Combo combo = new Combo(one, SWT.DROP_DOWN);
+		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
+		combo.setItems(new String[]{"∫Ï µ","◊œ µ","∫⁄–È"});
+		combo.setText("◊¥Ã¨");
+		combo.addSelectionListener(new SelectionListener() {
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				if (combo.getSelectionIndex()==0) {
+					JsonArray array1 = new JsonArray();
+					JsonObject json = new JsonObject();
+					json.set("id", "4");
+					json.set("color", "#FF3030");
+					json.set("value", "1000Kbps");
+					json.set("arrow", "0");
+					json.set("dashed", "0");
+					json.set("tooltip", "<h1>Ball</h1>");
+					array1.add(json);
+					if (edgeids!=null&&edgeids.size()>0) {
+						for(String lastid : edgeids){
+							JsonObject json2 = new JsonObject();
+							json2.set("id", lastid);
+							json2.set("color", "#FF3030");
+							json2.set("value", "2000Kbps");
+							json2.set("arrow", "0");
+							json2.set("dashed", "0");
+							json2.set("tooltip", "<h1>Balls</h1>");
+							array1.add(json2);
+						}
+					}
+					g.updateEdgeStatus(array1);
+				}if (combo.getSelectionIndex()==1) {
+					JsonArray array1 = new JsonArray();
+					JsonObject json = new JsonObject();
+					json.set("id", "4");
+					json.set("color", "#D02090");
+					json.set("value", "1000Kbps");
+					json.set("arrow", "0");
+					json.set("dashed", "0");
+					array1.add(json);
+					if (edgeids!=null&&edgeids.size()>0) {
+						for(String lastid : edgeids){
+							JsonObject json2 = new JsonObject();
+							json2.set("id", lastid);
+							json2.set("color", "#D02090");
+							json2.set("value", "2000Kbps");
+							json2.set("arrow", "0");
+							json2.set("dashed", "0");
+							array1.add(json2);
+						}
+					}
+					g.updateEdgeStatus(array1);
+				}if (combo.getSelectionIndex()==2) {
+					JsonArray array1 = new JsonArray();
+					JsonObject json = new JsonObject();
+					json.set("id", "4");
+					json.set("color", "#000000");
+					json.set("value", "1000Kbps");
+					json.set("arrow", "0");
+					json.set("dashed", "1");
+					array1.add(json);
+					if (edgeids!=null&&edgeids.size()>0) {
+						for(String lastid : edgeids){
+							JsonObject json2 = new JsonObject();
+							json2.set("id", lastid);
+							json2.set("color", "#000000");
+							json2.set("value", "2000Kbps");
+							json2.set("arrow", "0");
+							json2.set("dashed", "1");
+							array1.add(json2);
+						}
+					}
+					g.updateEdgeStatus(array1);
+				}
+			}
+			
+			@Override
+			public void widgetDefaultSelected(SelectionEvent e) {
+			}
+		});
+		
+		Button addChild = new Button(one, SWT.PUSH);
+		addChild.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		addChild.setText("ÃÌº”Œƒ◊÷");
+		addChild.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				JsonObject json = new JsonObject();
+				json.set("id", "4");
+				json.set("end", "world!");
+				json.set("start", "hello");
+				//g.addChilds(json);
+			}
+		});
+		
+		
 		Button finish = new Button(one, SWT.PUSH);
 		finish.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		finish.setText("ÂÆåÊàê");
+		finish.setText("ÕÍ≥…");
+		finish.setBackground(finish.getDisplay().getSystemColor(SWT.COLOR_DARK_CYAN));
+		finish.setForeground(finish.getDisplay().getSystemColor(SWT.COLOR_WHITE));
 		finish.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
 				if (filename==null||filename.equals("")) {
 					filename = getId()+".xml";
 				}
 				g.setModelXml(filename);
-				JavaScriptExecutor executor = RWT.getClient().getService(
-				JavaScriptExecutor.class);
+				JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
 				executor.execute("window.location.href='http://localhost:10010/small'");
 			}
 		});
-
-		Combo combo = new Combo(one, SWT.DROP_DOWN);
-		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		combo.setItems(new String[]{"Âá∫","ÂÖ•","ÊÄª"});
-		combo.select(2);
-		combo.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				if (combo.getSelectionIndex()==0) {
-					g.arrowVisible(new String[]{"3","2"}, "out");
-				}if (combo.getSelectionIndex()==1) {
-					g.arrowVisible(new String[]{"3","2"}, "in");
-				}if (combo.getSelectionIndex()==2) {
-					g.arrowVisible(new String[]{"3","2"}, "both");
-				}
-			}
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent e) {
-			}
-		});
-
-
-
-
+		
 		hoverText = new Label(g, SWT.BORDER);
 		hoverText.setVisible(false);
 		hoverText.setSize(100, 40);
-
+		
 		hoverText.setForeground(new Color(Display.getCurrent(), 255, 0, 0));
 		mxGraph gd = new mxGraph();
 		Object parentG = gd.getDefaultParent();
 		g.setGraph(gd);
-
 		try{
 			if (filename!=null) {
-				InputStream in = new FileInputStream(new File("D:/mxgragh/"+filename));
+				InputStream in = new FileInputStream(new File("D:/mxgraph/"+filename));
 				g.loadGrapXml(mxUtils.readInputStream(in));
 			}else{
 				g.loadGrapXml(mxUtils.readInputStream(this.getClass().getResourceAsStream("models/edge_label.xml")));
@@ -263,26 +408,28 @@ public class ExampleTwo extends AbstractEntryPoint{
 			e.printStackTrace();
 		}
 		ids = new ArrayList<String>();
+		edgeids = new ArrayList<String>();
 //		gd.setConnectableEdges(false);
 //		gd.setAllowDanglingEdges(false);
-//		gd.setDisconnectOnMove(false);
-//
-//
+//		gd.setDisconnectOnMove(false);	
+//		
+//		
 //		Object v1 = gd.insertVertex(gd.getDefaultParent(), getId(), "Hello", 20, 20, 160, 48,"box");
 //		String iid =getId();
 //		Object v2 = gd.insertVertex(gd.getDefaultParent(), iid, "World!", 200, 150, 120, 48);
 //		Object e1 = gd.insertEdge(gd.getDefaultParent(), getId(), "", v1, v2);
 		//g.setModel(gd.getModel());
-//
+//		
 //
 		Object v2=((mxGraphModel)gd.getModel()).getCell("3");
-
+		Object e4=((mxGraphModel)gd.getModel()).getCell("4");
+		
 		g.addGraphListener(new mxIEventListener(){
-
+			
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				display.asyncExec(new Runnable() {
-
+					
 					@Override
 					public void run() {
 //						s.select(s.getItem(0));
@@ -292,9 +439,10 @@ public class ExampleTwo extends AbstractEntryPoint{
 				if (evt.getName().equals("isCompleted")) {
 					boolean isCompleted = (boolean) evt.getProperty("isCompleted");
 					if (isCompleted) {
-						System.out.println("ÂàùÂßãÂåñÂÆåÊàêÔºåÂºÄÂßãËΩΩÂÖ•Êï∞ÊçÆ...");
+						System.out.println("≥ı ºªØÕÍ≥…£¨ø™ º‘ÿ»Î ˝æ›...");
 					}
-				}else if (evt.getName().equals(MxGraphEvent.MOUSE_DOWN)){
+				}
+				if (evt.getName().equals(MxGraphEvent.MOUSE_DOWN)){
 					double x = (double) evt.getProperty("x");
 					double y = (double) evt.getProperty("y");
 					int button = (int) evt.getProperty("button");
@@ -319,14 +467,13 @@ public class ExampleTwo extends AbstractEntryPoint{
 						}else{
 							status = "unconn";
 						}
-						g.insertVertex(id, "node!", x, y, 60, 60, style);
+						Object v = gd.insertVertex(parentG,id, "node!", x, y, 60, 60, style);
 						g.setTooltip(id, "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/"+status+".png"+"'/>");
 						g.addCellOverlay(id, "rwt-resources/graph/images/"+status+".png", 16, 16, status);
-						g.insertEdge(getId(), "aaabbcc", "3", id, style4);
-						//gd.setAlternateEdgeStyle(null);
-//						Object[] objects = gd.getOutgoingEdges(parentG);
-//						Object[] objects2 = gd.getIncomingEdges(parentG);
-//						System.out.println(objects.length+"--"+objects2.length);
+						lastids = getId();
+						edgeids.add(lastids);
+						Object edge = gd.insertEdge(parentG, lastids, "", v2, v, style4);
+						g.setTooltip(lastids, "<h1>efgh</h1>"+ "<img src='rwt-resources/graph/images/"+status+".png"+"'/>");
 					}else{
 //						gd.insertEdge(gd.getDefaultParent(), getId(), "", v2, v);
 //						g.setCellStyle("5", style3);
@@ -334,7 +481,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 //						String newStyle = mxStyleUtils.setStyle(style4, "rotation", "80");
 //						g.setCellStyle("5", newStyle);
 //						g.setCellChildOffset("4", 0, 258, 8);
-//
+//						
 //						g.updateEdgeLabelPosition("4",258,8,80);
 //						g.selectCell(id);
 //						g.selectCells(ids.toArray(new String[]{}) );
@@ -346,7 +493,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_HOVER)){
 					double x = (double) evt.getProperty("x");
 					double y = (double) evt.getProperty("y");
-					String id = (String) evt.getProperty("id");
+					//String id = (String) evt.getProperty("id");
 					hoverText.setText("aaaaaa");
 					hoverText.pack();
 					hoverText.setLocation((int)x, (int)y);
@@ -354,24 +501,26 @@ public class ExampleTwo extends AbstractEntryPoint{
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_LEAVE)){
 					hoverText.setVisible(false);
 				}
-
+				
 			}});
 		g.addListener(SWT.MouseWheel, new Listener() {
+			
+			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void handleEvent(Event event) {
 				System.out.println(event);
-
+				
 			}
 		});
 		g.setArrowOffset(0.8);
 		g.setTextAutoRotation(true);
 		display = Display.getCurrent();
-//
+//		
 //		final ServerPushSession pushSession = new ServerPushSession();
 //		pushSession.start();
 //		new Thread(new Runnable(){
-//
+//			
 //			@Override
 //			public void run() {
 //				//Client client = RWT.getClient();
@@ -384,10 +533,10 @@ public class ExampleTwo extends AbstractEntryPoint{
 //				while(true){
 //					//UISession uiSession = RWT.getUISession( display );
 //					display.asyncExec(new Runnable() {
-//
+//						
 //						@Override
 //						public void run() {
-//
+//							
 //							long m = tick++ % 3;
 //							System.out.println("timer..."+m);
 //							if (m==0){

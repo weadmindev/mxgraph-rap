@@ -5,24 +5,31 @@
 		<mxCell id="0" />
 		<mxCell id="1" parent="0" />
 		<mxCell id="4"
-			style="edgeStyle=none;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;dashed=0;edgeStyle:straightEdgeStyle;"
-			edge="1" parent="1" source="2" value="oaoshu" target="3">
-			<mxGeometry x="0.6" y="-10" relative="1" as="geometry" />
+			style="edgeStyle=none;rounded=0;html=1;jettySize=auto;orthogonalLoop=1;dashed=0;strokeColor=#CD1076;startArrow=classic;"
+			edge="1" parent="1" source="2" value="" target="3">
+			<mxGeometry x="0" y="-10" relative="1" as="geometry" />
 		</mxCell>
-		<!-- <mxCell id="5" value="sssss"
-			style="text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=#ffffff;rotation=45;"
+		<!-- <mxCell id="5" value="children1"
+			style="text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=none;rotation=45;"
 			vertex="1" connectable="0" parent="4">
-			<mxGeometry x="0.0635" y="-2" relative="1" as="geometry">
+			<mxGeometry x="0.6" y="3" relative="1" as="geometry">
+				<mxPoint x="-7" y="-35" as="offset" />
+			</mxGeometry>
+		</mxCell>
+		<mxCell id="6" value="children2"
+			style="text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=none;rotation=45;"
+			vertex="1" connectable="0" parent="4">
+			<mxGeometry x="-0.6" y="3" relative="1" as="geometry">
 				<mxPoint x="-7" y="-35" as="offset" />
 			</mxGeometry>
 		</mxCell> -->
 		<mxCell id="2" value=""
-			style="shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/equipment.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;"
+			style="shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/equipment.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;resourceLevel=1;"
 			vertex="1" parent="1">
 			<mxGeometry x="30" y="40" width="60" height="45" as="geometry" />
 		</mxCell>
-		<mxCell id="3" value=""
-			style="shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;"
+		<mxCell id="3" value="" 
+			style="shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;resourceLevel=2;"
 			vertex="1" parent="1">
 			<mxGeometry x="220" y="200" width="60" height="60" as="geometry" />
 		</mxCell>

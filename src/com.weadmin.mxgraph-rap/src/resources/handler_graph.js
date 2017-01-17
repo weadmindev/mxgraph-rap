@@ -13,7 +13,8 @@
 		destructor : "destroy",
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
 		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset','zoomIn','zoomOut',
-		            'setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graghLayout','resetView',"arrowVisible"],
+		            'setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graphLayout','resetView',"arrowVisible",
+		            "updateEdgeStatus","updateNodeStatus","addChild"],
 		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation","controlarea","pageType"],
 		events:['modelUpdate']
 
@@ -36,7 +37,7 @@
 			width : 300,
 			height : 300
 		};
-		// è½®å»“å›¾å®¹å™¨ã€‚
+		
 		this.outline = document.createElement("div");
 		this.outline.style.zIndex = '2';
 		this.outline.style.position = 'absolute';
@@ -65,27 +66,33 @@
 		};
 
 		this.parent.append(this.cover);
-		this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
-
-		var mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
-		// mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border){
-		// 	var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
-		// 	if (point != null){
-		// 		var perimeter = this.getPerimeterFunction(terminal);
-		//
-		// 		if (terminal.text != null && terminal.text.boundingBox != null){
-		// 			// Adds a small border to the label bounds
-		// 			var b = terminal.text.boundingBox.clone();
-		// 			b.grow(3)
-		//
-		// 			if (mxUtils.rectangleIntersectsSegment(b, point, next)){
-		// 				point = perimeter(b, terminal, next, orthogonal);
-		// 			}
-		// 		}
-		// 	}
-		// 	return point;
-		// },
-
+		
+		//this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
+		
+//		var mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
+//		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
+//		{
+//			var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
+//			
+//			if (point != null)
+//			{
+//				var perimeter = this.getPerimeterFunction(terminal);
+//
+//				if (terminal.text != null && terminal.text.boundingBox != null)
+//				{
+//					// Adds a small border to the label bounds
+//					var b = terminal.text.boundingBox.clone();
+//					b.grow(3)
+//
+//					if (mxUtils.rectangleIntersectsSegment(b, point, next))
+//					{
+//						point = perimeter(b, terminal, next, orthogonal);
+//					}
+//				}
+//			}
+//			return point;
+//		},
+		
 		mxConnector.arrowOffset = 1.0;
 		mxConnector.prototype.paintEdgeShape = function(c, pts){
 			var offset = mxConnector.arrowOffset;
@@ -320,9 +327,18 @@
 				//graph.getModel().endUpdate();
 			}
 		},
-
+		
+//		removeOrthogonal:function(){
+//			var enc = new mxCodec(mxUtils.createXmlDocument());
+//			var node = enc.encode(this._graph.getModel());
+//			var xml = mxUtils.getXml(node);
+//			if(xml.indexOf("orthogonal=1;")!=-1){
+//				xml = xml.replace(/orthogonal=1;/g,"");
+//			}
+//		},
+//		
 		//auto composing
-		graghLayout:function(obj){
+		graphLayout:function(obj){
 			//console.log(obj);
 			var type = obj.type;
 			var graph = this._graph;
@@ -332,7 +348,8 @@
 				var layouts = new mxStackLayout(graph);
 				layouts.execute(parent);
 				if(type == 'circle'){
-					var layout = new mxCircleLayout(graph);//circle
+					//this.removeOrthogonal();
+					var layout = new mxCircleLayout(graph,300);//circle
 				}else if(type == 'tree'){
 					var layout = new mxCompactTreeLayout(graph);//tree
 					//var layout = new mxRadialTreeLayout(graph);
@@ -345,6 +362,7 @@
 				}else if(type == 'hierarchical'){
 					var layout = new mxHierarchicalLayout(graph);//hierarchical
 				}else if(type == 'fast'){
+					//this.removeOrthogonal();
 					var layout = new mxFastOrganicLayout(graph);//fastorganic
 				}
 				layout.execute(parent);
@@ -431,35 +449,35 @@
 				this._graph.translateCell(cell,data.dx,data.dy);
 			}
 		},
-//		setCellOffset : function(data){
-//			var cell = this._graph.getModel().getCell(data.id);
-//			if (cell){
-//				var geometry = this._graph.getModel().getGeometry(cell);
-//				var geom = geometry.clone();
-//				if (geom.relative){
-//					geom.offset = new mxPoint(data.offsetX,data.offsetY);
-//					this._graph.getModel().setGeometry(cell, geom);
-//				}
-//			}
-//		},
-
-//		setCellChildOffset:function(data){
-//			var cell = this._graph.getModel().getCell(data.id);
-//			if (cell){
-//				var child = cell.getChildAt(data.index);
-//
-//				if (child){
-//					var geometry = this._graph.getModel().getGeometry(child);
-//					var geom = geometry.clone();
-//					if (geom.relative){
-//						geom.offset = new mxPoint(data.offsetX,data.offsetY);
-//						this._graph.getModel().setGeometry(child, geom);
-//					}
-//
-//				}
-//			}
-//		},
-
+		setCellOffset : function(data){
+			var cell = this._graph.getModel().getCell(data.id);
+			if (cell){
+				var geometry = this._graph.getModel().getGeometry(cell);
+				var geom = geometry.clone();
+				if (geom.relative){
+					geom.offset = new mxPoint(data.offsetX,data.offsetY);
+					this._graph.getModel().setGeometry(cell, geom);
+				}
+			}
+		},
+		
+		setCellChildOffset:function(data){
+			var cell = this._graph.getModel().getCell(data.id);
+			if (cell){
+				var child = cell.getChildAt(data.index);
+				
+				if (child){
+					var geometry = this._graph.getModel().getGeometry(child);
+					var geom = geometry.clone();
+					if (geom.relative){
+						geom.offset = new mxPoint(data.offsetX,data.offsetY);
+						this._graph.getModel().setGeometry(child, geom);
+					}
+					
+				}
+			}
+		},
+		
 		insertVertex : function(vertex) {
 			if (this.ready) {
 				async(this, function() {
@@ -475,15 +493,13 @@
 				});
 			}
 		},
-
+		
 		insertEdge: function(edge) {
 			if (this.ready) {
 				async(this, function(){
 					var src = this._graph.getModel().getCell(edge.source);
 					var tgt = this._graph.getModel().getCell(edge.target);
-					var style = edge.style;
-
-					this._graph.insertEdge(this._parent, edge.id, edge.value, src, tgt,style);
+					this._graph.insertEdge(this._parent, edge.id, edge.value, src, tgt);
 				});
 			}
 		},
@@ -511,48 +527,50 @@
 					for(var j in edges){
 						var e = edges[j];
 						if (e.children && e.children.length>0){
-							var text = e.children[0];
-							var sx = e.source.getGeometry().getCenterX();
-							var sy = e.source.getGeometry().getCenterY();
-							var dx = e.target.getGeometry().getCenterX();
-							var dy = e.target.getGeometry().getCenterY();
-							var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
-//							if (dx<sx&&dy>sy){
-//								angle = 180+angle;
-//							}else if (dx<sx&&dy<sy){
-//								angle = 180+angle;
-//							}else if (dx>sx&&dy<sy){
-//								angle = 360+angle;
-//							}
-//							var style = text.getStyle();
-//							var newstyle = "";
-//							var pos = style.indexOf("rotation=");
-//							if (pos>0){
-//								var t1 = style.substring(0,pos)
-//								var t2 = style.substring(pos,style.length)
-//								var pos2 = t2.indexOf(";");
-//								if (pos2<0){
-//									newstyle = t1+"rotation="+angle+";";
-//								}else{
-//									var t3=t2.substring(pos2,t2.length);
-//									newstyle = t1+"rotation="+angle+t3;
+							for(var i=0;i<e.children.length;i++){
+								var text = e.children[i];
+								var sx = e.source.getGeometry().getCenterX();
+								var sy = e.source.getGeometry().getCenterY();
+								var dx = e.target.getGeometry().getCenterX();
+								var dy = e.target.getGeometry().getCenterY();
+								var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
+//								if (dx<sx&&dy>sy){
+//									angle = 180+angle;
+//								}else if (dx<sx&&dy<sy){
+//									angle = 180+angle;
+//								}else if (dx>sx&&dy<sy){
+//									angle = 360+angle;
 //								}
-//							}else{
-//								if (style.charAt(style.length-1) != ";"){
-//									style = style +";"
-//								}
-//								newstyle = style+"rotation="+angle +";"
-//							}
-//
-//							var texts = [];
-//							texts.push(text);
-//							this._graph.setCellStyle(newstyle,texts);
-							//console.log(newstyle);
-
-//							var data = {id:text.id};
-//							data.offsetX=15*Math.sin(angle*0.017453293)
-//							data.offsetY=-15*Math.cos(angle*0.017453293)
-//							this.setCellOffset(data)
+								var style = text.getStyle();
+								var newstyle = "";
+								var pos = style.indexOf("rotation=");
+								if (pos>0){
+									var t1 = style.substring(0,pos)
+									var t2 = style.substring(pos,style.length)
+									var pos2 = t2.indexOf(";");
+									if (pos2<0){
+										newstyle = t1+"rotation="+angle+";";
+									}else{
+										var t3=t2.substring(pos2,t2.length);
+										newstyle = t1+"rotation="+angle+t3;	
+									}
+								}else{
+									if (style.charAt(style.length-1) != ";"){
+										style = style +";"
+									}
+									newstyle = style+"rotation="+angle +";"
+								}
+								
+								var texts = [];
+								texts.push(text);
+								this._graph.setCellStyle(newstyle,texts);
+								//console.log(newstyle);
+								
+								var data = {id:text.id};
+								data.offsetX=15*Math.sin(angle*0.017453293)
+								data.offsetY=-15*Math.cos(angle*0.017453293)
+								this.setCellOffset(data)
+							}
 						}
 					}
 				}
@@ -587,34 +605,93 @@
 		onConnect:function(sender, evt) {
 			var graph = this._graph;
 			var edge = evt.getProperty('cell');
-			edge.value = 'default';
-			var style = 'edgeStyle=none;rounded=0;html=1;strokeColor=green;dashed=0;';
-//			if(this._edgestyle.color){
-//				style += 'strokeColor='+this._edgestyle.color;
-//			}
-//			if(this._edgestyle.isdashed){
-//				style += 'dashed=1;';
-//			}
-			edge.style = style;
+			edge.value = '100Kbps';
+			var styles = 'edgeStyle=none;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;dashed=0;';
+			edge.style = styles;
 			var geo = new mxGeometry(0.6, -10, 0, 0);
 			geo.relative = true;
 			edge.setGeometry(geo);
+			
+			//ÅÐ¶ÏÊÇ·ñ×Ô¶¯·´×ª¼ýÍ·
+			var tarcell = this._graph.getModel().getCell(edge.target.id);
+			var rescell = this._graph.getModel().getCell(edge.source.id);
+			var haveline = false;
+			var havelines = false;
+			var tarStyle = tarcell.getStyle();
+			var resStyle = rescell.getStyle();
+			var levelValue1 = null;
+			var levelValue2 = null;
+			var resourceLevel = "resourceLevel=";
+			var OutSubedge = null;
+			var InSubedge = null;
+			if(tarStyle.indexOf(resourceLevel)!=-1&&resStyle.indexOf(resourceLevel)!=-1){
+				levelValue1 = tarStyle.substring(tarStyle.indexOf(resourceLevel)+14,tarStyle.indexOf(resourceLevel)+15);
+				levelValue2 = resStyle.substring(resStyle.indexOf(resourceLevel)+14,resStyle.indexOf(resourceLevel)+15);
+			}
 			var source = graph.getModel().getTerminal(edge, true);
 			var target = graph.getModel().getTerminal(edge, false);
-
-			var style = graph.getCellStyle(edge);
-			//var sourcePortId = style[mxConstants.STYLE_SOURCE_PORT];
-			//var targetPortId = style[mxConstants.STYLE_TARGET_PORT];
-
-			var enc = new mxCodec(mxUtils.createXmlDocument());
-			var node = enc.encode(edge);
-			var xml = mxUtils.getXml(node);
-
-			//var ro = rap.getRemoteObject(this)
-			ro.call('modelUpdate',{'cells':xml});
-			//this.autoSave();
-			ro.call('onConnect', {source:source.id,target:target.id});
-
+			
+			var targetOutgoingEdge = this._graph.getModel().getOutgoingEdges(tarcell);
+			var targetIncomingEdge = this._graph.getModel().getIncomingEdges(tarcell);
+			for(var i=0;i<targetOutgoingEdge.length;i++){
+				OutSubedge = targetOutgoingEdge[i];
+				if(OutSubedge.target.id==edge.source.id){
+					haveline = true;
+					break;
+				}
+			}
+			for(var i=0;i<targetIncomingEdge.length;i++){
+				InSubedge = targetIncomingEdge[i];
+				if(InSubedge.source.id==edge.source.id){
+					if(InSubedge.id!=edge.id){
+						havelines = true;
+						break;
+					}
+				}
+			}
+			if(levelValue1!=null&&levelValue2!=null){
+				if(levelValue1<levelValue2){
+					if(haveline){
+						this._graph.getModel().remove(edge);
+					}else{
+						var id = edge.id;
+						var value = edge.value;
+						this._graph.getModel().remove(edge);
+						var newedge = this._graph.insertEdge(this._parent, id, value, target, source , styles);
+						newedge.setGeometry(geo);
+					}
+				}else{
+					if(haveline){
+						if(OutSubedge.style.indexOf("startArrow=")!=-1){
+							if(OutSubedge.style.substring(OutSubedge.style.indexOf("startArrow=")+4,OutSubedge.style.indexOf("startArrow=")+5)==";"){
+								OutSubedge.style = OutSubedge.style.replace("startArrow=none","startArrow=classic");
+							}
+						}else{
+							this._graph.getModel().remove(edge);
+							OutSubedge.style = OutSubedge.style+"startArrow=classic;"
+							this._graph.refresh();
+						}
+					}
+					if(havelines){
+						this._graph.getModel().remove(edge);
+					}
+				}
+			}
+			
+//			var style = graph.getCellStyle(edge);
+//			var sourcePortId = style[mxConstants.STYLE_SOURCE_PORT];
+//			var targetPortId = style[mxConstants.STYLE_TARGET_PORT];
+//
+//			if(edge){
+//				var enc = new mxCodec(mxUtils.createXmlDocument());
+//				var node = enc.encode(edge);
+//				var xml = mxUtils.getXml(node);
+//				
+//				var ro = rap.getRemoteObject(this);
+//				ro.call('modelUpdate',{'cells':xml});
+//			}
+//			this.autoSave();
+//			ro.call('onConnect', {source:source.id,target:target.id});
 		},
 
 		mouseHover: function(me){
@@ -631,7 +708,6 @@
 				 this._hoverCell = null;
 				ro.call('onMouseLeave',{id:cell.id,edge:cell.edge,x : me.graphX,y : me.graphY,button : me.evt.button});
 			}
-
 			return cell;
 		},
 
@@ -707,7 +783,7 @@
 						}
 					}else{
 						if(style.indexOf("endArrow=none;")!=-1){
-							edge.style = style.substring(0,style.length-14);
+							edge.style = style.replace("endArrow=none;","");
 						}
 					}
 				}
@@ -721,14 +797,70 @@
 						}
 					}else{
 						if(style.indexOf("endArrow=none;")!=-1){
-							edge.style = style.substring(0,style.length-14);
+							edge.style = style.replace("endArrow=none;","");
 						}
 					}
 				}
 			}
 			this._graph.refresh();
 		},
-
+		
+		updateNodeStatus:function(obj){
+			var totalArr = obj.array;
+			var subNode = null;
+			for(var i=0;i<totalArr.length;i++){
+				subNode = totalArr[i];
+				var node = this._graph.getModel().getCell(subNode.id);
+				if (node){
+					this._tooltips[subNode.id] = subNode.tooltip;
+					this._graph.removeCellOverlays(node);
+					var overlay = new mxCellOverlay(new mxImage(subNode.overlay.image, subNode.overlay.width, subNode.overlay.height),subNode.overlay.tooltip);
+					this._graph.addCellOverlay(node, overlay);
+				}
+			}
+			this._graph.refresh();
+		},
+		
+		updateEdgeStatus:function(obj){
+			var totalArr = obj.array;
+			var subobj = null;
+			var colorHead = "strokeColor=";
+			var fontcolorHead = "fontColor=";
+			var dashedHead = "dashed=";
+			if(totalArr.length>0){
+				for(var i=0;i<totalArr.length;i++){
+					subobj = totalArr[i];
+					var edge = this._graph.getModel().getCell(subobj.id);
+					var style = edge.style;
+					var index = style.indexOf(colorHead);
+					if(index!=-1){// line color
+						var colorvalue = style.substring(index+colorHead.length,index+colorHead.length+7);
+						style = style.replace(colorHead+colorvalue,colorHead+subobj.color);
+					}else{
+						style += colorHead+subobj.color+";";
+					}
+					index = style.indexOf(fontcolorHead);
+					if(index!=-1){// font color
+						var fontvalue = style.substring(index+fontcolorHead.length,index+fontcolorHead.length+7);
+						style = style.replace(fontcolorHead+fontvalue,fontcolorHead+subobj.color);
+					}else{
+						style += fontcolorHead+subobj.color+";";
+					}
+					index = style.indexOf(dashedHead);
+					if(index!=-1){// dashed
+						var dashedvalue = style.substring(index+dashedHead.length,index+dashedHead.length+1);
+						style = style.replace(dashedHead+dashedvalue,dashedHead+subobj.dashed);
+					}else{
+						style += dashedHead+subobj.dashed+";";
+					}
+					edge.style = style;
+					edge.value = subobj.value; //line value
+					this._tooltips[subobj.id] = subobj.tooltip;//add tooltips
+				}
+			}
+			this._graph.refresh();
+		},
+		
 		setArrowOffset : function(v){
 			mxConnector.arrowOffset = v;
 		},
@@ -768,17 +900,18 @@
 //					}
 					return angle;
 				};
-				// var CreateLabel = this.mxCreateLabel;
-				// mxCellRenderer.prototype.createLabel = function(state, value){
-				// 	if (state.cell.edge==1){
-				// 		state.style['verticalAlign']='bottom';
-				// 	}
-				// 	return CreateLabel.apply(this, arguments);
-				// }
+//				var CreateLabel = this.mxCreateLabel;
+//				mxCellRenderer.prototype.createLabel = function(state, value){
+//					if (state.cell.edge==1){
+//						state.style['verticalAlign']='bottom';
+//					}
+//					return CreateLabel.apply(this, arguments);
+//				}
 			}else{
 				mxPolyline.prototype.getRotation = function(){
 					return 0;
 				};
+				//mxCellRenderer.prototype.createLabel = this.mxCreateLabel;
 			}
 		},
 
@@ -825,7 +958,24 @@
 				this.element.style.height = area[3] + "px";
 			}
 		},
-
+		
+		addChild:function(obj){
+			var graph = this._graph;
+			var edge = this._graph.getModel().getCell(obj.id);
+			var style = 'text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=none;labelBackgroundColor=none;labelBorderColor=none;fontColor=red'
+			var end = graph.insertVertex(edge, null, obj.end, 1, 1, 0, 0,style, true);
+			end.connectable = 0;
+			var geo = new mxGeometry(0.6, 10, 0, 0);
+			geo.relative = true;
+			end.setGeometry(geo);
+			var start = graph.insertVertex(edge, null, obj.start, 1, 1, 0, 0,style, true);
+			geo = new mxGeometry(-0.6, -30, 0, 0);
+			geo.relative = true;
+			start.connectable = 0;
+			start.setGeometry(geo);
+			this._graph.refresh();
+		},
+		
 		smallpage : function(target){
 			var outlines = this.outline;
 			var divs = this.element;
@@ -835,8 +985,8 @@
 			this.cover.style.display = 'block';
 			this.cover.onmouseup = function(){
 				var ro = rap.getRemoteObject(target)
-				ro.call('OpenGragh', {
-					OpenGragh : true
+				ro.call('OpenGraph', {
+					OpenGraph : true
 				});
 			};
 			if(outlines){

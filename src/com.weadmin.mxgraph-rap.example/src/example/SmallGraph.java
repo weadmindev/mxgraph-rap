@@ -31,7 +31,7 @@ import com.mxgraph.util.mxEventSource.mxIEventListener;
 import com.mxgraph.view.mxGraph;
 import com.weadmin.mxgraph_rap.GraphJS;
 
-public class SmallGragh extends AbstractEntryPoint {
+public class SmallGraph extends AbstractEntryPoint {
 
 	private static final long serialVersionUID = 1L;
 
@@ -68,7 +68,7 @@ public class SmallGragh extends AbstractEntryPoint {
 		Composite parent = new Composite(paren, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns(4).margins(0, 0).equalWidth(true).spacing(5, 5).applyTo(parent);
 		
-		File file = new File("D:/mxgragh");
+		File file = new File("D:/mxgraph");
 		File[] farray = file.listFiles();
 		for (File f : farray) {
 			Composite composite = new Composite(parent, SWT.BORDER);
@@ -86,6 +86,8 @@ public class SmallGragh extends AbstractEntryPoint {
 			
 			GraphJS g = new GraphJS(two, SWT.NONE);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(g);
+			g.setArrowOffset(0.8);
+			g.setTextAutoRotation(true);
 			
 			Button zoomIn = new Button(one, SWT.PUSH);
 			zoomIn.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
@@ -133,7 +135,7 @@ public class SmallGragh extends AbstractEntryPoint {
 			buttond.addSelectionListener(new SelectionAdapter() {
 				@Override
 				public void widgetSelected(SelectionEvent e) {
-					File file = new File("D:/mxgragh/" + f.getName());
+					File file = new File("D:/mxgraph/" + f.getName());
 					file.delete();
 					JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
 					executor.execute("window.location.href='http://localhost:10010/small'");
@@ -155,7 +157,7 @@ public class SmallGragh extends AbstractEntryPoint {
 			g.setGraph(gd);
 
 			try {
-				InputStream in = new FileInputStream(new File("D:/mxgragh/" + f.getName()));
+				InputStream in = new FileInputStream(new File("D:/mxgraph/" + f.getName()));
 				g.loadGrapXml(mxUtils.readInputStream(in));
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -172,8 +174,8 @@ public class SmallGragh extends AbstractEntryPoint {
 
 						}
 					});
-					if (evt.getName().equals("OpenGragh")) {
-						boolean open = (boolean) evt.getProperty("OpenGragh");
+					if (evt.getName().equals("OpenGraph")) {
+						boolean open = (boolean) evt.getProperty("OpenGraph");
 						if (open) {
 							JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
 							executor.execute("window.location.href='http://localhost:10010/hello2?filename=" + f.getName() + "'");
