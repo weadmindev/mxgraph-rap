@@ -42,17 +42,17 @@ import com.weadmin.mxgraph_rap.GraphJS;
 import com.weadmin.mxgraph_rap.MxGraphJS.MxGraphEvent;
 
 public class ExampleTwo extends AbstractEntryPoint{
-	
+
 	private static final long serialVersionUID = 1L;
 
 	String style1 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style2 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffff00;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style3 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ff0000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
-	String style4 = "strokeColor=#228B22;dashed=0;startArrow=classic;";
+	String style4 = "strokeColor=#228B22;dashed=0;startArrow=classic;targetPerimeterSpacing=-6;sourcePerimeterSpacing=-6;";
 	String style5 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=none;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;resourceLevel=3;";
 	String style6 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=none;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;resourceLevel=2;";
 	String style7 = "text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=none;rotation=45;";
-	
+
 	private Label hoverText;
 	private Display display;
 	private String filename;
@@ -61,7 +61,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 	ArrayList<String> ids;
 	ArrayList<String> edgeids;
 	ArrayList<String> testxml;
-	
+
 	private String getId(){
 		return UUID.randomUUID().toString();
 	}
@@ -80,22 +80,22 @@ public class ExampleTwo extends AbstractEntryPoint{
 //		testxml.add("6");
 		StartupParameters service = RWT.getClient().getService(StartupParameters.class);
 		filename = service.getParameter("filename");
-		
+
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 1 ).margins( 0, 0 ).applyTo( composite );
-		
+
 		Composite one = new Composite(composite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 13 ).extendedMargins(10, 0, 10, 5).applyTo( one );
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, false ).applyTo( one );
-		
+
 		Composite two = new Composite(composite, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 9 ).margins( 0, 0 ).applyTo( two );
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, true ).applyTo( two );
-		
+
 		GraphJS g = new GraphJS(two, SWT.BORDER);
 		//g.setBounds(20, 30, 800, 600);
 	    GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).span(9, 1).grab( true, true ).applyTo( g );
-		
+
 	    Button create = new Button(one, SWT.PUSH);
 		create.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		create.setText("新建");
@@ -110,7 +110,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				executor.execute("window.location.href='http://localhost:10010/hello2'");
 			}
 		});
-	    
+
 	    Combo layout = new Combo(one, SWT.DROP_DOWN);
 		layout.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		layout.setItems(new String[]{"树型","圆型","堆型","随意","分层类型"});
@@ -147,7 +147,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
 		Button zoomIn = new Button(one, SWT.PUSH);
 		zoomIn.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		zoomIn.setText("放大");
@@ -159,7 +159,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				g.zoomIn();
 			}
 		});
-		
+
 		Button zoomOut = new Button(one, SWT.PUSH);
 		zoomOut.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		zoomOut.setText("缩小");
@@ -171,7 +171,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				g.zoomOut();
 			}
 		});
-		
+
 		Button zoomActual = new Button(one, SWT.PUSH);
 		zoomActual.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		zoomActual.setText("还原");
@@ -183,8 +183,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 				g.resetView();
 			}
 		});
-		
-		
+
+
 		Button showArea = new Button(one, SWT.PUSH);
 		showArea.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		showArea.setText("隐藏筛选器");
@@ -206,7 +206,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				}
 			}
 		});
-		
+
 		Button small = new Button(one, SWT.PUSH);
 		small.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		small.setText("缩略图");
@@ -219,7 +219,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				executor.execute("window.location.href='http://localhost:10010/small'");
 			}
 		});
-		
+
 		Combo arrow = new Combo(one, SWT.DROP_DOWN);
 		arrow.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		arrow.setItems(new String[]{"出箭头","入箭头","总箭头"});
@@ -271,8 +271,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
-		
+
+
 		Combo combo = new Combo(one, SWT.DROP_DOWN);
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
 		combo.setItems(new String[]{"红实","紫实","黑虚"});
@@ -349,12 +349,12 @@ public class ExampleTwo extends AbstractEntryPoint{
 					g.updateEdgeStatus(array1);
 				}
 			}
-			
+
 			@Override
 			public void widgetDefaultSelected(SelectionEvent e) {
 			}
 		});
-		
+
 		Button addChild = new Button(one, SWT.PUSH);
 		addChild.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		addChild.setText("添加文字");
@@ -365,11 +365,11 @@ public class ExampleTwo extends AbstractEntryPoint{
 				json.set("id", "4");
 				json.set("end", "world!");
 				json.set("start", "hello");
-				//g.addChilds(json);
+				g.addChilds(json);
 			}
 		});
-		
-		
+
+
 		Button finish = new Button(one, SWT.PUSH);
 		finish.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
 		finish.setText("完成");
@@ -388,11 +388,11 @@ public class ExampleTwo extends AbstractEntryPoint{
 				executor.execute("window.location.href='http://localhost:10010/small'");
 			}
 		});
-		
+
 		hoverText = new Label(g, SWT.BORDER);
 		hoverText.setVisible(false);
 		hoverText.setSize(100, 40);
-		
+
 		hoverText.setForeground(new Color(Display.getCurrent(), 255, 0, 0));
 		mxGraph gd = new mxGraph();
 		Object parentG = gd.getDefaultParent();
@@ -411,25 +411,25 @@ public class ExampleTwo extends AbstractEntryPoint{
 		edgeids = new ArrayList<String>();
 //		gd.setConnectableEdges(false);
 //		gd.setAllowDanglingEdges(false);
-//		gd.setDisconnectOnMove(false);	
-//		
-//		
+//		gd.setDisconnectOnMove(false);
+//
+//
 //		Object v1 = gd.insertVertex(gd.getDefaultParent(), getId(), "Hello", 20, 20, 160, 48,"box");
 //		String iid =getId();
 //		Object v2 = gd.insertVertex(gd.getDefaultParent(), iid, "World!", 200, 150, 120, 48);
 //		Object e1 = gd.insertEdge(gd.getDefaultParent(), getId(), "", v1, v2);
 		//g.setModel(gd.getModel());
-//		
+//
 //
 		Object v2=((mxGraphModel)gd.getModel()).getCell("3");
 		Object e4=((mxGraphModel)gd.getModel()).getCell("4");
-		
+
 		g.addGraphListener(new mxIEventListener(){
-			
+
 			@Override
 			public void invoke(Object sender, mxEventObject evt) {
 				display.asyncExec(new Runnable() {
-					
+
 					@Override
 					public void run() {
 //						s.select(s.getItem(0));
@@ -481,7 +481,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 //						String newStyle = mxStyleUtils.setStyle(style4, "rotation", "80");
 //						g.setCellStyle("5", newStyle);
 //						g.setCellChildOffset("4", 0, 258, 8);
-//						
+//
 //						g.updateEdgeLabelPosition("4",258,8,80);
 //						g.selectCell(id);
 //						g.selectCells(ids.toArray(new String[]{}) );
@@ -501,26 +501,26 @@ public class ExampleTwo extends AbstractEntryPoint{
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_LEAVE)){
 					hoverText.setVisible(false);
 				}
-				
+
 			}});
 		g.addListener(SWT.MouseWheel, new Listener() {
-			
+
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void handleEvent(Event event) {
 				System.out.println(event);
-				
+
 			}
 		});
 		g.setArrowOffset(0.8);
 		g.setTextAutoRotation(true);
 		display = Display.getCurrent();
-//		
+//
 //		final ServerPushSession pushSession = new ServerPushSession();
 //		pushSession.start();
 //		new Thread(new Runnable(){
-//			
+//
 //			@Override
 //			public void run() {
 //				//Client client = RWT.getClient();
@@ -533,10 +533,10 @@ public class ExampleTwo extends AbstractEntryPoint{
 //				while(true){
 //					//UISession uiSession = RWT.getUISession( display );
 //					display.asyncExec(new Runnable() {
-//						
+//
 //						@Override
 //						public void run() {
-//							
+//
 //							long m = tick++ % 3;
 //							System.out.println("timer..."+m);
 //							if (m==0){

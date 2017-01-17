@@ -27,7 +27,7 @@
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
 		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove",
-		                "onCellConnect","getTooltipForCell"]);
+		                "onCellConnect","getTooltipForCell","updateEdgeText"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.element.style.overflow = 'hidden';
@@ -37,7 +37,7 @@
 			width : 300,
 			height : 300
 		};
-		
+
 		this.outline = document.createElement("div");
 		this.outline.style.zIndex = '2';
 		this.outline.style.position = 'absolute';
@@ -64,35 +64,7 @@
 		this.cover.onmouseover = function(){
 			this.style.cursor = 'pointer';
 		};
-
 		this.parent.append(this.cover);
-		
-		//this.mxCreateLabel = mxCellRenderer.prototype.createLabel;
-		
-//		var mxGraphViewGetPerimeterPoint = mxGraphView.prototype.getPerimeterPoint;
-//		mxGraphView.prototype.getPerimeterPoint = function(terminal, next, orthogonal, border)
-//		{
-//			var point = mxGraphViewGetPerimeterPoint.apply(this, arguments);
-//			
-//			if (point != null)
-//			{
-//				var perimeter = this.getPerimeterFunction(terminal);
-//
-//				if (terminal.text != null && terminal.text.boundingBox != null)
-//				{
-//					// Adds a small border to the label bounds
-//					var b = terminal.text.boundingBox.clone();
-//					b.grow(3)
-//
-//					if (mxUtils.rectangleIntersectsSegment(b, point, next))
-//					{
-//						point = perimeter(b, terminal, next, orthogonal);
-//					}
-//				}
-//			}
-//			return point;
-//		},
-		
 		mxConnector.arrowOffset = 1.0;
 		mxConnector.prototype.paintEdgeShape = function(c, pts){
 			var offset = mxConnector.arrowOffset;
@@ -157,11 +129,8 @@
 		//this._graph.setConnectable(true);
 
 		this._graph.setTooltips(true);
-
 		this._graph.getTooltipForCell = this.getTooltipForCell;
-
 		mxStencilRegistry.loadStencilSet(MXGRAPH_BASEPATH+"stencils/cisco/routers.xml");
-
 		rap.on("render", this.onRender);
 	};
 
@@ -308,16 +277,10 @@
 			var doc = mxUtils.parseXml(model.content);
 			var codec = new mxCodec(doc);
 			codec.lookup = function(id){
-				//console.log(graph.getModel().cells)
-				//console.log(id)
 				return graph.getModel().getCell(id);
 			}
-
 			var n = codec.decode(doc.documentElement);
 			n.parent = null;
-			//console.log(n);
-			//graph.getModel().beginUpdate();
-
 			var cells = [];
 			try {
 				cells.push(n);
@@ -327,19 +290,12 @@
 				//graph.getModel().endUpdate();
 			}
 		},
-		
-//		removeOrthogonal:function(){
-//			var enc = new mxCodec(mxUtils.createXmlDocument());
-//			var node = enc.encode(this._graph.getModel());
-//			var xml = mxUtils.getXml(node);
-//			if(xml.indexOf("orthogonal=1;")!=-1){
-//				xml = xml.replace(/orthogonal=1;/g,"");
-//			}
-//		},
-//		
 		//auto composing
 		graphLayout:function(obj){
-			//console.log(obj);
+			// mxCompactTreeLayout.prototype.resetEdges = false;
+			mxCompactTreeLayout.prototype.edgeRouting = false;
+			mxHierarchicalLayout.prototype.disableEdgeStyle = false;
+			mxHierarchicalLayout.prototype.edgeStyle = "edgeStyle=straightEdgeStyle;";
 			var type = obj.type;
 			var graph = this._graph;
 			var parent = graph.getDefaultParent();
@@ -366,6 +322,10 @@
 					var layout = new mxFastOrganicLayout(graph);//fastorganic
 				}
 				layout.execute(parent);
+				var edges = graph.getModel().getChildEdges(parent);
+				for(var j in edges){
+					this.updateEdgeText(edges[j]);
+				}
 			} finally {
 				var morph = new mxMorphing(graph);
 				morph.addListener(mxEvent.DONE, function()
@@ -460,12 +420,12 @@
 				}
 			}
 		},
-		
+
 		setCellChildOffset:function(data){
 			var cell = this._graph.getModel().getCell(data.id);
 			if (cell){
 				var child = cell.getChildAt(data.index);
-				
+
 				if (child){
 					var geometry = this._graph.getModel().getGeometry(child);
 					var geom = geometry.clone();
@@ -473,11 +433,11 @@
 						geom.offset = new mxPoint(data.offsetX,data.offsetY);
 						this._graph.getModel().setGeometry(child, geom);
 					}
-					
+
 				}
 			}
 		},
-		
+
 		insertVertex : function(vertex) {
 			if (this.ready) {
 				async(this, function() {
@@ -493,7 +453,7 @@
 				});
 			}
 		},
-		
+
 		insertEdge: function(edge) {
 			if (this.ready) {
 				async(this, function(){
@@ -525,53 +485,7 @@
 				if (this._textAutoRotation){
 					var edges = cell.edges;
 					for(var j in edges){
-						var e = edges[j];
-						if (e.children && e.children.length>0){
-							for(var i=0;i<e.children.length;i++){
-								var text = e.children[i];
-								var sx = e.source.getGeometry().getCenterX();
-								var sy = e.source.getGeometry().getCenterY();
-								var dx = e.target.getGeometry().getCenterX();
-								var dy = e.target.getGeometry().getCenterY();
-								var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
-//								if (dx<sx&&dy>sy){
-//									angle = 180+angle;
-//								}else if (dx<sx&&dy<sy){
-//									angle = 180+angle;
-//								}else if (dx>sx&&dy<sy){
-//									angle = 360+angle;
-//								}
-								var style = text.getStyle();
-								var newstyle = "";
-								var pos = style.indexOf("rotation=");
-								if (pos>0){
-									var t1 = style.substring(0,pos)
-									var t2 = style.substring(pos,style.length)
-									var pos2 = t2.indexOf(";");
-									if (pos2<0){
-										newstyle = t1+"rotation="+angle+";";
-									}else{
-										var t3=t2.substring(pos2,t2.length);
-										newstyle = t1+"rotation="+angle+t3;	
-									}
-								}else{
-									if (style.charAt(style.length-1) != ";"){
-										style = style +";"
-									}
-									newstyle = style+"rotation="+angle +";"
-								}
-								
-								var texts = [];
-								texts.push(text);
-								this._graph.setCellStyle(newstyle,texts);
-								//console.log(newstyle);
-								
-								var data = {id:text.id};
-								data.offsetX=15*Math.sin(angle*0.017453293)
-								data.offsetY=-15*Math.cos(angle*0.017453293)
-								this.setCellOffset(data)
-							}
-						}
+						this.updateEdgeText(edges[j]);
 					}
 				}
 			}
@@ -580,7 +494,45 @@
 				ids :ids
 			});
 		},
-
+		updateEdgeText:function(edge){
+			var e = edge;
+			if (e.children && e.children.length>0){
+				for(var i=0;i<e.children.length;i++){
+					var text = e.children[i];
+					var sx = e.source.getGeometry().getCenterX();
+					var sy = e.source.getGeometry().getCenterY();
+					var dx = e.target.getGeometry().getCenterX();
+					var dy = e.target.getGeometry().getCenterY();
+					var angle = Math.atan((dy-sy)/(dx-sx))*360/(2*Math.PI);
+					var style = text.getStyle();
+					var newstyle = "";
+					var pos = style.indexOf("rotation=");
+					if (pos>0){
+						var t1 = style.substring(0,pos)
+						var t2 = style.substring(pos,style.length)
+						var pos2 = t2.indexOf(";");
+						if (pos2<0){
+							newstyle = t1+"rotation="+angle+";";
+						}else{
+							var t3=t2.substring(pos2,t2.length);
+							newstyle = t1+"rotation="+angle+t3;
+						}
+					}else{
+						if (style.charAt(style.length-1) != ";"){
+							style = style +";"
+						}
+						newstyle = style+"rotation="+angle +";"
+					}
+					var texts = [];
+					texts.push(text);
+					this._graph.setCellStyle(newstyle,texts);
+					var data = {id:text.id};
+					data.offsetX=15*Math.sin(angle*0.017453293)
+					data.offsetY=-15*Math.cos(angle*0.017453293)
+					this.setCellOffset(data)
+				}
+			}
+		},
 		onCellConnect:function(sender,evt){
 			//console.log(evt)
 			var ro = rap.getRemoteObject(this);
@@ -611,7 +563,7 @@
 			var geo = new mxGeometry(0.6, -10, 0, 0);
 			geo.relative = true;
 			edge.setGeometry(geo);
-			
+
 			//判断是否自动反转箭头
 			var tarcell = this._graph.getModel().getCell(edge.target.id);
 			var rescell = this._graph.getModel().getCell(edge.source.id);
@@ -630,7 +582,7 @@
 			}
 			var source = graph.getModel().getTerminal(edge, true);
 			var target = graph.getModel().getTerminal(edge, false);
-			
+
 			var targetOutgoingEdge = this._graph.getModel().getOutgoingEdges(tarcell);
 			var targetIncomingEdge = this._graph.getModel().getIncomingEdges(tarcell);
 			for(var i=0;i<targetOutgoingEdge.length;i++){
@@ -677,21 +629,6 @@
 					}
 				}
 			}
-			
-//			var style = graph.getCellStyle(edge);
-//			var sourcePortId = style[mxConstants.STYLE_SOURCE_PORT];
-//			var targetPortId = style[mxConstants.STYLE_TARGET_PORT];
-//
-//			if(edge){
-//				var enc = new mxCodec(mxUtils.createXmlDocument());
-//				var node = enc.encode(edge);
-//				var xml = mxUtils.getXml(node);
-//				
-//				var ro = rap.getRemoteObject(this);
-//				ro.call('modelUpdate',{'cells':xml});
-//			}
-//			this.autoSave();
-//			ro.call('onConnect', {source:source.id,target:target.id});
 		},
 
 		mouseHover: function(me){
@@ -804,7 +741,7 @@
 			}
 			this._graph.refresh();
 		},
-		
+
 		updateNodeStatus:function(obj){
 			var totalArr = obj.array;
 			var subNode = null;
@@ -820,7 +757,7 @@
 			}
 			this._graph.refresh();
 		},
-		
+
 		updateEdgeStatus:function(obj){
 			var totalArr = obj.array;
 			var subobj = null;
@@ -860,7 +797,7 @@
 			}
 			this._graph.refresh();
 		},
-		
+
 		setArrowOffset : function(v){
 			mxConnector.arrowOffset = v;
 		},
@@ -958,24 +895,25 @@
 				this.element.style.height = area[3] + "px";
 			}
 		},
-		
+
 		addChild:function(obj){
 			var graph = this._graph;
 			var edge = this._graph.getModel().getCell(obj.id);
-			var style = 'text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=none;labelBackgroundColor=none;labelBorderColor=none;fontColor=red'
+			var style = 'text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;spacingTop=25;labelBackgroundColor=none;labelBackgroundColor=none;labelBorderColor=none;fontColor=red'
 			var end = graph.insertVertex(edge, null, obj.end, 1, 1, 0, 0,style, true);
 			end.connectable = 0;
-			var geo = new mxGeometry(0.6, 10, 0, 0);
+			var geo = new mxGeometry(0.6, 12, 0, 0);
 			geo.relative = true;
 			end.setGeometry(geo);
 			var start = graph.insertVertex(edge, null, obj.start, 1, 1, 0, 0,style, true);
-			geo = new mxGeometry(-0.6, -30, 0, 0);
+			geo = new mxGeometry(-0.6, -12, 0, 0);
 			geo.relative = true;
 			start.connectable = 0;
 			start.setGeometry(geo);
+			this.updateEdgeText(edge);
 			this._graph.refresh();
 		},
-		
+
 		smallpage : function(target){
 			var outlines = this.outline;
 			var divs = this.element;
