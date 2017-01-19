@@ -14,7 +14,7 @@
 		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
 		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset','zoomIn','zoomOut',
 		            'setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graphLayout','resetView',"arrowVisible",
-		            "updateEdgeStatus","updateNodeStatus","addChild"],
+		            "updateEdgeStatus","updateNodeStatus","resetEdges"],
 		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation","controlarea","pageType"],
 		events:['modelUpdate']
 
@@ -27,7 +27,7 @@
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
 		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove",
-		                "onCellConnect","getTooltipForCell","updateEdgeText"]);
+		                "onCellConnect","getTooltipForCell"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.element.style.overflow = 'hidden';
@@ -292,33 +292,33 @@
 		},
 		//auto composing
 		graphLayout:function(obj){
-			// mxCompactTreeLayout.prototype.resetEdges = false;
-			mxCompactTreeLayout.prototype.edgeRouting = false;
-			mxHierarchicalLayout.prototype.disableEdgeStyle = false;
-			mxHierarchicalLayout.prototype.edgeStyle = "edgeStyle=straightEdgeStyle;";
 			var type = obj.type;
 			var graph = this._graph;
 			var parent = graph.getDefaultParent();
 			graph.getModel().beginUpdate();
 			try{
+				mxCompactTreeLayout.prototype.resetEdges = false;
+				mxCompactTreeLayout.prototype.edgeRouting = false;
+				mxHierarchicalLayout.prototype.disableEdgeStyle = false;
+				mxHierarchicalLayout.prototype.edgeStyle = "edgeStyle=straightEdgeStyle;";
 				var layouts = new mxStackLayout(graph);
 				layouts.execute(parent);
 				if(type == 'circle'){
-					//this.removeOrthogonal();
 					var layout = new mxCircleLayout(graph,300);//circle
 				}else if(type == 'tree'){
 					var layout = new mxCompactTreeLayout(graph);//tree
-					//var layout = new mxRadialTreeLayout(graph);
+					//layout.moveTree = true;
+					layout.nodeDistance = 30;
+					layout.levelDistance = 100;
 				}else if(type == 'stack'){
 					var fast = new mxFastOrganicLayout(graph);
 					fast.execute(parent);
-					var layout = new mxStackLayout(graph);//stack
+					var layout = new mxStackLayout(graph,true,100,0,0,0);//stack
 				}else if(type == 'partition'){
 					var layout = new mxPartitionLayout(graph);//partition
 				}else if(type == 'hierarchical'){
 					var layout = new mxHierarchicalLayout(graph);//hierarchical
 				}else if(type == 'fast'){
-					//this.removeOrthogonal();
 					var layout = new mxFastOrganicLayout(graph);//fastorganic
 				}
 				layout.execute(parent);
@@ -472,6 +472,7 @@
 
 			}
 		},
+		
 		onRemove:function(sender,evt){
 			//console.log(evt)
 			var ro = rap.getRemoteObject(this);
@@ -494,7 +495,8 @@
 				ids :ids
 			});
 		},
-		updateEdgeText:function(edge){
+		
+		updateEdgeText:function(edge){//text auto ratation
 			var e = edge;
 			if (e.children && e.children.length>0){
 				for(var i=0;i<e.children.length;i++){
@@ -533,8 +535,8 @@
 				}
 			}
 		},
+		
 		onCellConnect:function(sender,evt){
-			//console.log(evt)
 			var ro = rap.getRemoteObject(this);
 			var edge = evt.properties.edge;
 			var term = evt.properties.terminal;
@@ -551,16 +553,15 @@
 			}else{
 				ro.call(evt.name, {edge:je,source:evt.properties.source,terminal:term.id});
 			}
-
 		},
 
 		onConnect:function(sender, evt) {
 			var graph = this._graph;
 			var edge = evt.getProperty('cell');
-			edge.value = '100Kbps';
+			//edge.value = '100Kbps';
 			var styles = 'edgeStyle=none;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;dashed=0;';
 			edge.style = styles;
-			var geo = new mxGeometry(0.6, -10, 0, 0);
+			var geo = new mxGeometry(0, -10, 0, 0);
 			geo.relative = true;
 			edge.setGeometry(geo);
 
@@ -577,8 +578,8 @@
 			var OutSubedge = null;
 			var InSubedge = null;
 			if(tarStyle.indexOf(resourceLevel)!=-1&&resStyle.indexOf(resourceLevel)!=-1){
-				levelValue1 = tarStyle.substring(tarStyle.indexOf(resourceLevel)+14,tarStyle.indexOf(resourceLevel)+15);
-				levelValue2 = resStyle.substring(resStyle.indexOf(resourceLevel)+14,resStyle.indexOf(resourceLevel)+15);
+				levelValue1 = tarStyle.substring(tarStyle.indexOf(resourceLevel)+resourceLevel.length,tarStyle.indexOf(resourceLevel)+resourceLevel.length+1);
+				levelValue2 = resStyle.substring(resStyle.indexOf(resourceLevel)+resourceLevel.length,resStyle.indexOf(resourceLevel)+resourceLevel.length+1);
 			}
 			var source = graph.getModel().getTerminal(edge, true);
 			var target = graph.getModel().getTerminal(edge, false);
@@ -615,13 +616,16 @@
 				}else{
 					if(haveline){
 						if(OutSubedge.style.indexOf("startArrow=")!=-1){
-							if(OutSubedge.style.substring(OutSubedge.style.indexOf("startArrow=")+4,OutSubedge.style.indexOf("startArrow=")+5)==";"){
-								OutSubedge.style = OutSubedge.style.replace("startArrow=none","startArrow=classic");
+							if(OutSubedge.style.indexOf("startArrow=none")!=-1){
+								OutSubedge.style = OutSubedge.style.replace("startArrow=none","arrowcounts=2;startArrow=classic");
+								this._graph.getModel().setStyle(OutSubedge,OutSubedge.style);
 							}
 						}else{
 							this._graph.getModel().remove(edge);
-							OutSubedge.style = OutSubedge.style+"startArrow=classic;"
-							this._graph.refresh();
+							var substyle = OutSubedge.style;
+							var sem = substyle.substring(substyle.length-1,substyle.length);
+							var temp = sem==";"?"":";";
+							this._graph.getModel().setStyle(OutSubedge,OutSubedge.style+temp+"arrowcounts=2;startArrow=classic;");
 						}
 					}
 					if(havelines){
@@ -699,49 +703,138 @@
 		arrowVisible:function(obj){
 			var serverids = obj.serverids;
 			var type = obj.type;
-			var outgoing = true;
-			var incoming = true;
-			var both = true;
+			var outgoing = false;
+			var incoming = false;
+			var both = false;
+			var oldstyle = null;
 			if(type=='in'){
-				outgoing = false;
+				incoming = true;
 			}
 			if(type=='out'){
-				incoming = false;
+				outgoing = true;
+			}
+			if(type=='both'){
+				both = true;
 			}
 			for(var i=0;i<serverids.length;i++){
 				var server = this._graph.getModel().getCell(serverids[i]);
 				var incomingedge = this._graph.getModel().getIncomingEdges(server);
 				for(var j=0;j<incomingedge.length;j++){
 					var edge = incomingedge[j];
-					var style = edge.getStyle();
-					if(!incoming){
-						if(style.indexOf("endArrow=none;")==-1){
-							edge.style = style+"endArrow=none;"
+					var style = edge.style;
+					oldstyle = edge.style;
+					var children = edge.children;
+					if(outgoing){
+						var sem = style.substring(style.length-1,style.length);
+						var temp = sem==";"?"":";";
+						style += temp+"endArrow=none;";
+						if(children!=null){
+							children[0].setVisible(false);
+						}else{
+							if(style.indexOf("arrowcounts=2")>0){
+								style += "startArrow=classic;";
+							}
 						}
-					}else{
-						if(style.indexOf("endArrow=none;")!=-1){
-							edge.style = style.replace("endArrow=none;","");
+						if(children!=null&&children.length==2){
+							style += "startArrow=classic;";
+							children[1].setVisible(true);
 						}
 					}
+					if(incoming){
+						var sem = style.substring(style.length-1,style.length);
+						var temp = sem==";"?"":";";
+						style += temp+"endArrow=classic;";
+						if(children!=null){
+							children[0].setVisible(true);
+						}else{
+							if(style.indexOf("arrowcounts=2")>0){
+								style += "startArrow=none;";
+							}
+						}
+						if(children!=null&&children.length==2){
+							style += "startArrow=none;";
+							children[1].setVisible(false);
+						}
+					}
+					if(both){
+						if(style.indexOf("endArrow=none")>0){
+							style = style.replace(/endArrow=none/g,"endArrow=classic");
+						}else{
+							var sem = style.substring(style.length-1,style.length);
+							var temp = sem==";"?"":";";
+							style += temp+"endArrow=classic;";
+						}
+						if(children!=null){
+							children[0].setVisible(true);
+							if(children.length==2){
+								style += "startArrow=classic;";
+								children[1].setVisible(true);
+							}
+						}
+					}
+					this._graph.getModel().setStyle(edge,style);
+					edge.style = oldstyle;
 				}
 				var outgoingedge = this._graph.getModel().getOutgoingEdges(server);
 				for(var j=0;j<outgoingedge.length;j++){
 					var edge = outgoingedge[j];
-					var style = edge.getStyle();
-					if(!outgoing){
-						if(style.indexOf("endArrow=none;")==-1){
-							edge.style = style+"endArrow=none;"
+					var style = edge.style;
+					oldstyle = edge.style;
+					var children = edge.children;
+					if(outgoing){
+						var sem = style.substring(style.length-1,style.length);
+						var temp = sem==";"?"":";";
+						style += temp+"endArrow=classic;";
+						if(children!=null){
+							children[0].setVisible(true);
+						}else{
+							if(style.indexOf("arrowcounts=2")>0){
+								style += "startArrow=none;";
+							}
 						}
-					}else{
-						if(style.indexOf("endArrow=none;")!=-1){
-							edge.style = style.replace("endArrow=none;","");
+						if(children!=null&&children.length==2){
+							style += "startArrow=none;";
+							children[1].setVisible(false);
 						}
 					}
+					if(incoming){
+						var sem = style.substring(style.length-1,style.length);
+						var temp = sem==";"?"":";";
+						style += temp+"endArrow=none;";
+						if(children!=null){
+							children[0].setVisible(false);
+						}else{
+							if(style.indexOf("arrowcounts=2")>0){
+								style += "startArrow=classic;";
+							}
+						}
+						if(children!=null&&children.length==2){
+							style += "startArrow=classic;";
+							children[1].setVisible(true);
+						}
+					}
+					if(both){
+						if(style.indexOf("endArrow=none")>0){
+							style = style.replace(/endArrow=none/g,"endArrow=classic");
+						}else{
+							var sem = style.substring(style.length-1,style.length);
+							var temp = sem==";"?"":";";
+							style += temp+"endArrow=classic;";
+						}
+						if(children!=null){
+							children[0].setVisible(true);
+							if(children.length==2){
+								style += "startArrow=classic;";
+								children[1].setVisible(true);
+							}
+						}
+					}
+					this._graph.getModel().setStyle(edge,style);
+					edge.style = oldstyle;
 				}
 			}
-			this._graph.refresh();
 		},
-
+		
 		updateNodeStatus:function(obj){
 			var totalArr = obj.array;
 			var subNode = null;
@@ -755,7 +848,6 @@
 					this._graph.addCellOverlay(node, overlay);
 				}
 			}
-			this._graph.refresh();
 		},
 
 		updateEdgeStatus:function(obj){
@@ -768,34 +860,115 @@
 				for(var i=0;i<totalArr.length;i++){
 					subobj = totalArr[i];
 					var edge = this._graph.getModel().getCell(subobj.id);
-					var style = edge.style;
-					var index = style.indexOf(colorHead);
-					if(index!=-1){// line color
-						var colorvalue = style.substring(index+colorHead.length,index+colorHead.length+7);
-						style = style.replace(colorHead+colorvalue,colorHead+subobj.color);
-					}else{
-						style += colorHead+subobj.color+";";
+					if(edge!=null){
+						var style = edge.style;
+						var arrowcounts = style.indexOf("arrowcounts=2;");
+						if(arrowcounts>0){
+							style = style.replace("arrowcounts=2;","");
+						}
+						var index = style.indexOf(colorHead);
+						if(index!=-1){// line color
+							var colorvalue = style.substring(index+colorHead.length,index+colorHead.length+7);
+							style = style.replace(colorHead+colorvalue,colorHead+subobj.color);
+						}else{
+							var sem = style.substring(style.length-1,style.length);
+							var temp = sem==";"?"":";";
+							style += temp+colorHead+subobj.color+";";
+						}
+						index = style.indexOf(fontcolorHead);
+						if(index!=-1){// font color
+							var fontvalue = style.substring(index+fontcolorHead.length,index+fontcolorHead.length+7);
+							style = style.replace(fontcolorHead+fontvalue,fontcolorHead+subobj.color);
+						}else{
+							var sem = style.substring(style.length-1,style.length);
+							var temp = sem==";"?"":";";
+							style += temp+fontcolorHead+subobj.color+";";
+						}
+						index = style.indexOf(dashedHead);
+						if(index!=-1){// dashed
+							var dashedvalue = style.substring(index+dashedHead.length,index+dashedHead.length+1);
+							style = style.replace(dashedHead+dashedvalue,dashedHead+subobj.dashed);
+						}else{
+							var sem = style.substring(style.length-1,style.length);
+							var temp = sem==";"?"":";";
+							style += temp+dashedHead+subobj.dashed+";";
+						}
+						if(subobj.arrow==1){//judge one or two arrow
+							var sem = style.substring(style.length-1,style.length);
+							var temp = sem==";"?"":";";
+							if(style.indexOf("startArrow=classic")>0){
+								if(style.indexOf("startArrow=none")>0){
+									style = style.replace(/startArrow=none/g,"").replace(/;;/g,";");;
+								}
+							}else{
+								style += temp+"startArrow=classic"+";";
+							}
+						}else if(subobj.arrow==0){
+							if(style.indexOf("startArrow=classic")>0){
+								style = style.replace(/startArrow=classic/g,"").replace(/;;/g,";");;
+							}
+						}
+						this._graph.getModel().setStyle(edge,style);
+						this.addChild(edge,subobj);//add line text
+						this._tooltips[subobj.id] = subobj.tooltip;//add tooltips
 					}
-					index = style.indexOf(fontcolorHead);
-					if(index!=-1){// font color
-						var fontvalue = style.substring(index+fontcolorHead.length,index+fontcolorHead.length+7);
-						style = style.replace(fontcolorHead+fontvalue,fontcolorHead+subobj.color);
-					}else{
-						style += fontcolorHead+subobj.color+";";
-					}
-					index = style.indexOf(dashedHead);
-					if(index!=-1){// dashed
-						var dashedvalue = style.substring(index+dashedHead.length,index+dashedHead.length+1);
-						style = style.replace(dashedHead+dashedvalue,dashedHead+subobj.dashed);
-					}else{
-						style += dashedHead+subobj.dashed+";";
-					}
-					edge.style = style;
-					edge.value = subobj.value; //line value
-					this._tooltips[subobj.id] = subobj.tooltip;//add tooltips
 				}
 			}
-			this._graph.refresh();
+		},
+		
+		addChild:function(obj,subobj){
+			var graph = this._graph;
+			var geo = null;
+			var edge = this._graph.getModel().getCell(obj.id);
+			if(edge.children!=null){
+				var childrens = edge.children;
+				var len = childrens.length;
+				for(var i=0;i<len;i++){
+					this._graph.getModel().remove(childrens[0]);
+				}
+			}
+			var style = 'text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;spacingTop=25;labelBackgroundColor=none;labelBorderColor=none;';
+			var fontcolor = "fontColor=";
+			var index = edge.style.indexOf(fontcolor);
+			style = style+edge.style.substring(index,index+fontcolor.length+7)+";";
+			if(subobj.arrow==0){
+				var end = graph.insertVertex(edge, null, subobj.endvalue, 1, 1, 0, 0,style, true);
+				end.connectable = 0;
+				geo = new mxGeometry(0.6, 12, 0, 0);
+				geo.relative = true;
+				end.setGeometry(geo);
+			}else if(subobj.arrow==1){
+				var end = graph.insertVertex(edge, null, subobj.endvalue, 1, 1, 0, 0,style, true);
+				end.connectable = 0;
+				geo = new mxGeometry(0.6, 12, 0, 0);
+				geo.relative = true;
+				end.setGeometry(geo);
+				var start = graph.insertVertex(edge, null, subobj.startvalue, 1, 1, 0, 0,style, true);
+				geo = new mxGeometry(-0.6, -12, 0, 0);
+				geo.relative = true;
+				start.connectable = 0;
+				start.setGeometry(geo);
+			}
+			this.updateEdgeText(edge);
+		},
+		
+		resetEdges:function(){
+			var style = 'edgeStyle=none;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;dashed=0;';
+			var edges = this._graph.getModel().getChildEdges(this._graph.getDefaultParent());
+			console.log(edges.length);
+			if(edges!=null){
+				for(var i=0;i<edges.length;i++){
+					var edge = edges[i];
+					this._graph.getModel().setStyle(edge,style);
+					var children = edge.children;
+					if(children!=null){
+						var len = children.length;
+						for(var j=0;j<len;j++){
+							this._graph.getModel().remove(children[0]);
+						}
+					}
+				}
+			}
 		},
 
 		setArrowOffset : function(v){
@@ -828,27 +1001,12 @@
 						var dy = this.points[len-1].y;
 					}
 					var angle = Math.atan((dy-sy)/((dx-sx)==0?1:(dx-sx)))*360/(2*Math.PI);
-//					if (dx<sx&&dy>sy){
-//						angle = 180+angle;
-//					}else if (dx<sx&&dy<sy){
-//						angle = 180+angle;
-//					}else if (dx>sx&&dy<sy){
-//						angle = 360+angle;
-//					}
 					return angle;
 				};
-//				var CreateLabel = this.mxCreateLabel;
-//				mxCellRenderer.prototype.createLabel = function(state, value){
-//					if (state.cell.edge==1){
-//						state.style['verticalAlign']='bottom';
-//					}
-//					return CreateLabel.apply(this, arguments);
-//				}
 			}else{
 				mxPolyline.prototype.getRotation = function(){
 					return 0;
 				};
-				//mxCellRenderer.prototype.createLabel = this.mxCreateLabel;
 			}
 		},
 
@@ -894,24 +1052,6 @@
 				this.element.style.width = area[2] + "px";
 				this.element.style.height = area[3] + "px";
 			}
-		},
-
-		addChild:function(obj){
-			var graph = this._graph;
-			var edge = this._graph.getModel().getCell(obj.id);
-			var style = 'text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;spacingTop=25;labelBackgroundColor=none;labelBackgroundColor=none;labelBorderColor=none;fontColor=red'
-			var end = graph.insertVertex(edge, null, obj.end, 1, 1, 0, 0,style, true);
-			end.connectable = 0;
-			var geo = new mxGeometry(0.6, 12, 0, 0);
-			geo.relative = true;
-			end.setGeometry(geo);
-			var start = graph.insertVertex(edge, null, obj.start, 1, 1, 0, 0,style, true);
-			geo = new mxGeometry(-0.6, -12, 0, 0);
-			geo.relative = true;
-			start.connectable = 0;
-			start.setGeometry(geo);
-			this.updateEdgeText(edge);
-			this._graph.refresh();
 		},
 
 		smallpage : function(target){

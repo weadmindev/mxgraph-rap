@@ -322,8 +322,8 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("css/common.css", true, true));
 		res.add(new CustomRes("css/explorer.css", true, true));
 		res.add(new CustomRes("add_path_graph.js", true, false));
-		res.add(new CustomRes("sanitizer.min.js", true, false));
-		res.add(new CustomRes("mxClient.min.js", true, false));
+		res.add(new CustomRes("sanitizer.js", true, false));
+		res.add(new CustomRes("mxClient.js", true, false));
 		res.add(new CustomRes("Graph.js", true, false));
 		res.add(new CustomRes("Shapes.js", true, false));
 		res.add(new CustomRes("handler_graph.js", true, false));
@@ -629,7 +629,7 @@ public class GraphJS extends SVWidgetBase{
 	/**
 	 * 刷新连线状态
 	 * @param array [JsonObject,JsonObject,...]
-	 * JsonObject "id","color","value","arrow","dashed","tooltip"
+	 * JsonObject "id","color","endvalue","startvalue","dashed","tooltip"
 	 */
 	public void updateEdgeStatus(JsonArray array){
 		JsonObject json = new JsonObject();
@@ -650,9 +650,9 @@ public class GraphJS extends SVWidgetBase{
 	}
 	
 	/**
-	 * 添加连线文字描述（流量）
+	 * 重置连线状态和信息
 	 */
-	public void addChilds(JsonObject json){
-		super.callRemoteMethod("addChild", json);
+	public void resetEdges(){
+		super.callRemoteMethod("resetEdges", new JsonObject());
 	}
 }
