@@ -13,6 +13,11 @@
             id="com.weadmin.mxgraph-rap.example.entrypoint1"
             path="/hello2">
       </entrypoint>
+      <entrypoint
+            class="example.SmallGraph"
+            id="com.weadmin.mxgraph-rap.example.entrypoint1"
+            path="/small">
+      </entrypoint>
    </extension>
 
 </plugin>

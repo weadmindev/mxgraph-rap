@@ -36,7 +36,6 @@ import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
-import com.mxgraph.util.mxPoint;
 import com.mxgraph.view.mxGraph;
 import com.weadmin.mxgraph_rap.GraphJS;
 import com.weadmin.mxgraph_rap.MxGraphJS.MxGraphEvent;
@@ -222,8 +221,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 
 		Combo arrow = new Combo(one, SWT.DROP_DOWN);
 		arrow.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		arrow.setItems(new String[]{"出箭头","入箭头","总箭头"});
-		arrow.setText("箭头");
+		arrow.setItems(new String[]{"出流量","入流量","总流量"});
+		arrow.setText("流量");
 		arrow.addSelectionListener(new SelectionListener() {
 			private static final long serialVersionUID = 1L;
 			@Override
@@ -231,37 +230,37 @@ public class ExampleTwo extends AbstractEntryPoint{
 				int index = arrow.getSelectionIndex();
 				switch (index) {
 				case 0:
-					//g.arrowVisible(new String[]{"3","2"}, "out");
-					JsonArray array = new JsonArray();
-					JsonObject json = new JsonObject();
-					JsonObject json2 = new JsonObject();
-					json2.set("image", "rwt-resources/graph/images/error.png");
-					json2.set("width", 16);
-					json2.set("height", 16);
-					json2.set("tooltip", "error");
-					json.set("id", "3");
-					json.set("tooltip", "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/error.png"+"'/>");
-					json.set("overlay", json2);
-					array.add(json);
-					g.updateNodeStatus(array);
+					g.arrowVisible(new String[]{"3"}, "out");
+//					JsonArray array = new JsonArray();
+//					JsonObject json = new JsonObject();
+//					JsonObject json2 = new JsonObject();
+//					json2.set("image", "rwt-resources/graph/images/error.png");
+//					json2.set("width", 16);
+//					json2.set("height", 16);
+//					json2.set("tooltip", "error");
+//					json.set("id", "3");
+//					json.set("tooltip", "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/error.png"+"'/>");
+//					json.set("overlay", json2);
+//					array.add(json);
+//					g.updateNodeStatus(array);
 					break;
 				case 1:
-					//g.arrowVisible(new String[]{"3","2"}, "in");
-					JsonArray array1 = new JsonArray();
-					JsonObject json1 = new JsonObject();
-					JsonObject json21 = new JsonObject();
-					json21.set("image", "rwt-resources/graph/images/error.png");
-					json21.set("width", 16);
-					json21.set("height", 16);
-					json21.set("tooltip", "error");
-					json1.set("id", "2");
-					json1.set("tooltip", "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/error.png"+"'/>");
-					json1.set("overlay", json21);
-					array1.add(json1);
-					g.updateNodeStatus(array1);
+					g.arrowVisible(new String[]{"3"}, "in");
+//					JsonArray array1 = new JsonArray();
+//					JsonObject json1 = new JsonObject();
+//					JsonObject json21 = new JsonObject();
+//					json21.set("image", "rwt-resources/graph/images/error.png");
+//					json21.set("width", 16);
+//					json21.set("height", 16);
+//					json21.set("tooltip", "error");
+//					json1.set("id", "2");
+//					json1.set("tooltip", "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/error.png"+"'/>");
+//					json1.set("overlay", json21);
+//					array1.add(json1);
+//					g.updateNodeStatus(array1);
 					break;
 				case 2:
-					g.arrowVisible(new String[]{"3","2"}, "both");
+					g.arrowVisible(new String[]{"3"}, "both");
 					break;
 				default:
 					break;
@@ -287,7 +286,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 					JsonObject json = new JsonObject();
 					json.set("id", "4");
 					json.set("color", "#FF3030");
-					json.set("value", "1000Kbps");
+					json.set("endvalue", "1000Kbps");
+					json.set("startvalue", "");
 					json.set("arrow", "0");
 					json.set("dashed", "0");
 					json.set("tooltip", "<h1>Ball</h1>");
@@ -297,7 +297,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 							JsonObject json2 = new JsonObject();
 							json2.set("id", lastid);
 							json2.set("color", "#FF3030");
-							json2.set("value", "2000Kbps");
+							json2.set("endvalue", "2000Kbps");
+							json2.set("startvalue", "");
 							json2.set("arrow", "0");
 							json2.set("dashed", "0");
 							json2.set("tooltip", "<h1>Balls</h1>");
@@ -310,8 +311,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 					JsonObject json = new JsonObject();
 					json.set("id", "4");
 					json.set("color", "#D02090");
-					json.set("value", "1000Kbps");
-					json.set("arrow", "0");
+					json.set("endvalue", "1000Kbps");
+					json.set("startvalue", "1000Kbps");
+					json.set("arrow", "1");
 					json.set("dashed", "0");
 					array1.add(json);
 					if (edgeids!=null&&edgeids.size()>0) {
@@ -319,8 +321,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 							JsonObject json2 = new JsonObject();
 							json2.set("id", lastid);
 							json2.set("color", "#D02090");
-							json2.set("value", "2000Kbps");
-							json2.set("arrow", "0");
+							json2.set("endvalue", "2000Kbps");
+							json2.set("startvalue", "1000Kbps");
+							json2.set("arrow", "1");
 							json2.set("dashed", "0");
 							array1.add(json2);
 						}
@@ -331,8 +334,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 					JsonObject json = new JsonObject();
 					json.set("id", "4");
 					json.set("color", "#000000");
-					json.set("value", "1000Kbps");
-					json.set("arrow", "0");
+					json.set("endvalue", "1000Kbps");
+					json.set("startvalue", "1000Kbps");
+					json.set("arrow", "1");
 					json.set("dashed", "1");
 					array1.add(json);
 					if (edgeids!=null&&edgeids.size()>0) {
@@ -340,8 +344,9 @@ public class ExampleTwo extends AbstractEntryPoint{
 							JsonObject json2 = new JsonObject();
 							json2.set("id", lastid);
 							json2.set("color", "#000000");
-							json2.set("value", "2000Kbps");
-							json2.set("arrow", "0");
+							json2.set("endvalue", "2000Kbps");
+							json2.set("startvalue", "1000Kbps");
+							json2.set("arrow", "1");
 							json2.set("dashed", "1");
 							array1.add(json2);
 						}
@@ -357,18 +362,6 @@ public class ExampleTwo extends AbstractEntryPoint{
 
 		Button addChild = new Button(one, SWT.PUSH);
 		addChild.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
-		addChild.setText("添加文字");
-		addChild.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent e) {
-				JsonObject json = new JsonObject();
-				json.set("id", "4");
-				json.set("end", "world!");
-				json.set("start", "hello");
-				g.addChilds(json);
-			}
-		});
-
 
 		Button finish = new Button(one, SWT.PUSH);
 		finish.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
@@ -424,6 +417,18 @@ public class ExampleTwo extends AbstractEntryPoint{
 		Object v2=((mxGraphModel)gd.getModel()).getCell("3");
 		Object e4=((mxGraphModel)gd.getModel()).getCell("4");
 
+		addChild.setText("添加文字");
+		addChild.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+//				JsonObject json = new JsonObject();
+//				json.set("id", "4");
+//				json.set("end", "world!");
+//				json.set("start", "hello");
+//				g.addChilds(json);
+				g.resetEdges();
+			}
+		});
 		g.addGraphListener(new mxIEventListener(){
 
 			@Override
@@ -472,7 +477,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 						g.addCellOverlay(id, "rwt-resources/graph/images/"+status+".png", 16, 16, status);
 						lastids = getId();
 						edgeids.add(lastids);
-						Object edge = gd.insertEdge(parentG, lastids, "", v2, v, style4);
+						mxCell edge = (mxCell) gd.insertEdge(parentG, lastids, "", v2, v, style4);
 						g.setTooltip(lastids, "<h1>efgh</h1>"+ "<img src='rwt-resources/graph/images/"+status+".png"+"'/>");
 					}else{
 //						gd.insertEdge(gd.getDefaultParent(), getId(), "", v2, v);
