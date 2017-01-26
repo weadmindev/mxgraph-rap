@@ -4007,7 +4007,7 @@ if (typeof mxVertexHandler != 'undefined')
 								if (state != null || (mxClient.IS_VML && src == this.view.getCanvas()) ||
 									(mxClient.IS_SVG && src == this.view.getCanvas().ownerSVGElement))
 								{
-									cell = this.addText(pt.x, pt.y, state);
+									//cell = this.addText(pt.x, pt.y, state);
 								}
 							}
 						}

@@ -323,10 +323,11 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("css/explorer.css", true, true));
 		res.add(new CustomRes("add_path_graph.js", true, false));
 		res.add(new CustomRes("sanitizer.min.js", true, false));
-		res.add(new CustomRes("mxClient.min.js", true, false));
+		res.add(new CustomRes("mxClient.js", true, false));
 		res.add(new CustomRes("Graph.js", true, false));
 		res.add(new CustomRes("Shapes.js", true, false));
 		res.add(new CustomRes("handler_graph.js", true, false));
+		res.add(new CustomRes("echarts.min.js", true, false));
 		return res;
 	}
 	
@@ -339,11 +340,11 @@ public class GraphJS extends SVWidgetBase{
 		super.setRemoteProp("xmlModel", xmlText);
 	}
 	
-	@SuppressWarnings({ "deprecation" })
 	public void setModelXml(String filename){
-		mxCodec codec = new mxCodec();
-		Node node = codec.encode(graph.getModel());
-		String xml = mxUtils.getXml(node);
+//		mxCodec codec = new mxCodec();
+//		Node node = codec.encode(graph.getModel());
+//		String xml = mxUtils.getXml(node);
+		String xml = getClearStatusGraphXml();
 		byte[] b = xml.getBytes();
 		String path = "D:/mxgraph";
 		try {
@@ -611,29 +612,13 @@ public class GraphJS extends SVWidgetBase{
 	}
 	
 	/**
-	 * 设置显示进/出/全部流量箭头
-	 * @param serverids 服务器id
-	 * @param type in,out,both 分别表示进流量，出流量，总流量
-	 */
-	public void arrowVisible(String[] serverids,String type){
-		JsonObject json = new JsonObject();
-		JsonArray ids = new JsonArray();
-		for (String id :serverids){
-			ids.add(id);
-		}
-		json.add("serverids", ids);
-		json.add("type", type);
-		super.callRemoteMethod("arrowVisible", json);
-	}
-	
-	/**
 	 * 刷新连线状态
 	 * @param array [JsonObject,JsonObject,...]
-	 * JsonObject "id","color","endvalue","startvalue","dashed","tooltip"
+	 * JsonObject "id","color","endvalue","startvalue","arrow","dashed","tooltip"
 	 */
 	public void updateEdgeStatus(JsonArray array){
 		JsonObject json = new JsonObject();
-		json.set("array", array);
+		json.add("array", array);
 		super.callRemoteMethod("updateEdgeStatus", json);
 	}
 	
@@ -650,9 +635,34 @@ public class GraphJS extends SVWidgetBase{
 	}
 	
 	/**
-	 * 重置连线状态和信息
+	 * 重置连线状态和信息并返回xml
 	 */
-	public void resetEdges(){
-		super.callRemoteMethod("resetEdges", new JsonObject());
+	@SuppressWarnings("static-access")
+	public String getClearStatusGraphXml(){
+		String style = "edgeStyle=none;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;dashed=0;";
+		mxGraphModel model = (mxGraphModel) graph.getModel();
+		Object[] edges = model.getChildEdges(model, graph.getDefaultParent());
+		if (edges!=null) {
+			for(int i=0;i<edges.length;i++){
+				Object edge = edges[i];
+				model.setStyle(edge,style);
+				model.setValue(edge,"");
+				int len = ((mxCell)edge).getChildCount();
+				for(int j=0;j<len;j++){
+					model.remove(((mxCell)edge).getChildAt(0));
+				}
+			}
+		}
+		mxCodec codec = new mxCodec();
+		Node node = codec.encode(model);
+		String xmlText = mxUtils.getPrettyXml(node);
+		return xmlText;
+	}
+	
+	/**
+	 * 自适应页面大小显示全图
+	 */
+	public void automic(){
+		super.callRemoteMethod("automic", new JsonObject());
 	}
 }

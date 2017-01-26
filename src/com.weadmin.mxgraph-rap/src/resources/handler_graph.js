@@ -11,10 +11,9 @@
 		},
 
 		destructor : "destroy",
-		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells',
-		            'putCellStyle','setCellStyle','translateCell','setCellChildOffset','setCellOffset','zoomIn','zoomOut',
-		            'setTooltip','selectCell','selectCells','addCellOverlay','removeCellOverlays','graphLayout','resetView',"arrowVisible",
-		            "updateEdgeStatus","updateNodeStatus","resetEdges"],
+		methods : [ 'insertVertex', 'insertEdge','appendXmlModel','removeCells','putCellStyle','setCellStyle','translateCell',
+		            'setCellChildOffset','setCellOffset','zoomIn','zoomOut','setTooltip','selectCell','selectCells','addCellOverlay',
+		            'removeCellOverlays','graphLayout','resetView','updateEdgeStatus','updateNodeStatus','automic' ],
 		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation","controlarea","pageType"],
 		events:['modelUpdate']
 
@@ -30,14 +29,33 @@
 		                "onCellConnect","getTooltipForCell"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
-		this.element.style.overflow = 'hidden';
+		this.leftdiv = document.createElement("div");
+		this.rightdiv = document.createElement("div");
+		this.leftdiv.style.position = 'absolute';
+		this.leftdiv.style.width = '100%';
+		this.leftdiv.style.left = '0px';
+		this.leftdiv.style.top = '0px';
+		this.leftdiv.style.bottom = '0px';
+		this.leftdiv.style.display = 'none';
+		
+		this.rightdiv.style.position = 'absolute';
+		this.rightdiv.style.overflow = 'hidden';
+		this.rightdiv.style.width = '100%';
+		this.rightdiv.style.right = '0px';
+		this.rightdiv.style.top = '0px';
+		this.rightdiv.style.bottom = '0px';
+		
 		this.parent.append(this.element);
-		this.parent.addListener("Resize", this.layout);
+		this.element.appendChild(this.leftdiv);
+		this.element.appendChild(this.rightdiv);
+		
+		
+		//this.parent.addListener("Resize", this.layout);
 		this._size = properties.size ? properties.size : {
 			width : 300,
 			height : 300
 		};
-
+		
 		this.outline = document.createElement("div");
 		this.outline.style.zIndex = '2';
 		this.outline.style.position = 'absolute';
@@ -47,6 +65,7 @@
 		this.outline.style.width = '250px';
 		this.outline.style.height = '160px';
 		this.outline.style.background = 'transparent';
+		//this.outline.style.background = '#ffffff';
 		this.outline.style.border='solid gray';
 
 		this.parent.append(this.outline);
@@ -64,7 +83,7 @@
 		this.cover.onmouseover = function(){
 			this.style.cursor = 'pointer';
 		};
-		this.parent.append(this.cover);
+		this.rightdiv.appendChild(this.cover);
 		mxConnector.arrowOffset = 1.0;
 		mxConnector.prototype.paintEdgeShape = function(c, pts){
 			var offset = mxConnector.arrowOffset;
@@ -110,11 +129,12 @@
 		mxTooltipHandler.prototype.zIndex = 1000500000;
 		mxConnectionHandler.prototype.waypointsEnabled = false;
 
-		this._graph = new Graph(this.element);
+		this._graph = new Graph(this.rightdiv);
 		this._parent = null;
 		this._xmlModel = null;
 		this._hoverCell = null;
 		this._pagetype = null;
+		this._currentSize = null;
 		this._tooltips = {};
 		this._textAutoRotation = false;
 
@@ -306,7 +326,7 @@
 				if(type == 'circle'){
 					var layout = new mxCircleLayout(graph,300);//circle
 				}else if(type == 'tree'){
-					var layout = new mxCompactTreeLayout(graph);//tree
+					var layout = new mxCompactTreeLayout(graph,true,false);//tree
 					//layout.moveTree = true;
 					layout.nodeDistance = 30;
 					layout.levelDistance = 100;
@@ -556,6 +576,7 @@
 		},
 
 		onConnect:function(sender, evt) {
+			mxConnector.arrowOffset = 0.5;
 			var graph = this._graph;
 			var edge = evt.getProperty('cell');
 			//edge.value = '100Kbps';
@@ -615,9 +636,10 @@
 					}
 				}else{
 					if(haveline){
+						mxConnector.arrowOffset = 0.75;
 						if(OutSubedge.style.indexOf("startArrow=")!=-1){
 							if(OutSubedge.style.indexOf("startArrow=none")!=-1){
-								OutSubedge.style = OutSubedge.style.replace("startArrow=none","arrowcounts=2;startArrow=classic");
+								OutSubedge.style = OutSubedge.style.replace("startArrow=none","startArrow=classic");
 								this._graph.getModel().setStyle(OutSubedge,OutSubedge.style);
 							}
 						}else{
@@ -625,7 +647,7 @@
 							var substyle = OutSubedge.style;
 							var sem = substyle.substring(substyle.length-1,substyle.length);
 							var temp = sem==";"?"":";";
-							this._graph.getModel().setStyle(OutSubedge,OutSubedge.style+temp+"arrowcounts=2;startArrow=classic;");
+							this._graph.getModel().setStyle(OutSubedge,OutSubedge.style+temp+"startArrow=classic;");
 						}
 					}
 					if(havelines){
@@ -700,147 +722,13 @@
 			this._graph.setSelectionCells(cells);
 		},
 
-		arrowVisible:function(obj){
-			var serverids = obj.serverids;
-			var type = obj.type;
-			var outgoing = false;
-			var incoming = false;
-			var both = false;
-			var oldstyle = null;
-			if(type=='in'){
-				incoming = true;
-			}
-			if(type=='out'){
-				outgoing = true;
-			}
-			if(type=='both'){
-				both = true;
-			}
-			for(var i=0;i<serverids.length;i++){
-				var server = this._graph.getModel().getCell(serverids[i]);
-				var incomingedge = this._graph.getModel().getIncomingEdges(server);
-				for(var j=0;j<incomingedge.length;j++){
-					var edge = incomingedge[j];
-					var style = edge.style;
-					oldstyle = edge.style;
-					var children = edge.children;
-					if(outgoing){
-						var sem = style.substring(style.length-1,style.length);
-						var temp = sem==";"?"":";";
-						style += temp+"endArrow=none;";
-						if(children!=null){
-							children[0].setVisible(false);
-						}else{
-							if(style.indexOf("arrowcounts=2")>0){
-								style += "startArrow=classic;";
-							}
-						}
-						if(children!=null&&children.length==2){
-							style += "startArrow=classic;";
-							children[1].setVisible(true);
-						}
-					}
-					if(incoming){
-						var sem = style.substring(style.length-1,style.length);
-						var temp = sem==";"?"":";";
-						style += temp+"endArrow=classic;";
-						if(children!=null){
-							children[0].setVisible(true);
-						}else{
-							if(style.indexOf("arrowcounts=2")>0){
-								style += "startArrow=none;";
-							}
-						}
-						if(children!=null&&children.length==2){
-							style += "startArrow=none;";
-							children[1].setVisible(false);
-						}
-					}
-					if(both){
-						if(style.indexOf("endArrow=none")>0){
-							style = style.replace(/endArrow=none/g,"endArrow=classic");
-						}else{
-							var sem = style.substring(style.length-1,style.length);
-							var temp = sem==";"?"":";";
-							style += temp+"endArrow=classic;";
-						}
-						if(children!=null){
-							children[0].setVisible(true);
-							if(children.length==2){
-								style += "startArrow=classic;";
-								children[1].setVisible(true);
-							}
-						}
-					}
-					this._graph.getModel().setStyle(edge,style);
-					edge.style = oldstyle;
-				}
-				var outgoingedge = this._graph.getModel().getOutgoingEdges(server);
-				for(var j=0;j<outgoingedge.length;j++){
-					var edge = outgoingedge[j];
-					var style = edge.style;
-					oldstyle = edge.style;
-					var children = edge.children;
-					if(outgoing){
-						var sem = style.substring(style.length-1,style.length);
-						var temp = sem==";"?"":";";
-						style += temp+"endArrow=classic;";
-						if(children!=null){
-							children[0].setVisible(true);
-						}else{
-							if(style.indexOf("arrowcounts=2")>0){
-								style += "startArrow=none;";
-							}
-						}
-						if(children!=null&&children.length==2){
-							style += "startArrow=none;";
-							children[1].setVisible(false);
-						}
-					}
-					if(incoming){
-						var sem = style.substring(style.length-1,style.length);
-						var temp = sem==";"?"":";";
-						style += temp+"endArrow=none;";
-						if(children!=null){
-							children[0].setVisible(false);
-						}else{
-							if(style.indexOf("arrowcounts=2")>0){
-								style += "startArrow=classic;";
-							}
-						}
-						if(children!=null&&children.length==2){
-							style += "startArrow=classic;";
-							children[1].setVisible(true);
-						}
-					}
-					if(both){
-						if(style.indexOf("endArrow=none")>0){
-							style = style.replace(/endArrow=none/g,"endArrow=classic");
-						}else{
-							var sem = style.substring(style.length-1,style.length);
-							var temp = sem==";"?"":";";
-							style += temp+"endArrow=classic;";
-						}
-						if(children!=null){
-							children[0].setVisible(true);
-							if(children.length==2){
-								style += "startArrow=classic;";
-								children[1].setVisible(true);
-							}
-						}
-					}
-					this._graph.getModel().setStyle(edge,style);
-					edge.style = oldstyle;
-				}
-			}
-		},
-		
 		updateNodeStatus:function(obj){
+			var model = this._graph.getModel();
 			var totalArr = obj.array;
 			var subNode = null;
 			for(var i=0;i<totalArr.length;i++){
 				subNode = totalArr[i];
-				var node = this._graph.getModel().getCell(subNode.id);
+				var node = model.getCell(subNode.id);
 				if (node){
 					this._tooltips[subNode.id] = subNode.tooltip;
 					this._graph.removeCellOverlays(node);
@@ -851,6 +739,7 @@
 		},
 
 		updateEdgeStatus:function(obj){
+			var model = this._graph.getModel();
 			var totalArr = obj.array;
 			var subobj = null;
 			var colorHead = "strokeColor=";
@@ -859,13 +748,9 @@
 			if(totalArr.length>0){
 				for(var i=0;i<totalArr.length;i++){
 					subobj = totalArr[i];
-					var edge = this._graph.getModel().getCell(subobj.id);
+					var edge = model.getCell(subobj.id);
 					if(edge!=null){
 						var style = edge.style;
-						var arrowcounts = style.indexOf("arrowcounts=2;");
-						if(arrowcounts>0){
-							style = style.replace("arrowcounts=2;","");
-						}
 						var index = style.indexOf(colorHead);
 						if(index!=-1){// line color
 							var colorvalue = style.substring(index+colorHead.length,index+colorHead.length+7);
@@ -893,84 +778,137 @@
 							var temp = sem==";"?"":";";
 							style += temp+dashedHead+subobj.dashed+";";
 						}
-						if(subobj.arrow==1){//judge one or two arrow
-							var sem = style.substring(style.length-1,style.length);
-							var temp = sem==";"?"":";";
+						if(subobj.arrow==1){//out flow
+							mxConnector.arrowOffset = 0.5;
+							if(style.indexOf("endArrow=none")>0){
+								style = style.replace(/endArrow=none/g,"").replace(/;;/g,";");
+							}
 							if(style.indexOf("startArrow=classic")>0){
 								if(style.indexOf("startArrow=none")>0){
-									style = style.replace(/startArrow=none/g,"").replace(/;;/g,";");;
+									style = style.replace(/startArrow=classic/g,"").replace(/;;/g,";");
+								}else{
+									style = style.replace(/startArrow=classic/g,"startArrow=none").replace(/;;/g,";");
 								}
-							}else{
-								style += temp+"startArrow=classic"+";";
 							}
-						}else if(subobj.arrow==0){
+						}else if(subobj.arrow==-1){//in flow
+							mxConnector.arrowOffset = 0.5;
+							if(style.indexOf("endArrow=none")>0){
+								style = style.replace(/endArrow=classic/g,"").replace(/;;/g,";");
+							}else{
+								if(style.indexOf("endArrow=classic")>0){
+									style = style.replace(/endArrow=classic/g,"endArrow=none").replace(/;;/g,";");
+								}else{
+									var sem = style.substring(style.length-1,style.length);
+									var temp = sem==";"?"":";";
+									style += temp+"endArrow=none;";
+								}
+							}
 							if(style.indexOf("startArrow=classic")>0){
-								style = style.replace(/startArrow=classic/g,"").replace(/;;/g,";");;
+								style = style.replace(/startArrow=none/g,"").replace(/;;/g,";");
+							}else{
+								if(style.indexOf("startArrow=none")>0){
+									style = style.replace(/startArrow=none/g,"startArrow=classic").replace(/;;/g,";");
+								}else{
+									var sem = style.substring(style.length-1,style.length);
+									var temp = sem==";"?"":";";
+									style += temp+"startArrow=classic;";
+								}
+							}
+						}else if(subobj.arrow==2){// total flow
+							mxConnector.arrowOffset = 0.75;
+							if(style.indexOf("endArrow=none")>0){
+								style = style.replace(/endArrow=none/g,"").replace(/;;/g,";");
+							}
+							if(style.indexOf("startArrow=none")>0){
+								style = style.replace(/startArrow=none/g,"startArrow=classic").replace(/;;/g,";");
+							}else{
+								if(style.indexOf("startArrow=classic")<0){
+									var sem = style.substring(style.length-1,style.length);
+									var temp = sem==";"?"":";";
+									style += temp+"startArrow=classic;";
+								}
+							}
+						}else if(subobj.arrow==0){// no arrow
+							if(style.indexOf("endArrow=none")>0){
+								style = style.replace(/endArrow=classic/g,"").replace(/;;/g,";");
+							}else{
+								if(style.indexOf("endArrow=classic")>0){
+									style = style.replace(/endArrow=classic/g,"endArrow=none").replace(/;;/g,";");
+								}else{
+									var sem = style.substring(style.length-1,style.length);
+									var temp = sem==";"?"":";";
+									style += temp+"endArrow=none;";
+								}
+							}
+							if(style.indexOf("startArrow=none")>0){
+								style = style.replace(/startArrow=classic/g,"").replace(/;;/g,";");
+							}else{
+								if(style.indexOf("startArrow=classic")>0){
+									style = style.replace(/startArrow=classic/g,"startArrow=none").replace(/;;/g,";");
+								}else{
+									var sem = style.substring(style.length-1,style.length);
+									var temp = sem==";"?"":";";
+									style += temp+"startArrow=none;";
+								}
 							}
 						}
-						this._graph.getModel().setStyle(edge,style);
-						this.addChild(edge,subobj);//add line text
+						model.setValue(edge,subobj.value==null?"":subobj.value);
+						model.setStyle(edge,style);
+						this.addChild(edge,subobj,model);//add line text
 						this._tooltips[subobj.id] = subobj.tooltip;//add tooltips
 					}
 				}
 			}
 		},
 		
-		addChild:function(obj,subobj){
+		addChild:function(obj,subobj,model){
 			var graph = this._graph;
 			var geo = null;
-			var edge = this._graph.getModel().getCell(obj.id);
+			var edge = model.getCell(obj.id);
 			if(edge.children!=null){
 				var childrens = edge.children;
 				var len = childrens.length;
 				for(var i=0;i<len;i++){
-					this._graph.getModel().remove(childrens[0]);
+					model.remove(childrens[0]);
 				}
 			}
 			var style = 'text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;spacingTop=25;labelBackgroundColor=none;labelBorderColor=none;';
 			var fontcolor = "fontColor=";
 			var index = edge.style.indexOf(fontcolor);
 			style = style+edge.style.substring(index,index+fontcolor.length+7)+";";
-			if(subobj.arrow==0){
+			if(subobj.arrow==1){
 				var end = graph.insertVertex(edge, null, subobj.endvalue, 1, 1, 0, 0,style, true);
-				end.connectable = 0;
-				geo = new mxGeometry(0.6, 12, 0, 0);
+				geo = new mxGeometry(0, 12, 0, 0);
 				geo.relative = true;
-				end.setGeometry(geo);
-			}else if(subobj.arrow==1){
-				var end = graph.insertVertex(edge, null, subobj.endvalue, 1, 1, 0, 0,style, true);
 				end.connectable = 0;
-				geo = new mxGeometry(0.6, 12, 0, 0);
-				geo.relative = true;
 				end.setGeometry(geo);
+			}else if(subobj.arrow==-1){
 				var start = graph.insertVertex(edge, null, subobj.startvalue, 1, 1, 0, 0,style, true);
-				geo = new mxGeometry(-0.6, -12, 0, 0);
+				geo = new mxGeometry(0, -12, 0, 0);
 				geo.relative = true;
 				start.connectable = 0;
 				start.setGeometry(geo);
+			}else if(subobj.arrow==2){
+				var end = graph.insertVertex(edge, null, subobj.endvalue, 1, 1, 0, 0,style, true);
+				end.connectable = 0;
+				geo = new mxGeometry(0.48, 12, 0, 0);
+				geo.relative = true;
+				end.setGeometry(geo);
+				var start = graph.insertVertex(edge, null, subobj.startvalue, 1, 1, 0, 0,style, true);
+				geo = new mxGeometry(-0.48, -12, 0, 0);
+				geo.relative = true;
+				start.connectable = 0;
+				start.setGeometry(geo);
+			}else if(subobj.arrow==0){
+				var end = graph.insertVertex(edge, null, subobj.endvalue, 1, 1, 0, 0,style, true);
+				geo = new mxGeometry(0, 12, 0, 0);
+				geo.relative = true;
+				end.connectable = 0;
+				end.setGeometry(geo);
 			}
 			this.updateEdgeText(edge);
 		},
 		
-		resetEdges:function(){
-			var style = 'edgeStyle=none;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;dashed=0;';
-			var edges = this._graph.getModel().getChildEdges(this._graph.getDefaultParent());
-			console.log(edges.length);
-			if(edges!=null){
-				for(var i=0;i<edges.length;i++){
-					var edge = edges[i];
-					this._graph.getModel().setStyle(edge,style);
-					var children = edge.children;
-					if(children!=null){
-						var len = children.length;
-						for(var j=0;j<len;j++){
-							this._graph.getModel().remove(children[0]);
-						}
-					}
-				}
-			}
-		},
-
 		setArrowOffset : function(v){
 			mxConnector.arrowOffset = v;
 		},
@@ -1033,6 +971,7 @@
 			} else {
 				this._size = size;
 			}
+			this._currentSize = size;
 		},
 
 		destroy : function() {
@@ -1053,11 +992,35 @@
 				this.element.style.height = area[3] + "px";
 			}
 		},
+		
+		automic : function(){
+			var sizees = this._currentSize;
+			var divs = this.element;
+			if(sizees!=null&&divs!=null){
+				while(true){//auto zommOut
+					if(divs.scrollHeight>sizees.height&&divs.scrollWidth>sizees.width){
+						break;
+					}
+					this._graph.zoomIn();
+				}
+				while(true){//auto zommOut
+					if(divs.scrollHeight<=sizees.height&&divs.scrollWidth<=sizees.width){
+						break;
+					}
+					this._graph.zoomOut();
+				}
+			}
+		},
 
 		smallpage : function(target){
 			var outlines = this.outline;
-			var divs = this.element;
+			var divs = this.rightdiv;
 			var sizees = this._size;
+			divs.style.display = 'block';
+			divs.style.width = '55%';
+			this.leftdiv.width = '45%';
+			this.leftdiv.style.display = 'block';
+			this.createLeftDivContent();
 			divs.style.overflow = 'auto';
 			this._graph.setEnabled(false);
 			this.cover.style.display = 'block';
@@ -1069,19 +1032,197 @@
 			};
 			if(outlines){
 				outlines.style.display = 'none';
-				outlines.style.width = sizees.width/5 + "px";
-				outlines.style.height = sizees.height/5 + "px";
 			}
 			while(true){//auto zommOut
 				if(divs.scrollHeight<=sizees.height&&divs.scrollWidth<=sizees.width){
-					console.log(divs.scrollHeight);
 					break;
 				}
 				this._graph.zoomOut();
 			}
 			divs.style.overflow = 'hidden';
+		},
+		
+		createLeftDivContent:function(){
+			this.createTable();
+			this.createChart();
+		},
+		
+		createChart:function(){
+			var chartdiv = document.createElement("div");
+			//chartdiv.style.border = 'solid black';
+			chartdiv.style.position = 'absolute';
+			chartdiv.style.left = '0px';
+			chartdiv.style.top = '158px';
+			chartdiv.style.bottom = '0px';
+			chartdiv.style.width = '45%';
+			this.leftdiv.appendChild(chartdiv);
+			this.createChartOne(chartdiv);
+			this.createChartTwo(chartdiv);
+		},
+		
+		createTable:function(){
+			var divone = document.createElement("div");
+			var table = document.createElement("table");
+			//var tbody = document.createElement("tbody");
+			table.width = '330px';
+			table.height = '200px';
+			table.border = 0;
+			table.cellPadding = 0;
+			table.cellSpacing = 0;
+			table.style.textAlign = 'center';
+			table.style.verticalAlign = 'center';
+			table.style.marginLeft = '8px';
+			table.style.marginTop = '5px';
+			var row = 6;
+			var clum = 5;
+			var head = ['type','rexource','good','danger','error'];
+			var type = ['server','switch','router','database','middle']
+			var data = ['3','2','0','1'];
+			for(var i=1;i<=row;i++){
+				var tr = document.createElement("tr");
+				if(i%2!=0){
+					tr.style.backgroundColor = '#cfe2f3';
+					//tr.style.fontFamily="楷体";
+					//tr.style.fontWeight='bolder';
+				}
+				for(var j=1;j<=clum;j++){
+					var td = document.createElement("td");
+					if(i==1){
+						td.innerHTML = head[j-1];
+						tr.style.backgroundColor = '#3d85c6';
+						td.style.fontWeight='bolder';
+						td.style.color='#ffffff';
+					}else{
+						if(j==1){
+							td.innerHTML = type[i-2];
+							td.style.fontWeight='bolder';
+						}else{
+							td.innerHTML = data[j-2];
+						}
+					}
+					td.style.height = "25px";
+					tr.appendChild(td);
+				}
+				table.appendChild(tr);
+			}
+			divone.appendChild(table);
+			this.leftdiv.appendChild(divone);
+			//divone.style.border = 'solid black';
+			divone.style.position = 'absolute';
+			divone.style.left = '0px';
+			divone.style.width = '45%';
+		},
+		
+		createChartOne:function(parent){
+			var chartdiv = document.createElement("div");
+			chartdiv.style.position = 'absolute';
+			chartdiv.style.left = '0px';
+			chartdiv.style.top = '0px';
+			chartdiv.style.bottom = '0px';
+			chartdiv.style.width = '50%';
+			
+			parent.appendChild(chartdiv);
+			
+			var myChart = echarts.init(chartdiv);
+				
+			var option = {
+			    tooltip : {
+			        //formatter: "{a} <br/>{b} : {c}%"
+			    },
+			    series: [
+			        {
+			            name: 'health',
+			            type: 'gauge',
+			            radius : '75%',
+			            splitNumber:2,
+			            detail: {
+			        				formatter:'{value}%', 
+			                        shadowColor : '#fff', //默认透明
+			                        shadowBlur: 5,
+			                        offsetCenter: [0, '70%'],       // x, y，单位px
+			                        textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+			                            fontWeight: 'bolder',
+			        					fontSize:14
+			                        }
+			        			},
+			            data: [{value: 50, name: ''}],
+				        textStyle: {       // 其余属性默认使用全局文本样式，详见TEXTSTYLE
+		                    fontWeight: 'bolder',
+		                    fontSize: 12,
+		                    fontStyle: 'italic',
+		                    color: '#000',
+		                    shadowColor : '#fff', //默认透明
+		                    shadowBlur: 10
+		                },
+				        axisTick: {            // 坐标轴小标记
+		                    length :5,        // 属性length控制线长
+		                    lineStyle: {       // 属性lineStyle控制线条样式
+		                        //color: 'auto',
+		                        //shadowColor : '#fff', //默认透明
+		                        //shadowBlur: 10
+		                    }
+		                },
+			        }
+			    ]
+			};
+			//myChart.setOption(option, true);
+			setInterval(function () {
+			    option.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
+			    myChart.setOption(option, true);
+			},2000);
+		},
+		
+		createChartTwo:function(parent){
+			var chartdiv = document.createElement("div");
+			//chartdiv.style.border = 'solid black';
+			chartdiv.style.position = 'absolute';
+			chartdiv.style.right = '0px';
+			chartdiv.style.top = '0px';
+			chartdiv.style.bottom = '0px';
+			chartdiv.style.width = '50%';
+			
+			parent.appendChild(chartdiv);
+			
+			var myChart = echarts.init(chartdiv);
+				
+			var option = {
+//			    title : {
+//			        text: 'detail',
+//			        subtext: '',
+//			        x:'center'
+//			    },
+			    tooltip : {
+			        trigger: 'item',
+			        //formatter: "{a} <br/>{b} : {c} ({d}%)"
+			    },
+//			    legend: {
+//			        orient: 'vertical',
+//			        left: 'left',
+//			        //data: ['good','danger','error']
+//			    },
+			    series : [
+			        {
+			            //name: 'resource',
+			            type: 'pie',
+			            radius : '70%',
+			            center: ['50%', '50%'],
+			            data:[
+			                {value:335, name:'good'},
+			                {value:590, name:'danger'},
+			                {value:234, name:'error'}
+			            ],
+			            itemStyle: {
+			                emphasis: {
+			                    shadowBlur: 10,
+			                    shadowOffsetX: 0,
+			                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+			                }
+			            }
+			        }
+			    ]
+			};
+			myChart.setOption(option);
 		}
-
 	};
 
 	var bind = function(context, method) {

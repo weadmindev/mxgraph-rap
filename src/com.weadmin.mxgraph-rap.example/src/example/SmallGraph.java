@@ -3,28 +3,22 @@ package example;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.UUID;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
-
-import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
@@ -73,7 +67,7 @@ public class SmallGraph extends AbstractEntryPoint {
 		for (File f : farray) {
 			Composite composite = new Composite(parent, SWT.BORDER);
 			GridLayoutFactory.fillDefaults().numColumns(1).margins(0, 0).applyTo(composite);
-			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).hint(468, 390).grab(true, true).applyTo(composite);
+			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).hint(780, 390).grab(true, true).applyTo(composite);
 
 			Composite one = new Composite(composite, SWT.NONE);
 			GridLayoutFactory.fillDefaults().numColumns(5).extendedMargins(10, 10, 10, 5).equalWidth(true).applyTo(one);

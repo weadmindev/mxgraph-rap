@@ -5,7 +5,6 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.UUID;
-
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
 import org.eclipse.rap.json.JsonArray;
@@ -22,6 +21,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -29,9 +29,9 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxGeometry;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.MenuItem;
+import org.eclipse.swt.widgets.Shell;
 import com.mxgraph.model.mxGraphModel;
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
@@ -47,44 +47,39 @@ public class ExampleTwo extends AbstractEntryPoint{
 	String style1 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffffff;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style2 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ffff00;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
 	String style3 = "shape=mxgraph.cisco.switches.multi-fabric_server_switch;html=1;dashed=0;fillColor=#036897;strokeColor=#ff0000;strokeWidth=2;verticalLabelPosition=bottom;verticalAlign=top";
-	String style4 = "strokeColor=#228B22;dashed=0;startArrow=classic;targetPerimeterSpacing=-6;sourcePerimeterSpacing=-6;";
+	String style4 = "strokeColor=#228B22;dashed=0;targetPerimeterSpacing=-6;sourcePerimeterSpacing=-6;";
 	String style5 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=none;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/application.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;resourceLevel=3;";
 	String style6 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=none;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/server.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;resourceLevel=2;";
 	String style7 = "text;html=1;resizable=0;points=[];align=center;verticalAlign=middle;labelBackgroundColor=none;rotation=45;";
 
 	private Label hoverText;
 	private Display display;
+	private static Shell shell;
 	private String filename;
 	Label title;
 	String lastids;
 	ArrayList<String> ids;
-	ArrayList<String> edgeids;
+	static ArrayList<String> edgeids;
 	ArrayList<String> testxml;
 
 	private String getId(){
 		return UUID.randomUUID().toString();
 	}
+	
 
 	@Override
 	protected void createContents(Composite parent) {
 		parent.setLayout(new FillLayout());
 		display = Display.getCurrent();
 		testxml = new ArrayList<String>();
-		//testxml.add("4");
-//		testxml.add("1e4f7ee7-fffb-46c7-96a4-f1e52158d9f8");
-//		testxml.add("744860a9-a67e-4054-96c0-92462c7448fa");
-//		testxml.add("42c1a055-82a1-48ae-bda9-fb50866b4ad6");
-//		testxml.add("0f14d356-ade5-432f-bea6-e6d1e9d92200");
-//		testxml.add("c3ac924b-a175-473c-818c-6c48d93ecd87");
-//		testxml.add("6");
 		StartupParameters service = RWT.getClient().getService(StartupParameters.class);
 		filename = service.getParameter("filename");
-
+		
 		Composite composite = new Composite(parent, SWT.NONE);
 		GridLayoutFactory.fillDefaults().numColumns( 1 ).margins( 0, 0 ).applyTo( composite );
 
 		Composite one = new Composite(composite, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns( 13 ).extendedMargins(10, 0, 10, 5).applyTo( one );
+		GridLayoutFactory.fillDefaults().numColumns( 14 ).extendedMargins(10, 0, 10, 5).applyTo( one );
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, false ).applyTo( one );
 
 		Composite two = new Composite(composite, SWT.NONE);
@@ -92,6 +87,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 		GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).grab( true, true ).applyTo( two );
 
 		GraphJS g = new GraphJS(two, SWT.BORDER);
+		shell = new Shell(g.getDisplay());
 		//g.setBounds(20, 30, 800, 600);
 	    GridDataFactory.fillDefaults().align( SWT.FILL, SWT.FILL ).span(9, 1).grab( true, true ).applyTo( g );
 
@@ -230,37 +226,10 @@ public class ExampleTwo extends AbstractEntryPoint{
 				int index = arrow.getSelectionIndex();
 				switch (index) {
 				case 0:
-					g.arrowVisible(new String[]{"3"}, "out");
-//					JsonArray array = new JsonArray();
-//					JsonObject json = new JsonObject();
-//					JsonObject json2 = new JsonObject();
-//					json2.set("image", "rwt-resources/graph/images/error.png");
-//					json2.set("width", 16);
-//					json2.set("height", 16);
-//					json2.set("tooltip", "error");
-//					json.set("id", "3");
-//					json.set("tooltip", "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/error.png"+"'/>");
-//					json.set("overlay", json2);
-//					array.add(json);
-//					g.updateNodeStatus(array);
 					break;
 				case 1:
-					g.arrowVisible(new String[]{"3"}, "in");
-//					JsonArray array1 = new JsonArray();
-//					JsonObject json1 = new JsonObject();
-//					JsonObject json21 = new JsonObject();
-//					json21.set("image", "rwt-resources/graph/images/error.png");
-//					json21.set("width", 16);
-//					json21.set("height", 16);
-//					json21.set("tooltip", "error");
-//					json1.set("id", "2");
-//					json1.set("tooltip", "<h1>abcd</h1>"+ "<img src='rwt-resources/graph/images/error.png"+"'/>");
-//					json1.set("overlay", json21);
-//					array1.add(json1);
-//					g.updateNodeStatus(array1);
 					break;
 				case 2:
-					g.arrowVisible(new String[]{"3"}, "both");
 					break;
 				default:
 					break;
@@ -274,7 +243,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 
 		Combo combo = new Combo(one, SWT.DROP_DOWN);
 		combo.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false, false));
-		combo.setItems(new String[]{"红实","紫实","黑虚"});
+		combo.setItems(new String[]{"红实出","紫实进","黑虚总","广播量"});
 		combo.setText("状态");
 		combo.addSelectionListener(new SelectionListener() {
 			private static final long serialVersionUID = 1L;
@@ -288,7 +257,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 					json.set("color", "#FF3030");
 					json.set("endvalue", "1000Kbps");
 					json.set("startvalue", "");
-					json.set("arrow", "0");
+					json.set("arrow", "1");
 					json.set("dashed", "0");
 					json.set("tooltip", "<h1>Ball</h1>");
 					array1.add(json);
@@ -298,8 +267,8 @@ public class ExampleTwo extends AbstractEntryPoint{
 							json2.set("id", lastid);
 							json2.set("color", "#FF3030");
 							json2.set("endvalue", "2000Kbps");
-							json2.set("startvalue", "");
-							json2.set("arrow", "0");
+							json2.set("startvalue", "1000Kbps");
+							json2.set("arrow", "1");
 							json2.set("dashed", "0");
 							json2.set("tooltip", "<h1>Balls</h1>");
 							array1.add(json2);
@@ -313,7 +282,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 					json.set("color", "#D02090");
 					json.set("endvalue", "1000Kbps");
 					json.set("startvalue", "1000Kbps");
-					json.set("arrow", "1");
+					json.set("arrow", "-1");
 					json.set("dashed", "0");
 					array1.add(json);
 					if (edgeids!=null&&edgeids.size()>0) {
@@ -323,7 +292,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 							json2.set("color", "#D02090");
 							json2.set("endvalue", "2000Kbps");
 							json2.set("startvalue", "1000Kbps");
-							json2.set("arrow", "1");
+							json2.set("arrow", "-1");
 							json2.set("dashed", "0");
 							array1.add(json2);
 						}
@@ -336,7 +305,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 					json.set("color", "#000000");
 					json.set("endvalue", "1000Kbps");
 					json.set("startvalue", "1000Kbps");
-					json.set("arrow", "1");
+					json.set("arrow", "2");
 					json.set("dashed", "1");
 					array1.add(json);
 					if (edgeids!=null&&edgeids.size()>0) {
@@ -346,8 +315,31 @@ public class ExampleTwo extends AbstractEntryPoint{
 							json2.set("color", "#000000");
 							json2.set("endvalue", "2000Kbps");
 							json2.set("startvalue", "1000Kbps");
-							json2.set("arrow", "1");
+							json2.set("arrow", "2");
 							json2.set("dashed", "1");
+							array1.add(json2);
+						}
+					}
+					g.updateEdgeStatus(array1);
+				}if (combo.getSelectionIndex()==3) {
+					JsonArray array1 = new JsonArray();
+					JsonObject json = new JsonObject();
+					json.set("id", "4");
+					json.set("color", "#12db18");
+					json.set("endvalue", "广播量");
+					json.set("startvalue", "1000Kbps");
+					json.set("arrow", "0");
+					json.set("dashed", "0");
+					array1.add(json);
+					if (edgeids!=null&&edgeids.size()>0) {
+						for(String lastid : edgeids){
+							JsonObject json2 = new JsonObject();
+							json2.set("id", lastid);
+							json2.set("color", "#12db18");
+							json2.set("endvalue", "广播量");
+							json2.set("startvalue", "1000Kbps");
+							json2.set("arrow", "0");
+							json2.set("dashed", "0");
 							array1.add(json2);
 						}
 					}
@@ -402,31 +394,15 @@ public class ExampleTwo extends AbstractEntryPoint{
 		}
 		ids = new ArrayList<String>();
 		edgeids = new ArrayList<String>();
-//		gd.setConnectableEdges(false);
-//		gd.setAllowDanglingEdges(false);
-//		gd.setDisconnectOnMove(false);
-//
-//
-//		Object v1 = gd.insertVertex(gd.getDefaultParent(), getId(), "Hello", 20, 20, 160, 48,"box");
-//		String iid =getId();
-//		Object v2 = gd.insertVertex(gd.getDefaultParent(), iid, "World!", 200, 150, 120, 48);
-//		Object e1 = gd.insertEdge(gd.getDefaultParent(), getId(), "", v1, v2);
-		//g.setModel(gd.getModel());
-//
-//
 		Object v2=((mxGraphModel)gd.getModel()).getCell("3");
-		Object e4=((mxGraphModel)gd.getModel()).getCell("4");
 
-		addChild.setText("添加文字");
+		addChild.setText("适应");
 		addChild.addSelectionListener(new SelectionAdapter() {
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void widgetSelected(SelectionEvent e) {
-//				JsonObject json = new JsonObject();
-//				json.set("id", "4");
-//				json.set("end", "world!");
-//				json.set("start", "hello");
-//				g.addChilds(json);
-				g.resetEdges();
+				g.automic();
 			}
 		});
 		g.addGraphListener(new mxIEventListener(){
@@ -454,10 +430,6 @@ public class ExampleTwo extends AbstractEntryPoint{
 					if (button == 0){
 						String id= getId();
 						ids.add(id);
-//						Element node = mxDomUtils.createDocument().createElement("UserObject");
-//						node.setAttribute("label", "node!");
-//						node.setAttribute("tooltip", "akkdkdkdkdk");
-//						node.setAttribute("placeholders", "1");
 						int styleNum = (int) (Math.random()*4);
 						int statusNum = (int) (Math.random()*4);
 						String style;
@@ -477,23 +449,14 @@ public class ExampleTwo extends AbstractEntryPoint{
 						g.addCellOverlay(id, "rwt-resources/graph/images/"+status+".png", 16, 16, status);
 						lastids = getId();
 						edgeids.add(lastids);
-						mxCell edge = (mxCell) gd.insertEdge(parentG, lastids, "", v2, v, style4);
+						gd.insertEdge(parentG, lastids, "", v2, v, style4);
 						g.setTooltip(lastids, "<h1>efgh</h1>"+ "<img src='rwt-resources/graph/images/"+status+".png"+"'/>");
 					}else{
-//						gd.insertEdge(gd.getDefaultParent(), getId(), "", v2, v);
-//						g.setCellStyle("5", style3);
-//						g.translateCell("5", 5, 3);
-//						String newStyle = mxStyleUtils.setStyle(style4, "rotation", "80");
-//						g.setCellStyle("5", newStyle);
-//						g.setCellChildOffset("4", 0, 258, 8);
-//
-//						g.updateEdgeLabelPosition("4",258,8,80);
-//						g.selectCell(id);
-//						g.selectCells(ids.toArray(new String[]{}) );
-//						g.zoomOut();
-						for(String id:ids){
-							g.removeCellOverlays(id);
-						}
+//						for(String id:ids){
+//							g.removeCellOverlays(id);
+//						}
+						Menu menu = createEditPopup((int)x,(int)y);
+						menu.setVisible(true);
 					}
 				}else if (evt.getName().equals(MxGraphEvent.MOUSE_HOVER)){
 					double x = (double) evt.getProperty("x");
@@ -518,50 +481,54 @@ public class ExampleTwo extends AbstractEntryPoint{
 
 			}
 		});
-		g.setArrowOffset(0.8);
+		g.setArrowOffset(0.5);
 		g.setTextAutoRotation(true);
-		display = Display.getCurrent();
-//
-//		final ServerPushSession pushSession = new ServerPushSession();
-//		pushSession.start();
-//		new Thread(new Runnable(){
-//
-//			@Override
-//			public void run() {
-//				//Client client = RWT.getClient();
-//				try {
-//					Thread.sleep(2000);
-//				} catch (InterruptedException e) {
-//					// TODO Auto-generated catch block
-//					e.printStackTrace();
-//				}
-//				while(true){
-//					//UISession uiSession = RWT.getUISession( display );
-//					display.asyncExec(new Runnable() {
-//
-//						@Override
-//						public void run() {
-//
-//							long m = tick++ % 3;
-//							System.out.println("timer..."+m);
-//							if (m==0){
-//								g.setCellStyle("5", style1);
-//							}else if (m==1){
-//								g.setCellStyle("5", style2);
-//							}else if (m==2){
-//								g.setCellStyle("5", style3);
-//							}
-//						}
-//					});
-//					try {
-//						Thread.sleep(2000);
-//					} catch (InterruptedException e) {
-//						// TODO Auto-generated catch block
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		}).start();
 	}
 
+	/* 
+     * 创建一个右键菜单 通过样式值SWT.POP_UP来创建一个右键弹出菜单 
+     */  
+    public static Menu createEditPopup(int x,int y) {  
+        Menu popMenu = new Menu(shell, SWT.POP_UP);  
+        //popMenu.setVisible(true);
+        popMenu.setLocation(x, y+60);
+        MenuItem cutItem = new MenuItem(popMenu, SWT.PUSH);  
+        cutItem.setText("&C&u&&t");  
+        MenuItem copyItem = new MenuItem(popMenu, SWT.PUSH);  
+        copyItem.setText("&Copy");  
+        MenuItem pasteItem = new MenuItem(popMenu, SWT.PUSH);  
+        pasteItem.setText("&Paste");  
+        cutItem.addSelectionListener(new SelectionListener() {  
+			private static final long serialVersionUID = 1L;
+			@Override  
+            public void widgetSelected(SelectionEvent arg0) {  
+				PortPropertiesDlg portDlg = new PortPropertiesDlg("strom", "break");
+				portDlg.open();
+            }  
+            @Override  
+            public void widgetDefaultSelected(SelectionEvent arg0) {  
+            }  
+        });  
+        pasteItem.addSelectionListener(new SelectionListener() {  
+			private static final long serialVersionUID = 1L;
+			@Override  
+            public void widgetSelected(SelectionEvent arg0) {  
+                System.out.println("paste");  
+            }  
+            @Override  
+            public void widgetDefaultSelected(SelectionEvent arg0) {  
+            }  
+        });  
+        copyItem.addSelectionListener(new SelectionListener() {  
+			private static final long serialVersionUID = 1L;
+			@Override  
+            public void widgetSelected(SelectionEvent arg0) {  
+                System.out.println("copy");  
+            }  
+            @Override  
+            public void widgetDefaultSelected(SelectionEvent arg0) {  
+            }  
+        });  
+        return popMenu;  
+    }
 }
