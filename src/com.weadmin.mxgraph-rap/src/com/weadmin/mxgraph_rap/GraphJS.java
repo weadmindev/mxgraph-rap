@@ -323,11 +323,12 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("css/explorer.css", true, true));
 		res.add(new CustomRes("add_path_graph.js", true, false));
 		res.add(new CustomRes("sanitizer.min.js", true, false));
-		res.add(new CustomRes("mxClient.js", true, false));
+		res.add(new CustomRes("mxClient.min.js", true, false));
 		res.add(new CustomRes("Graph.js", true, false));
 		res.add(new CustomRes("Shapes.js", true, false));
 		res.add(new CustomRes("handler_graph.js", true, false));
 		res.add(new CustomRes("echarts.min.js", true, false));
+		res.add(new CustomRes("jquery.js", true, false));
 		return res;
 	}
 	
@@ -664,5 +665,13 @@ public class GraphJS extends SVWidgetBase{
 	 */
 	public void automic(){
 		super.callRemoteMethod("automic", new JsonObject());
+	}
+	
+	/**
+	 * 载入展示数据
+	 * @param json
+	 */
+	public void loadData(JsonObject json){
+		super.callRemoteMethod("loadData", json);
 	}
 }

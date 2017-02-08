@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.util.UUID;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
+import org.eclipse.rap.json.JsonArray;
+import org.eclipse.rap.json.JsonObject;
 import org.eclipse.rap.rwt.RWT;
 import org.eclipse.rap.rwt.application.AbstractEntryPoint;
 import org.eclipse.rap.rwt.client.service.JavaScriptExecutor;
@@ -60,7 +62,7 @@ public class SmallGraph extends AbstractEntryPoint {
 		});
 		
 		Composite parent = new Composite(paren, SWT.NONE);
-		GridLayoutFactory.fillDefaults().numColumns(4).margins(0, 0).equalWidth(true).spacing(5, 5).applyTo(parent);
+		GridLayoutFactory.fillDefaults().numColumns(2).margins(0, 0).equalWidth(true).spacing(5, 5).applyTo(parent);
 		
 		File file = new File("D:/mxgraph");
 		File[] farray = file.listFiles();
@@ -192,7 +194,31 @@ public class SmallGraph extends AbstractEntryPoint {
 				}
 			});
 			g.setPageType("small");
+			
+			String[] sts = {"服务器","交换机","路由器","数据库","中间件","负载","虚拟机","存储","防火墙","数据库","中间件"};
+			
+			JsonArray totalarr = new JsonArray();
+			for(int i=0;i<sts.length;i++){
+				JsonArray tArray = new JsonArray();
+				tArray.add(sts[i]);         //类型
+				tArray.add(getRondom(20));  //资源
+				tArray.add(getRondom(20));  //正常
+				tArray.add(getRondom(20));  //危险
+				tArray.add(getRondom(20));  //错误
+				totalarr.add(tArray);
+			}
+			JsonObject json = new JsonObject();
+			json.add("device", totalarr);  //表格数据
+			json.add("gauge", getRondom(100)+".5"); //仪表盘数据
+			JsonArray arr = new JsonArray();
+			arr.add(getRondom(1000));      //good
+			arr.add(getRondom(1000));      //danger
+			arr.add(getRondom(1000));      //error
+			json.add("pie", arr); //饼状图数据
+			g.loadData(json);
 		}
 	}
-
+	public int getRondom(int num){
+		return (int) (Math.random()*num);
+	}
 }

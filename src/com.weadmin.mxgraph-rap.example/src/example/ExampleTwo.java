@@ -226,6 +226,7 @@ public class ExampleTwo extends AbstractEntryPoint{
 				int index = arrow.getSelectionIndex();
 				switch (index) {
 				case 0:
+					g.automic();
 					break;
 				case 1:
 					break;
