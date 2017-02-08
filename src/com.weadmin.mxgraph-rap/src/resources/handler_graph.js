@@ -1,11 +1,6 @@
-
-
 (function() {
 	'use strict';
-
-
 	rap.registerTypeHandler("eclipsesource.graph", {
-
 		factory : function(properties) {
 			return new eclipsesource.graph(properties);
 		},
@@ -16,7 +11,6 @@
 		            'removeCellOverlays','graphLayout','resetView','updateEdgeStatus','updateNodeStatus','automic','loadData'],
 		properties : [ "size", "xmlModel","prop","arrowOffset","textAutoRotation","controlarea","pageType"],
 		events:['modelUpdate']
-
 	});
 
 	if (!window.eclipsesource) {
@@ -48,7 +42,6 @@
 		this.parent.append(this.element);
 		this.element.appendChild(this.leftdiv);
 		this.element.appendChild(this.rightdiv);
-		
 		
 		this.parent.addListener("Resize", this.layout);
 		this._size = properties.size ? properties.size : {
@@ -86,40 +79,44 @@
 		this.rightdiv.appendChild(this.cover);
 		
 		mxConnector.arrowOffset = 1.0;
-		mxConnector.prototype.paintEdgeShape = function(c, pts){
+		mxConnector.prototype.paintEdgeShape = function(c, pts)
+		{
 			var offset = mxConnector.arrowOffset;
 			// The indirection via functions for markers is needed in
 			// order to apply the offsets before painting the line and
 			// paint the markers after painting the line.
 			var ptss = [];
 			var ptst = [];
-			for(var i in pts){
-				if(pts[i]!=null){
-					ptss.push(pts[i].clone());
-				}
+			for(var i=0;i<pts.length;i++){
+				ptss.push(pts[i].clone());
 			}
-			for(var i in pts){
-				if(pts[i]!=null){
-					ptst.push(pts[i].clone());
-				}
+			for(var i=0;i<pts.length;i++){
+				ptst.push(pts[i].clone());
 			}
 			if (offset < 1){
 				ptss[0].x = pts[1].x+(pts[0].x-pts[1].x)*offset;//(pts[0].x+pts[1].x)/2;
-				ptss[0].y = pts[1].y+(pts[0].y-pts[1].y)*offset;//(pts[0].y+pts[1].y)/2;
+				ptss[0].y = pts[1].y+offset*(pts[0].y-pts[1].y);//(pts[0].y+pts[1].y)/2;
 				ptst[pts.length-1].x = pts[pts.length-2].x+offset*(pts[pts.length-1].x-pts[pts.length-2].x);//(pts[0].x+pts[1].x)/2;
 				ptst[pts.length-1].y = pts[pts.length-2].y+offset*(pts[pts.length-1].y-pts[pts.length-2].y);//(pts[0].y+pts[1].y)/2;
 			}
+			
 			var sourceMarker = this.createMarker(c, ptss, true);
 			var targetMarker = this.createMarker(c, ptst, false);
+			
 			mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
+			
 			// Disables shadows, dashed styles and fixes fill color for markers
 			c.setFillColor(this.stroke);
 			c.setShadow(false);
 			c.setDashed(false);
-			if (sourceMarker != null){
+			
+			if (sourceMarker != null)
+			{
 				sourceMarker();
 			}
-			if (targetMarker != null){
+			
+			if (targetMarker != null)
+			{
 				targetMarker();
 			}
 		},
@@ -127,18 +124,17 @@
 		// Disables the built-in context menu
 		mxEvent.disableContextMenu(this.element);
 		HoverIcons.prototype.checkCollisions = false;
-		//mxTooltipHandler.prototype.zIndex = 1000500000;
-		mxConnectionHandler.prototype.waypointsEnabled = false;
+		mxTooltipHandler.prototype.zIndex = 1000500000;
 
 		this._graph = new Graph(this.rightdiv);
 		this._parent = null;
 		this._xmlModel = null;
-		this._hoverCell = null;
 		this._pagetype = null;
 		this._currentSize = null;
 		this._devicetype = null;
-		this._chartGauge = 50;
+		this._chartLiquid = 0.68;
 		this._chartPie = [0,0,0];
+		this._hoverCell = null;
 		this._tooltips = {};
 		this._textAutoRotation = false;
 
@@ -146,7 +142,6 @@
 
 		this._graph.setAllowDanglingEdges(false);
 		this._graph.setDisconnectOnMove(false);
-		this._graph.setMultigraph(true);
 		this._graph.ignoreScrollbars = true;
 		this._graph.allowNegativeCoordinates = false;
 		this._graph.centerZoom = false;
@@ -167,6 +162,7 @@
 			this.layout();
 			console.log("graph...onReady..");
 		},
+		
 		onRender : function() {
 			if (this.element.parentNode) {
 				rap.off("render", this.onRender);
@@ -191,6 +187,7 @@
 
 				var parent = graph.getDefaultParent();
 				this._parent = parent;
+				
 				graph.connectionHandler.addListener(mxEvent.CONNECT, this.onConnect);
 				var mgr = new mxAutoSaveManager(graph);
 				mgr.save = this.autoSave;
@@ -200,7 +197,6 @@
 				graph.addListener(mxEvent.CELLS_MOVED,this.onRemove);
 				graph.addListener(mxEvent.CELL_CONNECTED,this.onCellConnect);
 				//graph.addListener(mxEvent.DISCONNECT,this.onCellConnect);
-
 				var outln = new mxOutline(graph, this.outline);
 				rap.on("send", this.onSend);
 				this.ready = true;
@@ -214,7 +210,6 @@
 			}else{
 				return '';
 			}
-
 		},
 
 		onSend : function() {
@@ -237,17 +232,13 @@
 					// var v1 = this._graph.insertVertex(this._parent, null,
 					// 'node', me.graphX, me.graphY, 80, 30);
 				}
-
 				ro.call('onMouseDown', {
 					x : me.graphX,
 					y : me.graphY,
 					button : me.evt.button
 				});
 			} else {
-
-
 			}
-
 		},
 
 		mouseMove : function(sender, me) {},
@@ -295,9 +286,7 @@
 		},
 
 		appendXmlModel : function(model) {
-
 			var graph = this._graph;
-
 			var doc = mxUtils.parseXml(model.content);
 			var codec = new mxCodec(doc);
 			codec.lookup = function(id){
@@ -310,10 +299,9 @@
 				cells.push(n);
 				graph.addCells(cells);
 			} finally {
-				// Updates the display
-				//graph.getModel().endUpdate();
 			}
 		},
+		
 		//auto composing
 		graphLayout:function(obj){
 			var type = obj.type;
@@ -330,8 +318,7 @@
 				if(type == 'circle'){
 					var layout = new mxCircleLayout(graph,300);//circle
 				}else if(type == 'tree'){
-					var layout = new mxCompactTreeLayout(graph,true,false);//tree
-					//layout.moveTree = true;
+					var layout = new mxCompactTreeLayout(graph);//tree
 					layout.nodeDistance = 30;
 					layout.levelDistance = 100;
 				}else if(type == 'stack'){
@@ -359,6 +346,7 @@
 				morph.startAnimation();
 			}
 		},
+		
 		resetView:function(obj){
 			var graph = this._graph;
 			graph.view.scaleAndTranslate(1, 0, 0);
@@ -369,9 +357,7 @@
 			var val = data.value;
 			var fn = "set"+name.substr(0,1).toUpperCase()+name.substr(1,name.length-1);
 			var f = this._graph[fn];
-			//console.log(fn);
 			if (f){
-				//console.log(f);
 				var graph = this._graph;
 				f.call(graph,val);
 			}
@@ -400,7 +386,6 @@
 					style[k] = stylejson[k];
 				}
 			}
-
 			this._graph.getStylesheet().putCellStyle(name, style);
 		},
 
@@ -413,7 +398,6 @@
 
 				this._graph.setCellStyle(data.style,cells);
 			}
-
 		},
 
 		setCellChildStyle:function(data){
@@ -427,12 +411,14 @@
 				}
 			}
 		},
+		
 		translateCell : function(data){
 			var cell = this._graph.getModel().getCell(data.id);
 			if (cell) {
 				this._graph.translateCell(cell,data.dx,data.dy);
 			}
 		},
+		
 		setCellOffset : function(data){
 			var cell = this._graph.getModel().getCell(data.id);
 			if (cell){
@@ -483,6 +469,7 @@
 				async(this, function(){
 					var src = this._graph.getModel().getCell(edge.source);
 					var tgt = this._graph.getModel().getCell(edge.target);
+					
 					this._graph.insertEdge(this._parent, edge.id, edge.value, src, tgt);
 				});
 			}
@@ -493,12 +480,10 @@
 				if (this._graph.isEnabled()){
 					this._graph.removeCells();
 				}
-
 			}
 		},
 		
 		onRemove:function(sender,evt){
-			//console.log(evt)
 			var ro = rap.getRemoteObject(this);
 			var cells = evt.getProperty('cells');
 			var ids = [];
@@ -514,7 +499,6 @@
 					}
 				}
 			}
-
 			ro.call(evt.name, {
 				ids :ids
 			});
@@ -570,7 +554,6 @@
 				je.source = edge.source.id;
 			if (edge.target)
 				je.target = edge.target.id;
-			//this.autoSave();
 			if (evt.properties.previous){
 				ro.call(evt.name, {edge:je,source:evt.properties.source,
 				terminal:term.id,previous:evt.properties.previous.id});
@@ -583,14 +566,13 @@
 			mxConnector.arrowOffset = 0.5;
 			var graph = this._graph;
 			var edge = evt.getProperty('cell');
-			//edge.value = '100Kbps';
 			var styles = 'edgeStyle=none;rounded=0;html=1;strokeColor=#000000;fontColor=#000000;dashed=0;';
 			edge.style = styles;
 			var geo = new mxGeometry(0, -10, 0, 0);
 			geo.relative = true;
 			edge.setGeometry(geo);
 
-			//鍒ゆ柇鏄惁鑷姩鍙嶈浆绠ご
+			//判断是否自动反转箭头
 			var tarcell = this._graph.getModel().getCell(edge.target.id);
 			var rescell = this._graph.getModel().getCell(edge.source.id);
 			var haveline = false;
@@ -664,7 +646,6 @@
 		mouseHover: function(me){
 			var cell = me.getCell();
 			if (cell != null){
-				//console.log("mouseHover:"+cell)
 				this._hoverCell = cell;
 				var ro = rap.getRemoteObject(this);
 				ro.call('onMouseHover',{id:cell.id,edge:cell.edge,x : me.graphX,y : me.graphY,button : me.evt.button});
@@ -722,7 +703,6 @@
 				if (cell)
 					cells.push(cell);
 			}
-
 			this._graph.setSelectionCells(cells);
 		},
 
@@ -1004,8 +984,8 @@
 				if(obj.device!=null){
 					this._devicetype = obj.device;
 				}
-				if(obj.gauge!=null){
-					this._chartGauge = obj.gauge;
+				if(obj.liquid!=null){
+					this._chartLiquid = obj.liquid;
 				}
 				if(obj.pie!=null){
 					this._chartPie = obj.pie;
@@ -1038,12 +1018,6 @@
 			divs.style.overflow = 'auto';
 			this._graph.setEnabled(false);
 			this.cover.style.display = 'block';
-			this.cover.onmouseup = function(){
-				var ro = rap.getRemoteObject(target)
-				ro.call('OpenGraph', {
-					OpenGraph : true
-				});
-			};
 			if(outlines){
 				outlines.style.display = 'none';
 			}
@@ -1138,49 +1112,42 @@
 			chartdiv.appendChild(chartdiv1);
 			var myChart = echarts.init(chartdiv1);
 			
+			var health = this._chartLiquid;
 			var option = {
-			    tooltip : {
-			    },
-			    series: [
-			        {
-			            name: 'health',
-			            type: 'gauge',
-			            radius : '85%',
-			            center: ['50%', '50%'],
-			            splitNumber:2,
-			            detail: {
-			        				formatter:'{value}%', 
-			                        shadowColor : '#fff', 
-			                        shadowBlur: 5,
-			                        offsetCenter: [0, '70%'],
-			                        textStyle: {
-			                            fontWeight: 'bolder',
-			        					fontSize:14
-			                        }
-			        			},
-			            data: [{value: this._chartGauge, name: ''}],
-				        textStyle: {
-		                    fontWeight: 'bolder',
-		                    fontSize: 12,
-		                    fontStyle: 'italic',
-		                    color: '#000',
-		                    shadowColor : '#fff',
-		                    shadowBlur: 10
-		                },
-				        axisTick: {
-		                    length :5,
-		                    lineStyle: {
-		                    }
-		                },
+			    series: [{
+			        type: 'liquidFill',
+			        animation: true,
+			        waveAnimation: true,
+			        data: [health, health-0.06, health-0.08],
+			        color: ['#49d088', '#38b470', '#2aaf66'],
+			        center: ['50%', '50%'],
+			        waveLength: '90%',
+			        amplitude: 3,
+			        radius: '82%',
+			        label: {
+			            normal: {
+			                textStyle: {
+			                    fontSize: 14,
+			                    color: '#44c078'
+			                },
+			                position: ['50%', '50%']
+			            }
+			        },
+			        outline: {
+			            itemStyle: {
+			                borderColor: '#49d088',
+			                borderWidth: 0
+			            },
+			            borderDistance: 0
+			        },
+			        itemStyle: {
+			            normal: {
+			                backgroundColor: '#fff'
+			            }
 			        }
-			    ]
+			    }]
 			};
-			
 			myChart.setOption(option, true);
-//			setInterval(function () {
-//			    option.series[0].data[0].value = (Math.random() * 100).toFixed(2) - 0;
-//			    myChart.setOption(option, true);
-//			},2000);
 		},
 		
 		createChartTwo:function(chartdiv){
@@ -1196,7 +1163,7 @@
 			    series : [
 			        {
 			            type: 'pie',
-			            radius : '80%',
+			            radius : '82%',
 			            center: ['50%', '48%'],
 			            data:[
 			                {value:this._chartPie[0], name:'good'},

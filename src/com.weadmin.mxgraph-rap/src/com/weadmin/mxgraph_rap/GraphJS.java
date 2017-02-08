@@ -328,6 +328,7 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("Shapes.js", true, false));
 		res.add(new CustomRes("handler_graph.js", true, false));
 		res.add(new CustomRes("echarts.min.js", true, false));
+		res.add(new CustomRes("echarts-liquidfill.js", true, false));
 		res.add(new CustomRes("jquery.js", true, false));
 		return res;
 	}

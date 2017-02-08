@@ -20,7 +20,10 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
+
 import com.mxgraph.util.mxEventObject;
 import com.mxgraph.util.mxUtils;
 import com.mxgraph.util.mxEventSource.mxIEventListener;
@@ -180,17 +183,26 @@ public class SmallGraph extends AbstractEntryPoint {
 				}
 			});
 			g.addControlListener(new ControlListener() {
-				
+				private static final long serialVersionUID = 1L;
+
 				@Override
 				public void controlResized(ControlEvent e) {
-					// TODO Auto-generated method stub
-					
 				}
 				
 				@Override
 				public void controlMoved(ControlEvent e) {
 					System.out.println(g.getSize());
 					
+				}
+			});
+			g.addListener(SWT.MouseDown,new Listener() {
+
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				public void handleEvent(Event event) {
+					JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
+					executor.execute("window.location.href='http://localhost:10010/hello2?filename=" + f.getName() + "'");
 				}
 			});
 			g.setPageType("small");
@@ -209,7 +221,7 @@ public class SmallGraph extends AbstractEntryPoint {
 			}
 			JsonObject json = new JsonObject();
 			json.add("device", totalarr);  //表格数据
-			json.add("gauge", getRondom(100)+".5"); //仪表盘数据
+			json.add("liquid", 0+"."+getRondom(10)+""+getRondom(10)); //水球数据   小数形式 如：0.76
 			JsonArray arr = new JsonArray();
 			arr.add(getRondom(1000));      //good
 			arr.add(getRondom(1000));      //danger
