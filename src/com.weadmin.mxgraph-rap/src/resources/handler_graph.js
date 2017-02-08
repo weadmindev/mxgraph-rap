@@ -931,12 +931,7 @@
 				mxPolyline.prototype.getRotation = function()
 				{
 					var len = this.points.length;
-					if(len>3){
-						var sx = this.points[len-3].x;
-						var sy = this.points[len-3].y;
-						var dx = this.points[len-2].x;
-						var dy = this.points[len-2].y;
-					}else{
+					if(len>0){
 						var sx = this.points[len-2].x;
 						var sy = this.points[len-2].y;
 						var dx = this.points[len-1].x;
@@ -946,10 +941,12 @@
 					return angle;
 				};
 			}else{
-				mxPolyline.prototype.getRotation = function(){
+				mxPolyline.prototype.getRotation = function()
+				{
 					return 0;
 				};
 			}
+			
 		},
 
 		addCellOverlay : function(obj){
