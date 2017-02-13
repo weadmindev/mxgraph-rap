@@ -18,6 +18,7 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Menu;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -181,7 +182,6 @@ public class GraphJS extends SVWidgetBase{
 
 	@Override
 	protected void handleCallMethod(String method, JsonObject parameters) {
-		
 		if (method.equals(MxGraphEvent.MOUSE_DOWN)||method.equals(MxGraphEvent.NODE_SELECT)
 				||method.equals(MxGraphEvent.EDGE_SELECT)||method.equals(MxGraphEvent.MOUSE_HOVER)
 				||method.equals(MxGraphEvent.MOUSE_LEAVE)){
@@ -207,11 +207,9 @@ public class GraphJS extends SVWidgetBase{
 			}
 		}
 		if (method.equals(MxGraphEvent.OPEN_GRAPH)) {
-			boolean open = parameters.get("OpenGraph").asBoolean();
-			mxEventObject event = new mxEventObject(method,"OpenGraph",open);
-			for (mxIEventListener l:graphListeners){
-				l.invoke(this, event);
-			}
+			Event event = new Event();
+			event.text = parameters.get("isOpen").asString();
+			notifyListeners(SWT.Selection, event);
 		}
 		if (method.equals(MxGraphEvent.EDGE_Connect)){
 			String source = parameters.get("source").asString();
@@ -318,6 +316,9 @@ public class GraphJS extends SVWidgetBase{
 		res.add(new CustomRes("images/triangle-left.png", false, false));
 		res.add(new CustomRes("images/triangle-right.png", false, false));
 		res.add(new CustomRes("images/triangle-up.png", false, false));
+		
+		res.add(new CustomRes("images/down.png", false, false));
+		res.add(new CustomRes("images/up.png", false, false));
 		
 		res.add(new CustomRes("css/common.css", true, true));
 		res.add(new CustomRes("css/explorer.css", true, true));

@@ -22,6 +22,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
@@ -453,9 +454,6 @@ public class ExampleTwo extends AbstractEntryPoint{
 						gd.insertEdge(parentG, lastids, "", v2, v, style4);
 						g.setTooltip(lastids, "<h1>efgh</h1>"+ "<img src='rwt-resources/graph/images/"+status+".png"+"'/>");
 					}else{
-//						for(String id:ids){
-//							g.removeCellOverlays(id);
-//						}
 						Menu menu = createEditPopup((int)x,(int)y);
 						menu.setVisible(true);
 					}

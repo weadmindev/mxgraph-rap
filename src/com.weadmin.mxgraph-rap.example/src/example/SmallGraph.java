@@ -161,25 +161,17 @@ public class SmallGraph extends AbstractEntryPoint {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
-			g.addGraphListener(new mxIEventListener() {
+			g.addListener(SWT.Selection, new Listener() {
+				
+				private static final long serialVersionUID = 1L;
 
 				@Override
-				public void invoke(Object sender, mxEventObject evt) {
-					display.asyncExec(new Runnable() {
-
-						@Override
-						public void run() {
-
-						}
-					});
-					if (evt.getName().equals("OpenGraph")) {
-						boolean open = (boolean) evt.getProperty("OpenGraph");
-						if (open) {
-							JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
-							executor.execute("window.location.href='http://localhost:10010/hello2?filename=" + f.getName() + "'");
-						}
+				public void handleEvent(Event event) {
+					if (event.text.toLowerCase().equals("open")) {
+						JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
+						executor.execute("window.location.href='http://localhost:10010/hello2?filename=" + f.getName() + "'");
 					}
+					
 				}
 			});
 			g.addControlListener(new ControlListener() {
@@ -193,16 +185,6 @@ public class SmallGraph extends AbstractEntryPoint {
 				public void controlMoved(ControlEvent e) {
 					System.out.println(g.getSize());
 					
-				}
-			});
-			g.addListener(SWT.MouseDown,new Listener() {
-
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public void handleEvent(Event event) {
-					JavaScriptExecutor executor = RWT.getClient().getService(JavaScriptExecutor.class);
-					executor.execute("window.location.href='http://localhost:10010/hello2?filename=" + f.getName() + "'");
 				}
 			});
 			g.setPageType("small");

@@ -36,8 +36,8 @@
 		this.rightdiv.style.overflow = 'hidden';
 		this.rightdiv.style.width = '100%';
 		this.rightdiv.style.right = '0px';
-		this.rightdiv.style.top = '0px';
-		this.rightdiv.style.bottom = '0px';
+		this.rightdiv.style.top = '10px';
+		this.rightdiv.style.bottom = '10px';
 		
 		this.parent.append(this.element);
 		this.element.appendChild(this.leftdiv);
@@ -58,7 +58,6 @@
 		this.outline.style.width = '250px';
 		this.outline.style.height = '160px';
 		this.outline.style.background = 'transparent';
-		//this.outline.style.background = '#ffffff';
 		this.outline.style.border='solid gray';
 
 		this.parent.append(this.outline);
@@ -132,7 +131,7 @@
 		this._pagetype = null;
 		this._currentSize = null;
 		this._devicetype = null;
-		this._chartLiquid = 0.68;
+		this._chartLiquid = 1.00;
 		this._chartPie = [0,0,0];
 		this._hoverCell = null;
 		this._tooltips = {};
@@ -324,7 +323,7 @@
 				}else if(type == 'stack'){
 					var fast = new mxFastOrganicLayout(graph);
 					fast.execute(parent);
-					var layout = new mxStackLayout(graph,true,100,0,0,0);//stack
+					var layout = new mxStackLayout(graph,true,100,50,50,0);//stack
 				}else if(type == 'partition'){
 					var layout = new mxPartitionLayout(graph);//partition
 				}else if(type == 'hierarchical'){
@@ -1018,6 +1017,13 @@
 			divs.style.overflow = 'auto';
 			this._graph.setEnabled(false);
 			this.cover.style.display = 'block';
+			this.verticesOffset();
+			this.cover.onmousedown = function(){
+				var ro = rap.getRemoteObject(target)
+				ro.call('OpenGraph', {
+					'isOpen' : 'open'
+				});
+			};
 			if(outlines){
 				outlines.style.display = 'none';
 			}
@@ -1028,6 +1034,30 @@
 				this._graph.zoomOut();
 			}
 			divs.style.overflow = 'hidden';
+		},
+		
+		verticesOffset:function(){
+			var model = this._graph.getModel();
+			var vertices = model.getChildVertices(this._graph.getDefaultParent());
+			var canwidth = this.rightdiv.scrollWidth;
+			var canheight = this.rightdiv.scrollHeight;
+			var minX = 10000;
+			var maxX = 0;
+			var minY = 10000;
+			var maxY = 0;
+			$.each(vertices,function(index,mxCell){
+				minX = Math.min(minX,mxCell.geometry.x);
+				maxX = Math.max(maxX,mxCell.geometry.x);
+				minY = Math.min(minY,mxCell.geometry.y);
+				maxY = Math.max(maxY,mxCell.geometry.y);
+			});
+			var offsets = (minX+maxX)/2-canwidth/2;
+			console.log(offsets);
+			if(minX>87){
+				$.each(vertices,function(index,mxCell){
+					mxCell.geometry.x -= (minX-87);
+				});
+			}
 		},
 		
 		createLeftDivContent:function(){
@@ -1051,10 +1081,12 @@
 			var divone = document.createElement("div");
 			var table = document.createElement("table");
 			$(divone).append(table);
+			$(divone).css({"height":"152px"});
 			$(this.leftdiv).append(divone);
-			$(table).css({"border-collapse":"collapse","padding":"0","margin-left":"8px","margin-top":"12px","width":"340px","height":"152px","text-align":"center","table-layout":"fixed"});
-			$(table).append("<tr class='mhead' style='height:25px;background:#3d85c6;'><td>类型</td><td>资源</td><td>正常</td><td>危险</td><td>错误</td></tr>");
-			$(".mhead").css({"font-weight":"bolder","color":"white","font-size":"14px"});
+			$(table).addClass("ttable");
+			$(table).css({"border-collapse":"collapse","padding":"0","margin-left":"8px","margin-top":"12px","width":"340px","text-align":"center","table-layout":"fixed"});
+			$(table).append("<tr class='mhead' style='height:25px;background:#d4e1f0;'><td>类型</td><td>资源</td><td>正常</td><td>危险</td><td>错误</td></tr>");
+			$(".mhead").css({"font-weight":"bolder","color":"#000000"});
 			var devicetype = [
                   ['服务器','0','0','0','0'],
                   ['交换机','0','0','0','0'],
@@ -1073,13 +1105,16 @@
 			
 			var more = document.createElement("div");
 			var mores = document.createElement("div");
-			$(more).css({"text-align":"center","margin-top":"0px","width":"50","margin-left":"153px","height":"15px","cursor":"default","color":"blue"});
+			$(more).css({"text-align":"center","height":"15px"});
 			$(mores).css({"display":"none","text-align":"center"});
 			$(this.leftdiv).append(more);
 			$(this.leftdiv).append(mores);
 			var mtable = document.createElement("table");
+			$(mtable).addClass("ttable");
 			$(mtable).css({"border-collapse":"collapse","padding": "0","width":"340px","margin-left":"8px","margin-top":"0px","table-layout":"fixed"});
 			$(mores).append(mtable);
+			var textcolor = null;
+			var bgcolor = null;
 			$.each(devicetype,function(index,item){
 				var tr = document.createElement("tr");
 				if(index<=4){
@@ -1087,20 +1122,42 @@
 				}else{
 					$(mtable).append(tr);
 				}
-				$(tr).css({"background-color":index%2==0?"":"#cfe2f3","height":"25px"});
-				$(tr).append("<td style='font-weight:bolder;font-color:#333333;font-size:14px'>"+item[0]+"</td>");
-				$(tr).append("<td>"+item[1]+"</td>");
-				$(tr).append("<td style='color:green'>"+item[2]+"</td>");
-				$(tr).append("<td style='color:orange'>"+item[3]+"</td>");
-				$(tr).append("<td style='color:red'>"+item[4]+"</td>");
+				$(tr).addClass("othertr");
+				$(tr).css({"height":"25px"});
+				$(tr).append("<td style='font-weight:bolder;font-color:#333333;' title="+item[0]+">"+"<span>"+item[0]+"</span>"+"</td>");
+				$(tr).append("<td style='font-color:#333333' title="+item[1]+">"+"<span>"+item[1]+"</span>"+"</td>");
+				$(tr).append("<td style='font-color:#333333' title="+item[2]+">"+"<span>"+item[2]+"</span>"+"</td>");
+				var html = "<td style='color:#fff' title="+item[3]+">"+"<div style='margin:auto;padding:0px 5px;border-radius:50%;width:20px;width:auto;display:inline-block !important;background:#f69446;'>"+"<span>"+item[3]+"</span>"+"</div>"+"</td>";
+				textcolor = item[3]=="0"?"#333333":"#fff";
+				bgcolor = item[3]=="0"?"":"#f69446";
+				$(tr).append("<td style='color:"+textcolor+"' title="+item[3]+">"+"<div style='margin:auto;padding:0px 5px;border-radius:50%;width:20px;width:auto;display:inline-block !important;background:"+bgcolor+"'>"+"<span>"+item[3]+"</span>"+"</div>"+"</td>");
+				textcolor = item[4]=="0"?"#333333":"#fff";
+				bgcolor = item[4]=="0"?"":"#f93b3b";
+				$(tr).append("<td style='color:"+textcolor+"' title="+item[4]+">"+"<div style='margin:auto;padding:0px 5px;border-radius:50%;width:20px;width:auto;display:inline-block !important;background:"+bgcolor+"'>"+"<span>"+item[4]+"</span>"+"</div>"+"</td>");
 			});
+			$(".ttable .othertr").mouseover(function(){
+				$(this).css("background","#d7e1ed");
+			});
+			$(".ttable .othertr").mouseout(function(){
+				$(this).css("background","#ebf5ff");
+			});
+			$(".ttable tr").css("font-size","11px");
+			$(".ttable").css({"border-top":"1px solid #d6d6d6","border-left":"1px solid #d6d6d6","border-right":"1px solid #d6d6d6"});
+			$(".ttable td").css({"text-overflow":"ellipsis","overflow":"hidden","border-bottom":"1px solid #d6d6d6"});
 			if(devicetype.length>6){
-				$(more).append("︾");
-				$(more).mouseenter(function(){
-					$(mores).slideDown();
-				});
-				$(more).mouseleave(function(){
-					$(mores).slideUp();
+				var img = document.createElement("img");
+				$(img).attr({"src":"rwt-resources/graph/images/down.png","title":"点击查看更多"});
+				$(more).append(img);
+				$(img).css({"width":"30px","height":"11px","margin-bottom":"15px","cursor":"pointer"});
+				$(img).click(function(){
+					if($(img).attr("src")=='rwt-resources/graph/images/down.png'){
+						$(img).attr("src","rwt-resources/graph/images/up.png");
+						$(img).attr("title","点击收起");
+					}else{
+						$(img).attr("src","rwt-resources/graph/images/down.png");
+						$(img).attr("title","点击查看更多");
+					}
+					$(mores).slideToggle("fast");
 				});
 			}
 		},
@@ -1113,38 +1170,68 @@
 			var myChart = echarts.init(chartdiv1);
 			
 			var health = this._chartLiquid;
+			var colors = ['#8fe9b5', '#32e17a', new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+                offset: 0, color: 'rgba(56, 200, 125, 1)'
+            }, {
+                offset: 1, color: 'rgba(124, 252, 122, 1)'
+            }], false)];   //good
+			if(health<0.1){
+				colors = ['#ff6f6f', '#f62121', new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+	                offset: 0, color: 'rgba(251, 26, 26, 1)'
+	            }, {
+	                offset: 1, color: 'rgba(244, 86, 86, 1)'
+	            }], false)];   //error
+			}else if(health>=0.1&&health<0.35){
+				colors = ['#ff6f6f', '#f93b3b', new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+	                offset: 0, color: 'rgba(255, 51, 0, 1)'
+	            }, {
+	                offset: 1, color: 'rgba(255, 98, 98, 1)'
+	            }], false)];   //danger
+			}else if(health>=0.35&&health<0.68){
+				colors = ['#ffb77d', '#f69446', new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
+	                offset: 0, color: 'rgba(255, 147, 64, 1)'
+	            }, {
+	                offset: 1, color: 'rgba(255, 199, 117, 1)'
+	            }], false)];   //warning
+			}
 			var option = {
 			    series: [{
 			        type: 'liquidFill',
+			        name: 'sdfsdfsd',
 			        animation: true,
 			        waveAnimation: true,
-			        data: [health, health-0.06, health-0.08],
-			        color: ['#49d088', '#38b470', '#2aaf66'],
+			        data: [health, health-0.04, health-0.06],
+			        color: colors,
 			        center: ['50%', '50%'],
 			        waveLength: '90%',
 			        amplitude: 3,
 			        radius: '82%',
 			        label: {
 			            normal: {
+			    			formatter: (health*100).toFixed(0)+'分',
 			                textStyle: {
-			                    fontSize: 14,
-			                    color: '#44c078'
+			                    fontSize: 26,
+			                    fontWeight: 'lighter',
+			                    color: colors[1]
 			                },
 			                position: ['50%', '50%']
 			            }
 			        },
 			        outline: {
 			            itemStyle: {
-			                borderColor: '#49d088',
-			                borderWidth: 0
+			                borderColor: colors[1],
+			                borderWidth: 1
 			            },
-			            borderDistance: 0
+			            borderDistance: 2
+			        },
+			        backgroundStyle: {
+			            color: '#fff'
 			        },
 			        itemStyle: {
 			            normal: {
-			                backgroundColor: '#fff'
+			                shadowBlur: 0,
 			            }
-			        }
+			        },
 			    }]
 			};
 			myChart.setOption(option, true);
@@ -1166,17 +1253,20 @@
 			            radius : '82%',
 			            center: ['50%', '48%'],
 			            data:[
-			                {value:this._chartPie[0], name:'good'},
-			                {value:this._chartPie[1], name:'danger'},
-			                {value:this._chartPie[2], name:'error'}
+			                {value:this._chartPie[0], name:this._chartPie[0]!=0?'good':''},
+			                {value:this._chartPie[1], name:this._chartPie[1]!=0?'warn':''},
+			                {value:this._chartPie[2], name:this._chartPie[2]!=0?'error':''}
 			            ],
-			            color:['#93c47d','#45818e','#e06666'],
+			            color:['#38c87d','#f69446','#f93b3b'],
 			            label: {
 			                normal: {
 			                    show: true,
 			                    position: 'inner'
 			                },
 			            },
+			            backgroundStyle: {
+				            color: '#000'
+				        },
 			            itemStyle: {
 			                emphasis: {
 			                    shadowBlur: 10,
