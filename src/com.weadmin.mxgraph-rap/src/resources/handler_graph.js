@@ -31,24 +31,24 @@
 		this.leftdiv.style.top = '0px';
 		this.leftdiv.style.bottom = '0px';
 		this.leftdiv.style.display = 'none';
-		
+
 		this.rightdiv.style.position = 'absolute';
 		this.rightdiv.style.overflow = 'hidden';
 		this.rightdiv.style.width = '100%';
 		this.rightdiv.style.right = '0px';
 		this.rightdiv.style.top = '10px';
 		this.rightdiv.style.bottom = '10px';
-		
+
 		this.parent.append(this.element);
 		this.element.appendChild(this.leftdiv);
 		this.element.appendChild(this.rightdiv);
-		
+
 		this.parent.addListener("Resize", this.layout);
 		this._size = properties.size ? properties.size : {
 			width : 300,
 			height : 300
 		};
-		
+
 		this.outline = document.createElement("div");
 		this.outline.style.zIndex = '2';
 		this.outline.style.position = 'absolute';
@@ -76,7 +76,7 @@
 			this.style.cursor = 'pointer';
 		};
 		this.rightdiv.appendChild(this.cover);
-		
+
 		mxConnector.arrowOffset = 1.0;
 		mxConnector.prototype.paintEdgeShape = function(c, pts)
 		{
@@ -98,22 +98,22 @@
 				ptst[pts.length-1].x = pts[pts.length-2].x+offset*(pts[pts.length-1].x-pts[pts.length-2].x);//(pts[0].x+pts[1].x)/2;
 				ptst[pts.length-1].y = pts[pts.length-2].y+offset*(pts[pts.length-1].y-pts[pts.length-2].y);//(pts[0].y+pts[1].y)/2;
 			}
-			
+
 			var sourceMarker = this.createMarker(c, ptss, true);
 			var targetMarker = this.createMarker(c, ptst, false);
-			
+
 			mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
-			
+
 			// Disables shadows, dashed styles and fixes fill color for markers
 			c.setFillColor(this.stroke);
 			c.setShadow(false);
 			c.setDashed(false);
-			
+
 			if (sourceMarker != null)
 			{
 				sourceMarker();
 			}
-			
+
 			if (targetMarker != null)
 			{
 				targetMarker();
@@ -136,6 +136,8 @@
 		this._hoverCell = null;
 		this._tooltips = {};
 		this._textAutoRotation = false;
+		this._myChartOne = null;
+		this._myChartTwo = null;
 
 		new HoverIcons(this._graph);
 
@@ -161,7 +163,7 @@
 			this.layout();
 			console.log("graph...onReady..");
 		},
-		
+
 		onRender : function() {
 			if (this.element.parentNode) {
 				rap.off("render", this.onRender);
@@ -186,7 +188,7 @@
 
 				var parent = graph.getDefaultParent();
 				this._parent = parent;
-				
+
 				graph.connectionHandler.addListener(mxEvent.CONNECT, this.onConnect);
 				var mgr = new mxAutoSaveManager(graph);
 				mgr.save = this.autoSave;
@@ -300,7 +302,7 @@
 			} finally {
 			}
 		},
-		
+
 		//auto composing
 		graphLayout:function(obj){
 			var type = obj.type;
@@ -345,7 +347,7 @@
 				morph.startAnimation();
 			}
 		},
-		
+
 		resetView:function(obj){
 			var graph = this._graph;
 			graph.view.scaleAndTranslate(1, 0, 0);
@@ -410,14 +412,14 @@
 				}
 			}
 		},
-		
+
 		translateCell : function(data){
 			var cell = this._graph.getModel().getCell(data.id);
 			if (cell) {
 				this._graph.translateCell(cell,data.dx,data.dy);
 			}
 		},
-		
+
 		setCellOffset : function(data){
 			var cell = this._graph.getModel().getCell(data.id);
 			if (cell){
@@ -468,7 +470,7 @@
 				async(this, function(){
 					var src = this._graph.getModel().getCell(edge.source);
 					var tgt = this._graph.getModel().getCell(edge.target);
-					
+
 					this._graph.insertEdge(this._parent, edge.id, edge.value, src, tgt);
 				});
 			}
@@ -481,7 +483,7 @@
 				}
 			}
 		},
-		
+
 		onRemove:function(sender,evt){
 			var ro = rap.getRemoteObject(this);
 			var cells = evt.getProperty('cells');
@@ -502,7 +504,7 @@
 				ids :ids
 			});
 		},
-		
+
 		updateEdgeText:function(edge){//text auto ratation
 			var e = edge;
 			if (e.children && e.children.length>0){
@@ -542,7 +544,7 @@
 				}
 			}
 		},
-		
+
 		onCellConnect:function(sender,evt){
 			var ro = rap.getRemoteObject(this);
 			var edge = evt.properties.edge;
@@ -843,7 +845,7 @@
 				}
 			}
 		},
-		
+
 		addChild:function(obj,subobj,model){
 			var graph = this._graph;
 			var geo = null;
@@ -891,7 +893,7 @@
 			}
 			this.updateEdgeText(edge);
 		},
-		
+
 		setArrowOffset : function(v){
 			mxConnector.arrowOffset = v;
 		},
@@ -925,7 +927,7 @@
 					return 0;
 				};
 			}
-			
+
 		},
 
 		addCellOverlay : function(obj){
@@ -956,9 +958,14 @@
 
 		destroy : function() {
 			rap.off("send", this.onSend);
+			this._myChartOne && this._myChartOne.dispose();
+			this._myChartTwo && this._myChartTwo.dispose();
+			this._myChartOne = null;
+			this._myChartTwo = null;
+			this._graph.destroy();
 			this.element.parentNode.removeChild(this.element);
 		},
-		
+
 		automic : function(){
 			var sizees = this._currentSize;
 			var divs = this.rightdiv;
@@ -977,7 +984,7 @@
 				}
 			}
 		},
-		
+
 		loadData:function(obj){
 			if(obj!=null){
 				if(obj.device!=null){
@@ -1005,7 +1012,7 @@
 				this.element.style.height = area[3] + "px";
 			}
 		},
-		
+
 		smallpage : function(target){
 			var outlines = this.outline;
 			var divs = this.rightdiv;
@@ -1035,7 +1042,7 @@
 			}
 			divs.style.overflow = 'hidden';
 		},
-		
+
 		verticesOffset:function(){
 			var model = this._graph.getModel();
 			var vertices = model.getChildVertices(this._graph.getDefaultParent());
@@ -1059,14 +1066,14 @@
 				});
 			}
 		},
-		
+
 		createLeftDivContent:function(){
 			$(this.leftdiv).css("width","45%");
 			this.createTable();
 			this.createChart();
 			this.createFoot();
 		},
-		
+
 		createChart:function(){
 			var chartdiv = document.createElement("div");
 			$(this.leftdiv).append(chartdiv);
@@ -1076,7 +1083,7 @@
 			$(chartdiv).addClass("chartdiv");
 			$(".chartdiv div").css("float","left");
 		},
-		
+
 		createTable:function(){
 			var divone = document.createElement("div");
 			var table = document.createElement("table");
@@ -1098,11 +1105,11 @@
                   ['存储','0','0','0','0'],
                   ['防火墙','0','0','0','0']
 			];
-			
+
 			if(this._devicetype!=null){
 				devicetype = this._devicetype;
 			}
-			
+
 			var more = document.createElement("div");
 			var mores = document.createElement("div");
 			$(more).css({"text-align":"center","height":"15px"});
@@ -1161,14 +1168,14 @@
 				});
 			}
 		},
-		
+
 		createChartOne:function(chartdiv){
 			var chartdiv1 = document.createElement("div");
 			$(chartdiv1).css({"height":"100%","width":"50%"});
-			
+
 			chartdiv.appendChild(chartdiv1);
-			var myChart = echarts.init(chartdiv1);
-			
+			var myChart = this._myChartOne = echarts.init(chartdiv1);
+
 			var health = this._chartLiquid;
 			var colors = ['#8fe9b5', '#32e17a', new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                 offset: 0, color: 'rgba(56, 200, 125, 1)'
@@ -1236,13 +1243,13 @@
 			};
 			myChart.setOption(option, true);
 		},
-		
+
 		createChartTwo:function(chartdiv){
 			var chartdiv2 = document.createElement("div");
 			$(chartdiv2).css({"height":"100%","width":"50%"});
 			chartdiv.appendChild(chartdiv2);
-			
-			var myChart = echarts.init(chartdiv2);
+
+			var myChart = this._myChartTwo = echarts.init(chartdiv2);
 			var option = {
 			    tooltip : {
 			        trigger: 'item',
@@ -1279,7 +1286,7 @@
 			};
 			myChart.setOption(option);
 		},
-		
+
 		createFoot:function(){
 			var foot = document.createElement("div");
 			$(foot).css({"height":"20px","width":"100%","margin-top":"-22px","text-align":"center","position":"absolute","font-color":"#333333","font-weight":"bolder","font-size":"12px"});
