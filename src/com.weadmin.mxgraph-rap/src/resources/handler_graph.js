@@ -214,15 +214,11 @@
 		},
 
 		onSend : function() {
-			// if( this.editor.checkDirty() ) {
-			// rap.getRemoteObject( this ).set( "text", this.editor.getData() );
-			// this.editor.resetDirty();
-			// }
-			var enc = new mxCodec(mxUtils.createXmlDocument());
-			var node = enc.encode(this._graph.getModel());
-			var xml = mxUtils.getXml(node);
-			rap.getRemoteObject( this ).set( "model", xml);
-			console.log("graph...onSend..")
+			// var enc = new mxCodec(mxUtils.createXmlDocument());
+			// var node = enc.encode(this._graph.getModel());
+			// var xml = mxUtils.getXml(node);
+			// rap.getRemoteObject( this ).set( "model", xml);
+			// console.log("graph...onSend..")
 		},
 
 		mouseDown : function(sender, me) {
