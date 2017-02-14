@@ -20,7 +20,7 @@
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
 		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove",
-		                "onCellConnect","getTooltipForCell"]);
+		                "onCellConnect","getTooltipForCell","onCellAdded","labelChanged"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.leftdiv = document.createElement("div");
@@ -193,13 +193,15 @@
 				var mgr = new mxAutoSaveManager(graph);
 				mgr.save = this.autoSave;
 
-				graph.addListener(mxEvent.CELLS_REMOVED,this.onRemove);
+				graph.addListener(mxEvent.LABEL_CHANGED,this.labelChanged);
+				graph.addListener(mxEvent.CELLS_ADDED,this.onCellAdded);
+				graph.addListener(mxEvent.CELLS_REMOVED,this.onRemove); //
 				graph.addListener(mxEvent.CELLS_RESIZED,this.onRemove);
 				graph.addListener(mxEvent.CELLS_MOVED,this.onRemove);
 				graph.addListener(mxEvent.CELL_CONNECTED,this.onCellConnect);
 				//graph.addListener(mxEvent.DISCONNECT,this.onCellConnect);
 				var outln = new mxOutline(graph, this.outline);
-				rap.on("send", this.onSend);
+				// rap.on("send", this.onSend);
 				this.ready = true;
 				this.layout();
 			}
@@ -212,13 +214,18 @@
 				return '';
 			}
 		},
-
+		onCellAdded:function(){
+			this.autoSave();
+		},
+		labelChanged:function(){
+			this.autoSave();
+		},
 		onSend : function() {
 			// var enc = new mxCodec(mxUtils.createXmlDocument());
 			// var node = enc.encode(this._graph.getModel());
 			// var xml = mxUtils.getXml(node);
 			// rap.getRemoteObject( this ).set( "model", xml);
-			// console.log("graph...onSend..")
+			console.log("mxgraph-rap...onSend!!");
 		},
 
 		mouseDown : function(sender, me) {
@@ -499,6 +506,7 @@
 			ro.call(evt.name, {
 				ids :ids
 			});
+			this.autoSave();
 		},
 
 		updateEdgeText:function(edge){//text auto ratation
@@ -557,6 +565,7 @@
 			}else{
 				ro.call(evt.name, {edge:je,source:evt.properties.source,terminal:term.id});
 			}
+			this.autoSave();
 		},
 
 		onConnect:function(sender, evt) {
@@ -1256,9 +1265,9 @@
 			            radius : '82%',
 			            center: ['50%', '48%'],
 			            data:[
-			                {value:this._chartPie[0], name:this._chartPie[0]!=0?'good':''},
-			                {value:this._chartPie[1], name:this._chartPie[1]!=0?'warn':''},
-			                {value:this._chartPie[2], name:this._chartPie[2]!=0?'error':''}
+			                {value:this._chartPie[0], name:this._chartPie[0]!=0?'正常':''},
+			                {value:this._chartPie[1], name:this._chartPie[1]!=0?'危险':''},
+			                {value:this._chartPie[2], name:this._chartPie[2]!=0?'错误':''}
 			            ],
 			            color:['#38c87d','#f69446','#f93b3b'],
 			            label: {
