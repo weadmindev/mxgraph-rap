@@ -20,7 +20,8 @@
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
 		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove",
-		                "onCellConnect","getTooltipForCell","onCellAdded","labelChanged","onGraphSizeChanged"]);
+		                "onCellConnect","getTooltipForCell","onCellAdded","labelChanged","onGraphSizeChanged","debounce",
+										"autoSaveOrigin"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.leftdiv = document.createElement("div");
@@ -78,8 +79,7 @@
 		this.rightdiv.appendChild(this.cover);
 
 		mxConnector.arrowOffset = 1.0;
-		mxConnector.prototype.paintEdgeShape = function(c, pts)
-		{
+		mxConnector.prototype.paintEdgeShape = function(c, pts){
 			var offset = mxConnector.arrowOffset;
 			// The indirection via functions for markers is needed in
 			// order to apply the offsets before painting the line and
@@ -98,28 +98,21 @@
 				ptst[pts.length-1].x = pts[pts.length-2].x+offset*(pts[pts.length-1].x-pts[pts.length-2].x);//(pts[0].x+pts[1].x)/2;
 				ptst[pts.length-1].y = pts[pts.length-2].y+offset*(pts[pts.length-1].y-pts[pts.length-2].y);//(pts[0].y+pts[1].y)/2;
 			}
-
 			var sourceMarker = this.createMarker(c, ptss, true);
 			var targetMarker = this.createMarker(c, ptst, false);
-
 			mxPolyline.prototype.paintEdgeShape.apply(this, arguments);
-
 			// Disables shadows, dashed styles and fixes fill color for markers
 			c.setFillColor(this.stroke);
 			c.setShadow(false);
 			c.setDashed(false);
 
-			if (sourceMarker != null)
-			{
+			if (sourceMarker != null){
 				sourceMarker();
 			}
-
-			if (targetMarker != null)
-			{
+			if (targetMarker != null){
 				targetMarker();
 			}
 		},
-
 		// Disables the built-in context menu
 		mxEvent.disableContextMenu(this.element);
 		HoverIcons.prototype.checkCollisions = false;
@@ -138,6 +131,7 @@
 		this._textAutoRotation = false;
 		this._myChartOne = null;
 		this._myChartTwo = null;
+		this.autoSave = this.debounce(this.autoSaveOrigin,300);
 
 		new HoverIcons(this._graph);
 
@@ -147,7 +141,6 @@
 		this._graph.allowNegativeCoordinates = false;
 		this._graph.centerZoom = false;
 		//this._graph.setConnectable(true);
-
 		this._graph.setTooltips(true);
 		this._graph.getTooltipForCell = this.getTooltipForCell;
 		mxStencilRegistry.loadStencilSet(MXGRAPH_BASEPATH+"stencils/cisco/routers.xml");
@@ -171,8 +164,7 @@
 				graph.addMouseListener(this);
 				// Gets the default parent for inserting new cells. This
 				// is normally the first child of the root (ie. layer 0).
-
-				// // Adds cells to the model in a single step
+				// Adds cells to the model in a single step
 				graph.getModel().beginUpdate();
 				try {
 					if (this._xmlModel && this._xmlModel != null) {
@@ -182,32 +174,27 @@
 						decoder.decode(node, graph.getModel());
 					}
 				} finally {
-					// Updates the display
 					graph.getModel().endUpdate();
 				}
 
 				var parent = graph.getDefaultParent();
 				this._parent = parent;
-
 				graph.connectionHandler.addListener(mxEvent.CONNECT, this.onConnect);
 				var mgr = new mxAutoSaveManager(graph);
 				mgr.save = this.autoSave;
-
 				graph.addListener(mxEvent.LABEL_CHANGED,this.labelChanged);
 				graph.addListener(mxEvent.CELLS_ADDED,this.onCellAdded);
 				graph.addListener(mxEvent.SIZE,this.onGraphSizeChanged);
-				graph.addListener(mxEvent.CELLS_REMOVED,this.onRemove); //
+				graph.addListener(mxEvent.CELLS_REMOVED,this.onRemove);
 				graph.addListener(mxEvent.CELLS_RESIZED,this.onRemove);
 				graph.addListener(mxEvent.CELLS_MOVED,this.onRemove);
 				graph.addListener(mxEvent.CELL_CONNECTED,this.onCellConnect);
-				//graph.addListener(mxEvent.DISCONNECT,this.onCellConnect);
 				var outln = new mxOutline(graph, this.outline);
 				// rap.on("send", this.onSend);
 				this.ready = true;
 				this.layout();
 			}
 		},
-
 		getTooltipForCell:function(cell){
 			if (cell){
 				return this._tooltips[cell.getId()];
@@ -669,7 +656,7 @@
 			return cell;
 		},
 
-		autoSave : function(){
+		autoSaveOrigin : function(){
 			console.log("autoSave");
 			var enc = new mxCodec(mxUtils.createXmlDocument());
 			var node = enc.encode(this._graph.getModel());
@@ -1118,7 +1105,6 @@
 			if(this._devicetype!=null){
 				devicetype = this._devicetype;
 			}
-
 			var more = document.createElement("div");
 			var mores = document.createElement("div");
 			$(more).css({"text-align":"center","height":"15px"});
@@ -1181,10 +1167,8 @@
 		createChartOne:function(chartdiv){
 			var chartdiv1 = document.createElement("div");
 			$(chartdiv1).css({"height":"100%","width":"50%"});
-
 			chartdiv.appendChild(chartdiv1);
 			var myChart = this._myChartOne = echarts.init(chartdiv1);
-
 			var health = this._chartLiquid;
 			var colors = ['#8fe9b5', '#32e17a', new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                 offset: 0, color: 'rgba(56, 200, 125, 1)'
@@ -1257,7 +1241,6 @@
 			var chartdiv2 = document.createElement("div");
 			$(chartdiv2).css({"height":"100%","width":"50%"});
 			chartdiv.appendChild(chartdiv2);
-
 			var myChart = this._myChartTwo = echarts.init(chartdiv2);
 			var option = {
 			    tooltip : {
@@ -1301,7 +1284,37 @@
 			$(foot).css({"height":"20px","width":"100%","margin-top":"-22px","text-align":"center","position":"absolute","font-color":"#333333","font-weight":"bolder","font-size":"12px"});
 			$(this.leftdiv).append(foot);
 			$(foot).append("网络健康度");
-		}
+		},
+		debounce :function(func, wait, immediate) {
+	    var timeout, args, context, timestamp, result;
+
+	    var later = function() {
+	      var last = now() - timestamp;
+
+	      if (last < wait && last >= 0) {
+	        timeout = setTimeout(later, wait - last);
+	      } else {
+	        timeout = null;
+	        if (!immediate) {
+	          result = func.apply(context, args);
+	          if (!timeout) context = args = null;
+	        }
+	      }
+	    };
+	    return function() {
+	      context = this;
+	      args = arguments;
+	      timestamp = now();
+	      var callNow = immediate && !timeout;
+	      if (!timeout) timeout = setTimeout(later, wait);
+	      if (callNow) {
+	        result = func.apply(context, args);
+	        context = args = null;
+	      }
+
+	      return result;
+	    };
+	  }
 	};
 
 	var bind = function(context, method) {
@@ -1309,7 +1322,6 @@
 			return method.apply(context, arguments);
 		};
 	};
-
 	var bindAll = function(context, methodNames) {
 		for (var i = 0; i < methodNames.length; i++) {
 			var method = context[methodNames[i]];
@@ -1320,6 +1332,9 @@
 		window.setTimeout(function() {
 			func.apply(context);
 		}, 0);
+	};
+	var now = Date.now || function() {
+		return new Date().getTime();
 	};
 
 }());
