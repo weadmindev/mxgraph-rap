@@ -20,7 +20,7 @@
 	eclipsesource.graph = function(properties) {
 		console.log("graph....." + properties)
 		bindAll(this, [ "layout", "onReady", "onSend", "onRender" ,"onConnect","mouseHover","autoSave","onRemove",
-		                "onCellConnect","getTooltipForCell","onCellAdded","labelChanged"]);
+		                "onCellConnect","getTooltipForCell","onCellAdded","labelChanged","onGraphSizeChanged"]);
 		this.parent = rap.getObject(properties.parent);
 		this.element = document.createElement("div");
 		this.leftdiv = document.createElement("div");
@@ -195,6 +195,7 @@
 
 				graph.addListener(mxEvent.LABEL_CHANGED,this.labelChanged);
 				graph.addListener(mxEvent.CELLS_ADDED,this.onCellAdded);
+				graph.addListener(mxEvent.SIZE,this.onGraphSizeChanged);
 				graph.addListener(mxEvent.CELLS_REMOVED,this.onRemove); //
 				graph.addListener(mxEvent.CELLS_RESIZED,this.onRemove);
 				graph.addListener(mxEvent.CELLS_MOVED,this.onRemove);
@@ -218,6 +219,9 @@
 			this.autoSave();
 		},
 		labelChanged:function(){
+			this.autoSave();
+		},
+		onGraphSizeChanged:function(){
 			this.autoSave();
 		},
 		onSend : function() {
