@@ -1255,32 +1255,32 @@
 			                {	value:this._chartPie[0],
 												name:this._chartPie[0]!=0?'正常':'',
 												itemStyle:{normal:{color: new echarts.graphic.RadialGradient(0,1, 2, [{
-												  offset: 0, color: '#d6aed3'
+												  offset: 0, color: '#b0eacc'
 													}, {
-													  offset: 1, color: '#38c87d'
+													  offset: 1, color: '#03b156'
 													}], false)}
 												}
 											},
 			                {	value:this._chartPie[1],
 												name:this._chartPie[1]!=0?'危险':'',
-												itemStyle:{normal:{color: new echarts.graphic.RadialGradient(0,1, 2, [{
-													offset: 0, color: '#d6aed3'
+												itemStyle:{normal:{color: new echarts.graphic.RadialGradient(1,0, 2, [{
+													offset: 0, color: '#ecc5a5'
 													}, {
-														offset: 1, color: '#f69446'
+														offset: 1, color: '#c15905'
 													}], false)}
 												}
 											},
 			                {	value:this._chartPie[2],
 												name:this._chartPie[2]!=0?'错误':'',
-												itemStyle:{normal:{color: new echarts.graphic.RadialGradient(0,1, 2, [{
-													offset: 0, color: '#d6aed3'
+												itemStyle:{normal:{color: new echarts.graphic.RadialGradient(1,1, 2, [{
+													offset: 0, color: '#f1bcbc'
 													}, {
-														offset: 1, color: '#f93b3b'
+														offset: 1, color: '#bd0606'
 													}], false)}
 												}
 											}
 			            ],
-			            color:['#38c87d','#f69446','#f93b3b'],
+			            color:['#03b156','#c15905','#bd0606'],
 			            label: {
 			                normal: {
 			                    show: true,
@@ -1291,9 +1291,16 @@
 				            color: '#000'
 				        },
 			            itemStyle: {
+											normal:{
+												// shadowBlur: 3,
+												// shadowOffsetX: 2,
+												// shadowOffsetY: 5,
+												// shadowColor: '#848080'
+											},
 			                emphasis: {
-			                    shadowBlur: 10,
-			                    shadowOffsetX: 0,
+			                    shadowBlur: 8,
+													shadowOffsetX: 2,
+			                    shadowOffsetY: 3,
 			                    shadowColor: 'rgba(0, 0, 0, 0.5)'
 			                }
 			            }

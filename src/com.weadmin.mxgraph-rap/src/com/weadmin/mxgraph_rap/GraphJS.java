@@ -677,8 +677,7 @@ public class GraphJS extends SVWidgetBase{
 	}
 	
 	@Override
-	public void dispose() {
-		super.dispose();
+	public void disposeGraph() {
 		this.graph = null;
 	}
 }

@@ -191,6 +191,8 @@ public abstract class SVWidgetBase extends Composite {
 		}
 	}
 	
+	public void disposeGraph() {
+	}
 
 	////////////////////
 	// overwrite methods
@@ -202,6 +204,7 @@ public abstract class SVWidgetBase extends Composite {
 	
 	@Override
 	public void dispose() {
+		disposeGraph();
 		remoteObject.destroy();
 		super.dispose();
 	}
