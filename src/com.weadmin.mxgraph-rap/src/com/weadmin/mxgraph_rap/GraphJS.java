@@ -127,7 +127,6 @@ public class GraphJS extends SVWidgetBase{
 	
 	public void setGraph(mxGraph g){
 		this.graph = g;
-		
 		g.addListener(mxEvent.ADD_CELLS,new mxIEventListener() {
 			
 			@Override
@@ -675,5 +674,11 @@ public class GraphJS extends SVWidgetBase{
 	 */
 	public void loadData(JsonObject json){
 		super.callRemoteMethod("loadData", json);
+	}
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		this.graph = null;
 	}
 }

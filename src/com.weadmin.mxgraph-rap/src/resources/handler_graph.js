@@ -956,8 +956,8 @@
 			rap.off("send", this.onSend);
 			this._myChartOne && this._myChartOne.dispose();
 			this._myChartTwo && this._myChartTwo.dispose();
-			this._myChartOne = null;
-			this._myChartTwo = null;
+			this._myChartOne = null; this._myChartTwo = null;
+			this._graph.removeMouseListener(this);
 			this._graph.destroy();
 			this.element.parentNode.removeChild(this.element);
 		},
@@ -1252,9 +1252,33 @@
 			            radius : '82%',
 			            center: ['50%', '48%'],
 			            data:[
-			                {value:this._chartPie[0], name:this._chartPie[0]!=0?'正常':''},
-			                {value:this._chartPie[1], name:this._chartPie[1]!=0?'危险':''},
-			                {value:this._chartPie[2], name:this._chartPie[2]!=0?'错误':''}
+			                {	value:this._chartPie[0],
+												name:this._chartPie[0]!=0?'正常':'',
+												itemStyle:{normal:{color: new echarts.graphic.RadialGradient(0,1, 2, [{
+												  offset: 0, color: '#d6aed3'
+													}, {
+													  offset: 1, color: '#38c87d'
+													}], false)}
+												}
+											},
+			                {	value:this._chartPie[1],
+												name:this._chartPie[1]!=0?'危险':'',
+												itemStyle:{normal:{color: new echarts.graphic.RadialGradient(0,1, 2, [{
+													offset: 0, color: '#d6aed3'
+													}, {
+														offset: 1, color: '#f69446'
+													}], false)}
+												}
+											},
+			                {	value:this._chartPie[2],
+												name:this._chartPie[2]!=0?'错误':'',
+												itemStyle:{normal:{color: new echarts.graphic.RadialGradient(0,1, 2, [{
+													offset: 0, color: '#d6aed3'
+													}, {
+														offset: 1, color: '#f93b3b'
+													}], false)}
+												}
+											}
 			            ],
 			            color:['#38c87d','#f69446','#f93b3b'],
 			            label: {
