@@ -3,6 +3,7 @@ package example;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.UUID;
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.layout.GridLayoutFactory;
@@ -41,6 +42,8 @@ public class SmallGraph extends AbstractEntryPoint {
 	String style5 = "shape=image;html=1;verticalLabelPosition=bottom;labelBackgroundColor=#ffffff;verticalAlign=top;imageAspect=1;aspect=fixed;image=rwt-resources/graph/images/earth.png;strokeColor=#000000;fillColor=#FFFFFF;align=center;";
 
 	private Display display;
+	private ArrayList list = new ArrayList<GraphJS>();
+	private Composite container = null;
 	Label title;
 
 	private String getId() {
@@ -64,7 +67,31 @@ public class SmallGraph extends AbstractEntryPoint {
 			}
 		});
 		
+		Button refreshBtn = new Button(paren, SWT.PUSH);
+		refreshBtn.setLayoutData(new GridData(SWT.BEGINNING, SWT.CENTER, false, false));
+		refreshBtn.setText("Ë¢ÐÂÍ¼ÐÎ");
+		refreshBtn.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent e) {
+				for(int i=0;i<list.size();i++){
+					GraphJS temp = (GraphJS) list.get(i);
+					temp.dispose();
+					temp=null;
+					list.remove(i);
+				}
+				list.clear();
+				container.dispose();
+				container = null;
+				addAllSmallGraph(paren);
+			}
+		});
+		
+		addAllSmallGraph(paren);
+	}
+	
+	public void addAllSmallGraph(Composite paren){
 		Composite parent = new Composite(paren, SWT.NONE);
+		container = parent;
 		GridLayoutFactory.fillDefaults().numColumns(2).margins(0, 0).equalWidth(true).spacing(5, 5).applyTo(parent);
 		
 		File file = new File("D:/mxgraph");
@@ -84,6 +111,7 @@ public class SmallGraph extends AbstractEntryPoint {
 			two.setBackground(two.getDisplay().getSystemColor(SWT.COLOR_GREEN));
 			
 			GraphJS g = new GraphJS(two, SWT.NONE);
+			list.add(g);
 			GridDataFactory.fillDefaults().align(SWT.FILL, SWT.FILL).grab(true, true).applyTo(g);
 			g.setArrowOffset(0.8);
 			g.setTextAutoRotation(true);
@@ -212,6 +240,7 @@ public class SmallGraph extends AbstractEntryPoint {
 			g.loadData(json);
 		}
 	}
+	
 	public int getRondom(int num){
 		return (int) (Math.random()*num);
 	}

@@ -676,8 +676,4 @@ public class GraphJS extends SVWidgetBase{
 		super.callRemoteMethod("loadData", json);
 	}
 	
-	@Override
-	public void disposeGraph() {
-		this.graph = null;
-	}
 }
