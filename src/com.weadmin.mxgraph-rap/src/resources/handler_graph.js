@@ -1242,9 +1242,16 @@
 			$(chartdiv2).css({"height":"100%","width":"50%"});
 			chartdiv.appendChild(chartdiv2);
 			var myChart = this._myChartTwo = echarts.init(chartdiv2);
+			var pieData = this._chartPie;
+			var isShowTip = true;
+			if(pieData[0]==0 && pieData[1]==0 && pieData[2]==0){
+				isShowTip = false;
+				this._chartPie[0] = 1;
+			}
 			var option = {
 			    tooltip : {
 			        trigger: 'item',
+							show:isShowTip
 			    },
 			    series : [
 			        {
