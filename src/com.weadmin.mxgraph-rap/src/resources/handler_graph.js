@@ -1146,7 +1146,7 @@
 			$(".ttable tr").css("font-size","11px");
 			$(".ttable").css({"border-top":"1px solid #d6d6d6","border-left":"1px solid #d6d6d6","border-right":"1px solid #d6d6d6"});
 			$(".ttable td").css({"text-overflow":"ellipsis","overflow":"hidden","border-bottom":"1px solid #d6d6d6"});
-			if(devicetype.length>6){
+			if(devicetype.length>5){
 				var img = document.createElement("img");
 				$(img).attr({"src":"rwt-resources/graph/images/down.png","title":"点击查看更多"});
 				$(more).append(img);
