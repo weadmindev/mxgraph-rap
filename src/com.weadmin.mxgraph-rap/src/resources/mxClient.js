@@ -31491,7 +31491,6 @@ mxCircleLayout.prototype.execute = function(parent)
 				max = Math.max(max, Math.min(bounds.width, bounds.height));
 				avgheight += bounds.height;
 				counts++;
-				console.log(max+"---max");
 			}
 			else if (!this.isEdgeIgnored(cell))
 			{
@@ -31558,7 +31557,7 @@ mxCircleLayout.prototype.circle = function(vertices, r, left, top, avgheight)
 			if(avgheight!=null&&ww>avgheight){
 				x = x-(ww/2)+(avgheight/2);
 			}
-			this.setVertexLocation(vertices[i],x+120,y);
+			this.setVertexLocation(vertices[i],x,y);
 		}
 	}
 };

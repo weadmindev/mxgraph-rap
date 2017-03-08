@@ -50,6 +50,7 @@
 			height : 300
 		};
 
+		this.outln = null;
 		this.outline = document.createElement("div");
 		this.outline.style.zIndex = '2';
 		this.outline.style.position = 'absolute';
@@ -189,7 +190,7 @@
 				graph.addListener(mxEvent.CELLS_RESIZED,this.onRemove);
 				graph.addListener(mxEvent.CELLS_MOVED,this.onRemove);
 				graph.addListener(mxEvent.CELL_CONNECTED,this.onCellConnect);
-				var outln = new mxOutline(graph, this.outline);
+				this.outln = new mxOutline(graph, this.outline);
 				// rap.on("send", this.onSend);
 				this.ready = true;
 				this.layout();
@@ -312,10 +313,13 @@
 				layouts.execute(parent);
 				if(type == 'circle'){
 					var layout = new mxCircleLayout(graph,300);//circle
+					layout.moveCircle = true;
+					layout.x0 = 120;
+					layout.y0 = 20;
 				}else if(type == 'tree'){
 					var layout = new mxCompactTreeLayout(graph);//tree
 					layout.nodeDistance = 30;
-					layout.levelDistance = 100;
+					layout.levelDistance = 150;
 				}else if(type == 'stack'){
 					var fast = new mxFastOrganicLayout(graph);
 					fast.execute(parent);
@@ -328,6 +332,25 @@
 					var layout = new mxFastOrganicLayout(graph);//fastorganic
 				}
 				layout.execute(parent);
+				if(type == 'fast' || type == 'tree'){
+					var vertices = graph.getModel().getChildVertices(parent);
+					var ivertice = [];
+					var maxRight = 0;
+					for(var k in vertices){
+						maxRight = Math.max(maxRight,vertices[k].geometry.x);
+						if(vertices[k].edges!=null){
+							if(vertices[k].edges.length==0){
+								ivertice.push(vertices[k]);
+							}
+						}else{
+							ivertice.push(vertices[k]);
+						}
+					}
+					for(var n in ivertice){
+						ivertice[n].geometry.x = maxRight+200;
+						ivertice[n].geometry.y = 150*n;
+					}
+				}
 				var edges = graph.getModel().getChildEdges(parent);
 				for(var j in edges){
 					this.updateEdgeText(edges[j]);
@@ -896,6 +919,12 @@
 
 		setControlarea : function(value){
 			this.outline.style.display = value;
+			if(value=='none'){
+				this.outln.destroy();
+			}
+			if(value=='block'){
+				this.outln = new mxOutline(this._graph, this.outline);
+			}
 		},
 
 		setPageType : function(type){
